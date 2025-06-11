@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://user:password@db:5432/tennis_app
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - tennis-network
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=tennis_app
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - tennis-network
+
+networks:
+  tennis-network:
+    driver: bridge
+
+volumes:
+  db_data:

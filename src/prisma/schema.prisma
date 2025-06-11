@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  telegramId    String   @unique
+  username      String   @unique
+  firstName     String
+  lastName      String?
+  isVerified    Boolean  @default(false)
+  role          Role     @default(USER)
+  profile       UserProfile?
+  matches       Match[]  @relation("PlayerMatches")
+  createdMatches Match[] @relation("CreatorMatches")
+  createdTrainings Training[] @relation("TrainingCreator")
+  createdTournaments Tournament[] @relation("TournamentOrganizer")
+  sentInvites Invite[] @relation("InviteSender")
+  receivedInvites Invite[] @relation("InviteReceiver") 
+  notifications Notification[]
+  tournaments    Tournament[] 
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
+model Match {
+  id            Int      @id @default(autoincrement())
+  creator       User     @relation("CreatorMatches", fields: [creatorId], references: [id])
+  creatorId     Int
+  player1       User?    @relation("PlayerMatches", fields: [player1Id], references: [id])
+  player1Id     Int?
+  player2Id     Int?
+  optionalId    Int?
+  type          MatchType
+  state         MatchState
+  score         String?
+  invites       Invite[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Training {
+  id            Int      @id @default(autoincrement())
+  creator       User     @relation("TrainingCreator", fields: [creatorId], references: [id])
+  creatorId     Int
+  location      String
+  time          DateTime
+  participantLimit Int
+  description   String?
+  state         TrainingState
+  invites       Invite[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Tournament {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  type          TournamentType
+  status        String
+  creator       User     @relation("TournamentOrganizer", fields: [creatorId], references: [id])
+  creatorId     Int
+  startDate     DateTime
+  endDate       DateTime
+  formatDetails Json?
+  minPlayers    Int
+  maxPlayers    Int
+  currentPlayers Int
+  isRanked      Boolean
+  locationId    Int?
+  locationName  String?
+  players       User[]
+  matches       TournamentMatch[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TournamentMatch {
+  id               Int       @id @default(autoincrement())
+  tournament       Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId     Int
+  round            Int?
+  group            String?
+  playerAId        Int
+  playerBId        Int?
+  score            String?
+  winnerId         Int?
+  status           String
+  court            String?
+  scheduledAt      DateTime?
+  confirmedBy      Int[]
+  isThirdPlaceMatch Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Invite {
+  id            Int      @id @default(autoincrement())
+  match         Match?   @relation(fields: [matchId], references: [id])
+  matchId       Int?
+  training      Training? @relation(fields: [trainingId], references: [id])
+  trainingId    Int?
+  sender        User     @relation("InviteSender", fields: [senderId], references: [id])
+  senderId      Int
+  receiver      User     @relation("InviteReceiver", fields: [receiverId], references: [id])
+  receiverId    Int
+  status        InviteStatus
+  createdAt     DateTime @default(now())
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
+  message       String
+  createdAt     DateTime @default(now())
+}
+
+model UserProfile {
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int      @unique
+  avatarUrl       String?
+  city            String?
+  countryCode     String?
+  sportType       SportType @default(TENNIS)
+  ntrpRating      Float?
+  ratingPoints    Int      @default(0)
+  matchesPlayed   Int      @default(0)
+  matchWins       Int      @default(0)
+  matchLosses     Int      @default(0)
+  tournamentsPlayed Int    @default(0)
+  tournamentsWon   Int     @default(0)
+  lastActivity    DateTime?
+  achievements    Json?
+  isPublicProfile Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ORGANIZER
+  ADMIN
+}
+
+enum MatchType {
+  ONE_ON_ONE
+  DOUBLES
+}
+
+enum MatchState {
+  DRAFT
+  PENDING
+  CONFIRMED
+  FINISHED
+  CANCELLED
+}
+
+enum TrainingState {
+  OPEN
+  FULL
+  CANCELLED
+  DONE
+}
+
+enum TournamentType {
+  SINGLE_ELIMINATION
+  GROUPS_PLAYOFF
+  LEAGUE
+  BLITZ
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum SportType {
+  TENNIS
+  PADEL
+}

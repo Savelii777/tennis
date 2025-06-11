@@ -1,0 +1,35 @@
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { TournamentEntity } from '../../domain/entities/tournament.entity';
+import { TournamentMatchEntity } from '../../domain/entities/tournament-match.entity';
+import { CreateTournamentDto } from '../../application/dto/create-tournament.dto';
+import { UpdateTournamentDto } from '../../application/dto/update-tournament.dto';
+import { RecordTournamentMatchDto } from '../../application/dto/record-tournament-match.dto';
+export declare class TournamentsRepository {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    findAll(filters?: any): Promise<TournamentEntity[]>;
+    findById(id: string): Promise<TournamentEntity | null>;
+    findByCreator(creatorId: string): Promise<TournamentEntity[]>;
+    create(userId: string, createTournamentDto: CreateTournamentDto): Promise<TournamentEntity>;
+    update(id: string, updateTournamentDto: UpdateTournamentDto): Promise<TournamentEntity>;
+    delete(id: string): Promise<void>;
+    isPlayerRegistered(tournamentId: string, userId: string): Promise<boolean>;
+    addPlayer(tournamentId: string, userId: string): Promise<TournamentEntity>;
+    removePlayer(tournamentId: string, userId: string): Promise<TournamentEntity>;
+    getTournamentPlayers(tournamentId: string): Promise<any[]>;
+    getTournamentMatches(tournamentId: string): Promise<TournamentMatchEntity[]>;
+    getTournamentMatch(matchId: string): Promise<TournamentMatchEntity | null>;
+    getMatchesByRound(tournamentId: string, round: number): Promise<TournamentMatchEntity[]>;
+    getMatchByRoundAndPosition(tournamentId: string, round: number, position: number): Promise<TournamentMatchEntity | null>;
+    getGroupMatches(tournamentId: string): Promise<TournamentMatchEntity[]>;
+    getThirdPlaceMatch(tournamentId: string): Promise<TournamentMatchEntity | null>;
+    createMatches(tournamentId: string, matchesData: any[]): Promise<TournamentMatchEntity[]>;
+    recordMatchResult(matchId: string, recordMatchDto: RecordTournamentMatchDto): Promise<TournamentMatchEntity>;
+    confirmMatch(matchId: string, userId: string): Promise<TournamentMatchEntity>;
+    updateMatch(matchId: string, updateData: any): Promise<TournamentMatchEntity>;
+    areAllMatchesCompleted(tournamentId: string): Promise<boolean>;
+    private mapToEntity;
+    private mapMatchToEntity;
+    private mapToPrismaTournamentType;
+    private mapToDomainTournamentType;
+}
