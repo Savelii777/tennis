@@ -13,14 +13,14 @@ const tournaments_service_1 = require("./application/services/tournaments.servic
 const tournaments_repository_1 = require("./infrastructure/repositories/tournaments.repository");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const users_module_1 = require("../users/users.module");
-const auth_module_1 = require("../auth/auth.module"); // Add this import
+const auth_module_1 = require("../auth/auth.module");
 let TournamentsModule = class TournamentsModule {
 };
 TournamentsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             users_module_1.UsersModule,
-            auth_module_1.AuthModule, // Import AuthModule to get access to JwtService
+            auth_module_1.AuthModule,
         ],
         controllers: [tournaments_controller_1.TournamentsController],
         providers: [tournaments_service_1.TournamentsService, tournaments_repository_1.TournamentsRepository, prisma_service_1.PrismaService],

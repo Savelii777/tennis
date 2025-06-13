@@ -19,6 +19,8 @@ const users_service_1 = require("../../application/services/users.service");
 const auth_guard_1 = require("../../../../common/guards/auth.guard");
 const roles_guard_1 = require("../../../../common/guards/roles.guard");
 const update_profile_dto_1 = require("../dto/update-profile.dto");
+const profile_step_one_dto_1 = require("../dto/profile-step-one.dto");
+const profile_step_two_dto_1 = require("../dto/profile-step-two.dto");
 let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
@@ -40,7 +42,6 @@ let UsersController = class UsersController {
     }
     async getUserById(req, id) {
         const user = await this.usersService.findById(id);
-        // If it's not the current user and profile is not public
         if (req.user.id !== parseInt(id) && !user.profile.is_public_profile) {
             throw new common_1.ForbiddenException('This profile is private');
         }
@@ -48,19 +49,25 @@ let UsersController = class UsersController {
     }
     async getUserStatistics(req, id) {
         const user = await this.usersService.findById(id);
-        // If it's not the current user and profile is not public
         if (req.user.id !== parseInt(id) && !user.profile.is_public_profile) {
             throw new common_1.ForbiddenException('This profile is private');
         }
         return this.usersService.getProfileStatistics(id);
     }
     async inviteToMatch(req, id) {
-        // This would be implemented in the matches/invites module
-        // Just a placeholder to show the endpoint
         return { message: 'Invitation sent' };
     }
     async getAllUsers() {
         return this.usersService.findAll();
+    }
+    async completeProfileStepOne(req, profileData) {
+        return this.usersService.completeProfileStepOne(req.user.id.toString(), profileData);
+    }
+    async completeProfileStepTwo(req, profileData) {
+        return this.usersService.completeProfileStepTwo(req.user.id.toString(), profileData);
+    }
+    async getProfileStatus(req) {
+        return this.usersService.getProfileCompletionStatus(req.user.id.toString());
     }
 };
 __decorate([
@@ -143,6 +150,35 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAllUsers", null);
+__decorate([
+    (0, common_1.Post)('/me/profile/step-one'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Заполнить первый шаг профиля' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, profile_step_one_dto_1.ProfileStepOneDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "completeProfileStepOne", null);
+__decorate([
+    (0, common_1.Post)('/me/profile/step-two'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Заполнить второй шаг профиля' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, profile_step_two_dto_1.ProfileStepTwoDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "completeProfileStepTwo", null);
+__decorate([
+    (0, common_1.Get)('/me/profile/status'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить статус заполнения профиля' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getProfileStatus", null);
 UsersController = __decorate([
     (0, swagger_1.ApiTags)('users'),
     (0, common_1.Controller)('users'),

@@ -1,5 +1,7 @@
 import { UsersService } from '../../application/services/users.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { ProfileStepOneDto } from '../dto/profile-step-one.dto';
+import { ProfileStepTwoDto } from '../dto/profile-step-two.dto';
 import { Request as ExpressRequest } from 'express';
 interface RequestWithUser extends ExpressRequest {
     user: {
@@ -20,5 +22,8 @@ export declare class UsersController {
     getUserStatistics(req: RequestWithUser, id: string): Promise<any>;
     inviteToMatch(req: RequestWithUser, id: string): Promise<any>;
     getAllUsers(): Promise<any>;
+    completeProfileStepOne(req: RequestWithUser, profileData: ProfileStepOneDto): Promise<any>;
+    completeProfileStepTwo(req: RequestWithUser, profileData: ProfileStepTwoDto): Promise<any>;
+    getProfileStatus(req: RequestWithUser): Promise<any>;
 }
 export {};

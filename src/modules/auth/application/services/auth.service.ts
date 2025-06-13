@@ -58,7 +58,7 @@ export class AuthService {
     };
   }
 
-  async validateUser(telegramId: string): Promise<UserEntity> {
+  async validateUser(telegramId: string): Promise<UserEntity | null> {
     this.logger.log(`Валидация пользователя по Telegram ID: ${telegramId}`);
     return this.userService.findByTelegramId(telegramId);
   }
@@ -67,7 +67,22 @@ export class AuthService {
     this.logger.log(`Получение профиля пользователя: ${userId}`);
     return this.userService.findById(userId);
   }
+  async findUserByTelegramId(telegramId: string): Promise<UserEntity | null> {
+    // This is correct - we explicitly want to return null if no user is found
+    return this.userService.findByTelegramId(telegramId);
+  }
+  
+  async createUserFromTelegram(telegramData: any): Promise<UserEntity> {
+    const userData = {
+      telegram_id: telegramData.id,
+      username: telegramData.username,
+      first_name: telegramData.first_name,
+      last_name: telegramData.last_name || null,
+      photo_url: telegramData.photo_url || null,
+    };
 
+    return this.userService.create(userData);
+  }
   async refreshToken(userId: string): Promise<any> {
     this.logger.log(`Обновление токена для пользователя: ${userId}`);
     const user = await this.userService.findById(userId);

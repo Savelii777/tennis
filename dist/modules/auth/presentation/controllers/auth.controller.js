@@ -21,24 +21,44 @@ const telegram_login_dto_1 = require("../dto/telegram-login.dto");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
+        this.logger = new common_1.Logger('AuthController');
+        const path = 'login/telegram';
+        this.logger.log(`Auth controller initialized. Login path: /auth/${path}`);
     }
     async loginWithTelegram(telegramLoginDto) {
-        const user = await this.authService.validateTelegramUser(telegramLoginDto);
-        return this.authService.generateJwt(user);
+        this.logger.log(`Попытка входа через Telegram: ${telegramLoginDto.username} (ID: ${telegramLoginDto.id})`);
+        this.logger.debug(`Данные телеграм: ${JSON.stringify(telegramLoginDto)}`);
+        try {
+            const user = await this.authService.validateTelegramUser(telegramLoginDto);
+            this.logger.log(`Пользователь валидирован: ${user.username} (ID: ${user.id})`);
+            const jwtResult = await this.authService.generateJwt(user);
+            this.logger.log(`JWT токен сгенерирован, длина: ${jwtResult.access_token.length}`);
+            this.logger.debug(`Токен: ${jwtResult.access_token.substring(0, 20)}...`);
+            return jwtResult;
+        }
+        catch (error) {
+            this.logger.error(`Ошибка при входе: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+            throw error;
+        }
     }
     getProfile(request) {
+        this.logger.log(`Запрос профиля пользователя: ${request.user.id}`);
         return this.authService.getProfile(request.user.id);
     }
     refreshToken(request) {
+        this.logger.log(`Запрос обновления токена: ${request.user.id}`);
         return this.authService.refreshToken(request.user.id);
     }
     logout(request) {
+        this.logger.log(`Запрос выхода: ${request.user.id}`);
         return this.authService.logout(request.user.id);
     }
 };
 __decorate([
     (0, common_1.Post)('login/telegram'),
     (0, swagger_1.ApiOperation)({ summary: 'Login with Telegram' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Успешная авторизация' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Неверные данные запроса' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [telegram_login_dto_1.TelegramLoginDto]),
@@ -46,6 +66,7 @@ __decorate([
 ], AuthController.prototype, "loginWithTelegram", null);
 __decorate([
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.Get)('profile'),
     (0, swagger_1.ApiOperation)({ summary: 'Get authenticated user profile' }),
     __param(0, (0, common_1.Request)()),
@@ -55,6 +76,7 @@ __decorate([
 ], AuthController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.Post)('refresh'),
     (0, swagger_1.ApiOperation)({ summary: 'Refresh JWT token' }),
     __param(0, (0, common_1.Request)()),
@@ -64,6 +86,7 @@ __decorate([
 ], AuthController.prototype, "refreshToken", null);
 __decorate([
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.Post)('logout'),
     (0, swagger_1.ApiOperation)({ summary: 'Logout user' }),
     __param(0, (0, common_1.Request)()),

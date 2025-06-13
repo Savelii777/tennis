@@ -3,11 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { MatchesModule } from './modules/matches/matches.module';
-import { PrismaService } from './prisma/prisma.service';
-
-
+import { RequestsModule } from './modules/requests/requests.module';
+import { TrainingsModule } from './modules/trainings/trainings.module';
 import { TournamentsModule } from './modules/tournaments/tournaments.module';
-
+import { TelegramModule } from './modules/telegram/telegram.module';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [
@@ -17,8 +17,10 @@ import { TournamentsModule } from './modules/tournaments/tournaments.module';
     AuthModule,
     UsersModule,
     MatchesModule,
+    RequestsModule,
+    TrainingsModule,
     TournamentsModule,
-
+    TelegramModule,
   ],
   providers: [PrismaService],
 })

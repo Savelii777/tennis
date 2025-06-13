@@ -13,11 +13,11 @@ exports.UserProfileEntity = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const sport_type_enum_1 = require("../enums/sport-type.enum");
+const class_transformer_1 = require("class-transformer");
 let UserProfileEntity = class UserProfileEntity {
     constructor(partial) {
         Object.assign(this, partial);
     }
-    // Calculate win rate percentage
     get winRate() {
         if (this.matches_played === 0)
             return '0';
@@ -33,6 +33,7 @@ __decorate([
     __metadata("design:type", Number)
 ], UserProfileEntity.prototype, "user_id", void 0);
 __decorate([
+    (0, class_transformer_1.Exclude)(),
     (0, typeorm_1.OneToOne)(() => user_entity_1.UserEntity, (user) => user.profile),
     (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
     __metadata("design:type", user_entity_1.UserEntity)

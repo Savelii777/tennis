@@ -21,10 +21,8 @@ let TournamentsRepository = class TournamentsRepository {
         this.prisma = prisma;
     }
     async findAll(filters) {
-        // Проверяем, что фильтры соответствуют ожидаемым Prisma типам
         const prismaFilters = {};
         if (filters) {
-            // Добавьте только поддерживаемые поля
             if (filters.status)
                 prismaFilters.status = { equals: filters.status };
             if (filters.type)
@@ -82,10 +80,8 @@ let TournamentsRepository = class TournamentsRepository {
         return tournaments.map(tournament => this.mapToEntity(tournament));
     }
     async create(userId, createTournamentDto) {
-        // Map domain enum to Prisma enum
         const tournamentType = this.mapToPrismaTournamentType(createTournamentDto.type);
         const userIdNum = parseInt(userId);
-        // Create tournament with all required fields
         const tournament = await this.prisma.tournament.create({
             data: {
                 title: createTournamentDto.title,
@@ -114,7 +110,6 @@ let TournamentsRepository = class TournamentsRepository {
                 }
             },
         });
-        // Add creator as player using raw query for many-to-many relation
         await this.prisma.$executeRaw `
       INSERT INTO "_TournamentToUser" ("A", "B") 
       VALUES (${tournament.id}, ${userIdNum})
@@ -123,7 +118,6 @@ let TournamentsRepository = class TournamentsRepository {
         return this.mapToEntity(tournament);
     }
     async update(id, updateTournamentDto) {
-        // Create a properly typed data object
         const data = {};
         if (updateTournamentDto.title !== undefined)
             data.title = updateTournamentDto.title;
@@ -167,7 +161,6 @@ let TournamentsRepository = class TournamentsRepository {
         });
     }
     async isPlayerRegistered(tournamentId, userId) {
-        // Используем raw query для проверки связи many-to-many
         const result = await this.prisma.$queryRaw `
       SELECT COUNT(*) as count
       FROM "_TournamentToUser"
@@ -176,20 +169,16 @@ let TournamentsRepository = class TournamentsRepository {
         return result[0].count > 0;
     }
     async addPlayer(tournamentId, userId) {
-        // Используем raw queries для связи many-to-many
-        // Сначала добавляем связь в pivot таблице
         await this.prisma.$executeRaw `
       INSERT INTO "_TournamentToUser" ("A", "B") 
       VALUES (${parseInt(tournamentId)}, ${parseInt(userId)})
       ON CONFLICT DO NOTHING
     `;
-        // Затем обновляем счетчик игроков через raw query
         await this.prisma.$executeRaw `
       UPDATE "Tournament"
       SET "currentPlayers" = "currentPlayers" + 1
       WHERE id = ${parseInt(tournamentId)}
     `;
-        // Получаем обновленный турнир
         const tournament = await this.prisma.tournament.findUnique({
             where: { id: parseInt(tournamentId) },
             include: {
@@ -209,18 +198,15 @@ let TournamentsRepository = class TournamentsRepository {
         return this.mapToEntity(tournament);
     }
     async removePlayer(tournamentId, userId) {
-        // Удаляем связь из pivot таблицы
         await this.prisma.$executeRaw `
       DELETE FROM "_TournamentToUser" 
       WHERE "A" = ${parseInt(tournamentId)} AND "B" = ${parseInt(userId)}
     `;
-        // Обновляем счетчик игроков через raw query
         await this.prisma.$executeRaw `
       UPDATE "Tournament"
       SET "currentPlayers" = GREATEST("currentPlayers" - 1, 0)
       WHERE id = ${parseInt(tournamentId)}
     `;
-        // Получаем обновленный турнир
         const tournament = await this.prisma.tournament.findUnique({
             where: { id: parseInt(tournamentId) },
             include: {
@@ -240,7 +226,6 @@ let TournamentsRepository = class TournamentsRepository {
         return this.mapToEntity(tournament);
     }
     async getTournamentPlayers(tournamentId) {
-        // Используем raw query для получения игроков турнира
         const players = await this.prisma.$queryRaw `
       SELECT u.id, u.username, u."firstName", u."lastName", 
              p."avatarUrl", p."ratingPoints" as rating_points
@@ -251,11 +236,8 @@ let TournamentsRepository = class TournamentsRepository {
     `;
         return Array.isArray(players) ? players : [];
     }
-    // Добавляем недостающие методы
     async getTournamentMatches(tournamentId) {
-        // Проверяем существует ли модель TournamentMatch в prisma
         try {
-            // Используем raw query
             const matches = await this.prisma.$queryRaw `
         SELECT * FROM "TournamentMatch"
         WHERE "tournamentId" = ${parseInt(tournamentId)}
@@ -349,7 +331,6 @@ let TournamentsRepository = class TournamentsRepository {
     }
     async createMatches(tournamentId, matchesData) {
         const createdMatches = [];
-        // Создаем каждый матч отдельно через raw query
         for (const matchData of matchesData) {
             try {
                 const round = matchData.round || null;
@@ -404,18 +385,15 @@ let TournamentsRepository = class TournamentsRepository {
         }
     }
     async confirmMatch(matchId, userId) {
-        // Получаем текущий матч
         const match = await this.getTournamentMatch(matchId);
         if (!match) {
             throw new common_1.NotFoundException(`Match with ID ${matchId} not found`);
         }
-        // Добавляем userId в confirmedBy, если его там еще нет
         const confirmedBy = [...(match.confirmedBy || [])];
         const userIdNum = parseInt(userId);
         if (!confirmedBy.includes(userIdNum)) {
             confirmedBy.push(userIdNum);
         }
-        // Обновляем матч
         try {
             const confirmedByJson = JSON.stringify(confirmedBy);
             const result = await this.prisma.$queryRaw `
@@ -438,11 +416,9 @@ let TournamentsRepository = class TournamentsRepository {
     }
     async updateMatch(matchId, updateData) {
         try {
-            // Строим динамический запрос обновления
             let updateQuery = 'UPDATE "TournamentMatch" SET ';
             const updateValues = [];
             const updateFields = [];
-            // Добавляем поля для обновления
             if (updateData.playerAId !== undefined) {
                 updateFields.push('"playerAId" = $' + (updateValues.length + 1));
                 updateValues.push(updateData.playerAId);
@@ -463,14 +439,11 @@ let TournamentsRepository = class TournamentsRepository {
                 updateFields.push('"status" = $' + (updateValues.length + 1));
                 updateValues.push(updateData.status);
             }
-            // Всегда обновляем updatedAt
             updateFields.push('"updatedAt" = NOW()');
-            // Завершаем запрос
             updateQuery += updateFields.join(', ');
             updateQuery += ' WHERE id = $' + (updateValues.length + 1);
             updateValues.push(parseInt(matchId));
             updateQuery += ' RETURNING *';
-            // Выполняем запрос
             const result = await this.prisma.$queryRawUnsafe(updateQuery, ...updateValues);
             if (!Array.isArray(result) || result.length === 0) {
                 throw new common_1.NotFoundException(`Match with ID ${matchId} not found`);
@@ -541,7 +514,6 @@ let TournamentsRepository = class TournamentsRepository {
             updatedAt: new Date(data.updatedAt),
         });
     }
-    // Вспомогательные методы для маппинга между domain enum и строковым представлением для Prisma
     mapToPrismaTournamentType(type) {
         switch (type) {
             case tournament_enum_1.TournamentType.SINGLE_ELIMINATION:

@@ -1,0 +1,16 @@
+-- AlterTable
+ALTER TABLE "UserProfile" ADD COLUMN     "backhandType" TEXT,
+ADD COLUMN     "dominantHand" TEXT DEFAULT E'RIGHT',
+ADD COLUMN     "favoriteShot" TEXT,
+ADD COLUMN     "initialRatingPoints" INTEGER,
+ADD COLUMN     "opponentPreference" TEXT,
+ADD COLUMN     "playingStyle" TEXT,
+ADD COLUMN     "playsInTournaments" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "preferredCourt" TEXT,
+ADD COLUMN     "preferredPlayTime" TEXT[],
+ADD COLUMN     "preferredSurface" TEXT,
+ADD COLUMN     "profileStepOneCompleted" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "profileStepTwoCompleted" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "racket" TEXT,
+ADD COLUMN     "selfAssessedLevel" TEXT,
+ADD COLUMN     "weeklyPlayFrequency" TEXT;

@@ -8,6 +8,8 @@ import { AuthGuard } from '../../../../common/guards/auth.guard';
 import { RolesGuard } from '../../../../common/guards/roles.guard';
 import { Roles } from '../../../../common/decorators/roles.decorator';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { ProfileStepOneDto } from '../dto/profile-step-one.dto';
+import { ProfileStepTwoDto } from '../dto/profile-step-two.dto';
 import { Request as ExpressRequest } from 'express';
 
 interface RequestWithUser extends ExpressRequest {
@@ -91,4 +93,30 @@ export class UsersController {
   async getAllUsers(): Promise<any> {
     return this.usersService.findAll();
   }
+  @Post('/me/profile/step-one')
+@UseGuards(AuthGuard)
+@ApiOperation({ summary: 'Заполнить первый шаг профиля' })
+async completeProfileStepOne(
+  @Request() req: RequestWithUser,
+  @Body() profileData: ProfileStepOneDto
+) {
+  return this.usersService.completeProfileStepOne(req.user.id.toString(), profileData);
+}
+
+@Post('/me/profile/step-two')
+@UseGuards(AuthGuard)
+@ApiOperation({ summary: 'Заполнить второй шаг профиля' })
+async completeProfileStepTwo(
+  @Request() req: RequestWithUser,
+  @Body() profileData: ProfileStepTwoDto
+) {
+  return this.usersService.completeProfileStepTwo(req.user.id.toString(), profileData);
+}
+
+@Get('/me/profile/status')
+@UseGuards(AuthGuard)
+@ApiOperation({ summary: 'Получить статус заполнения профиля' })
+async getProfileStatus(@Request() req: RequestWithUser) {
+  return this.usersService.getProfileCompletionStatus(req.user.id.toString());
+}
 }

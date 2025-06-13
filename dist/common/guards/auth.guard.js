@@ -17,34 +17,49 @@ let AuthGuard = class AuthGuard {
     constructor(jwtService, configService) {
         this.jwtService = jwtService;
         this.configService = configService;
+        this.logger = new common_1.Logger('AuthGuard');
+        const jwtSecret = this.configService.get('JWT_SECRET');
+        this.logger.log(`JWT_SECRET установлен: ${!!jwtSecret} (первые 4 символа: ${jwtSecret?.substring(0, 4)}...)`);
     }
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
+        this.logger.log(`Проверка запроса к: ${request.method} ${request.url}`);
+        this.logger.debug(`Заголовки запроса: ${JSON.stringify(request.headers)}`);
         const token = this.extractTokenFromHeader(request);
         if (!token) {
-            throw new common_1.UnauthorizedException('No token provided');
+            this.logger.error('Токен не предоставлен');
+            throw new common_1.UnauthorizedException('Токен не предоставлен');
         }
+        this.logger.log(`Токен получен (первые 10 символов): ${token.substring(0, 10)}...`);
         try {
+            const jwtSecret = this.configService.get('JWT_SECRET');
+            this.logger.log(`Проверка токена с секретом: ${jwtSecret?.substring(0, 4)}...`);
             const payload = await this.jwtService.verifyAsync(token, {
-                secret: this.configService.get('JWT_SECRET')
+                secret: jwtSecret
             });
-            // Преобразуем sub в id для совместимости
+            this.logger.log(`Токен успешно проверен`);
+            this.logger.debug(`Payload токена: ${JSON.stringify(payload)}`);
             request['user'] = {
                 id: payload.sub || payload.id,
                 username: payload.username,
                 role: payload.role
             };
-            console.log('Decoded token payload:', payload);
-            console.log('User in request:', request['user']);
+            this.logger.log(`Пользователь в запросе: ${JSON.stringify(request['user'])}`);
             return true;
         }
         catch (error) {
-            console.error('JWT verification error:', error instanceof Error ? error.message : 'Unknown error');
-            throw new common_1.UnauthorizedException('Invalid token');
+            this.logger.error(`Ошибка проверки JWT: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+            this.logger.error(`Полная ошибка: ${JSON.stringify(error)}`);
+            throw new common_1.UnauthorizedException('Недействительный токен');
         }
     }
     extractTokenFromHeader(request) {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
+        const authHeader = request.headers.authorization;
+        this.logger.log(`Заголовок Authorization: ${authHeader || 'отсутствует'}`);
+        if (!authHeader)
+            return undefined;
+        const [type, token] = authHeader.split(' ');
+        this.logger.log(`Тип токена: ${type}, Токен существует: ${!!token}`);
         return type === 'Bearer' ? token : undefined;
     }
 };

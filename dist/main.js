@@ -4,16 +4,22 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const common_2 = require("@nestjs/common");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    // Настройка глобальных пайпов
+    const logger = new common_2.Logger('Main');
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         transform: true,
     }));
-    // Настройка CORS для доступа из браузера
-    app.enableCors();
-    // Улучшенная настройка Swagger для пользователей
+    app.enableCors({
+        origin: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
+        credentials: true,
+        allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization,Access-Control-Allow-Origin'
+    });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Tennis API')
         .setDescription(`
@@ -31,19 +37,22 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Введите JWT токен',
+        name: 'Authorization',
+        description: 'Введите токен с префиксом Bearer: Bearer [token]',
         in: 'header'
     }, 'access-token')
         .addTag('auth', 'Авторизация и управление профилем')
         .addTag('users', 'Управление пользователями и профилями')
+        .addTag('requests', 'Активные заявки и поиск партнеров')
+        .addTag('trainings', 'Тренировки и групповые занятия')
         .addTag('tournaments', 'Создание и участие в турнирах')
         .addTag('matches', 'Управление матчами')
         .addTag('media', 'Загрузка файлов и управление медиа')
         .setExternalDoc('Подробная документация', 'https://example.com/docs')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
-    // Улучшенная настройка Swagger UI для лучшего UX
+    logger.log(`Настройка Swagger UI...`);
+    logger.log(`JWT_SECRET установлен: ${!!process.env.JWT_SECRET}`);
     swagger_1.SwaggerModule.setup('api', app, document, {
         swaggerOptions: {
             persistAuthorization: true,
@@ -51,18 +60,123 @@ async function bootstrap() {
             defaultModelsExpandDepth: 0,
             filter: true,
             displayRequestDuration: true,
-            syntaxHighlight: {
-                activate: true,
-                theme: 'monokai'
+            tryItOutEnabled: true,
+            requestInterceptor: (req) => {
+                const authKey = Object.keys(window.localStorage).find(key => key.startsWith('authorized') && key.includes('access-token'));
+                if (authKey) {
+                    try {
+                        const authData = JSON.parse(window.localStorage.getItem(authKey) || '{}');
+                        if (authData.value) {
+                            const token = authData.value.startsWith('Bearer ')
+                                ? authData.value
+                                : `Bearer ${authData.value}`;
+                            req.headers['Authorization'] = token;
+                            console.log('Добавлен заголовок Authorization:', token.substring(0, 20) + '...');
+                        }
+                    }
+                    catch (e) {
+                        console.error('Ошибка при получении токена', e);
+                    }
+                }
+                return req;
+            },
+            responseInterceptor: (res) => {
+                console.log('Response status:', res.status);
+                return res;
             }
         },
-        customSiteTitle: 'Tennis API - Интерактивная документация',
-        customCss: '.swagger-ui .topbar { display: none } .swagger-ui .information-container { padding: 20px; background-color: #f8f9fa; border-radius: 5px; } .swagger-ui .auth-wrapper { display: flex; justify-content: center; margin: 10px 0 15px; }'
+        customSiteTitle: 'Tennis API - Документация',
+        customCss: `
+      .swagger-ui .topbar { display: none }
+      .swagger-ui .information-container { padding: 20px; background-color: #f8f9fa; border-radius: 5px; }
+      .swagger-ui .auth-wrapper { display: flex; justify-content: center; margin: 10px 0 15px; }
+      .swagger-ui .authorization__btn { font-size: 16px; padding: 10px 20px; }
+      .swagger-ui .auth-container input { font-size: 14px; padding: 8px; width: 100%; }
+      .swagger-ui .auth-container h4 { font-weight: bold; margin-bottom: 10px; }
+    `
     });
-    // Запуск приложения
+    app.use('/api/auth-helper', (req, res) => {
+        const baseUrl = req.protocol + '://' + req.get('host');
+        res.send(`
+      <html>
+        <head>
+          <title>Помощник авторизации API</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+            .steps { background-color: #f8f9fa; }
+            input { width: 100%; padding: 8px; margin-bottom: 10px; }
+            button { background: #4990e2; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+            h3 { color: #333; }
+            code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; }
+            .success { color: green; }
+            .error { color: red; }
+          </style>
+        </head>
+        <body>
+          <h2>Помощник авторизации для Tennis API через ${req.get('host')}</h2>
+          
+          <div class="card steps">
+            <h3>Шаг 1: Получите токен через эндпоинт /auth/login/telegram</h3>
+            <p>Выполните POST запрос со следующими данными:</p>
+            <pre>{
+  "id": "123456789",
+  "hash": "valid_hash",
+  "username": "admin",
+  "first_name": "Admin",
+  "last_name": "",
+  "photo_url": "",
+  "auth_date": "1654837742"
+}</pre>
+          </div>
+          
+          <div class="card">
+            <h3>Шаг 2: Введите полученный токен</h3>
+            <input id="token-input" type="text" placeholder="Вставьте токен из ответа (access_token)">
+            <button id="save-token">Сохранить токен в браузере</button>
+            <p id="status"></p>
+          </div>
+          
+          <div class="card">
+            <h3>Шаг 3: Вернитесь в Swagger UI</h3>
+            <p>Токен будет автоматически добавлен в заголовок Authorization для всех запросов.</p>
+            <a href="${baseUrl}/api"><button>Вернуться в Swagger UI</button></a>
+          </div>
+          
+          <script>
+            document.getElementById('save-token').addEventListener('click', function() {
+              const token = document.getElementById('token-input').value.trim();
+              if (!token) {
+                document.getElementById('status').textContent = 'Введите токен!';
+                document.getElementById('status').className = 'error';
+                return;
+              }
+              
+              try {
+                const authKey = 'authorized-access-token';
+                const authValue = token.startsWith('Bearer ') ? token : 'Bearer ' + token;
+                localStorage.setItem(authKey, JSON.stringify({
+                  name: 'access-token',
+                  schema: { type: 'http', scheme: 'bearer' },
+                  value: authValue
+                }));
+                
+                document.getElementById('status').textContent = 'Токен сохранен! Теперь вы можете использовать API.';
+                document.getElementById('status').className = 'success';
+              } catch (e) {
+                document.getElementById('status').textContent = 'Ошибка при сохранении токена: ' + e.message;
+                document.getElementById('status').className = 'error';
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    });
     const PORT = process.env.PORT || 3000;
-    await app.listen(PORT);
+    await app.listen(PORT, '0.0.0.0');
     console.log(`Приложение запущено на порту ${PORT}`);
     console.log(`Документация API доступна по адресу: http://localhost:${PORT}/api`);
+    console.log(`Помощник авторизации доступен по адресу: http://localhost:${PORT}/api/auth-helper`);
 }
 bootstrap();

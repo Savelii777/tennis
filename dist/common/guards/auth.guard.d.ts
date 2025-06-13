@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 export declare class AuthGuard implements CanActivate {
     private jwtService;
     private configService;
+    private readonly logger;
     constructor(jwtService: JwtService, configService: ConfigService);
     canActivate(context: ExecutionContext): Promise<boolean>;
     private extractTokenFromHeader;

@@ -53,7 +53,7 @@ __decorate([
             },
         }),
         limits: {
-            fileSize: 5 * 1024 * 1024, // 5MB
+            fileSize: 5 * 1024 * 1024,
         },
         fileFilter: (req, file, cb) => {
             if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
@@ -65,7 +65,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.UploadedFile)(new common_1.ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ })
-        .addMaxSizeValidator({ maxSize: 5 * 1024 * 1024 }) // 5MB
+        .addMaxSizeValidator({ maxSize: 5 * 1024 * 1024 })
         .build({ errorHttpStatusCode: common_1.HttpStatus.UNPROCESSABLE_ENTITY }))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

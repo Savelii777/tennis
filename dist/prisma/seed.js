@@ -28,22 +28,17 @@ const bcrypt = __importStar(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
-    // 1. Создаем пользователей
     console.log('Creating users...');
     const users = await createUsers();
-    // 2. Создаем турниры
     console.log('Creating tournaments...');
     const tournaments = await createTournaments(users.admin.id, users.organizer.id);
-    // 3. Регистрируем игроков на турниры
     console.log('Registering players to tournaments...');
     await registerPlayersToTournaments(tournaments, users);
-    // 4. Создаем матчи для некоторых турниров
     console.log('Creating tournament matches...');
-    await createTournamentMatches(tournaments, users); // Передаем users в функцию
+    await createTournamentMatches(tournaments, users);
     console.log('Database seeded successfully');
 }
 async function createUsers() {
-    // Создаем админа
     const adminHashedPassword = await bcrypt.hash('admin123', 10);
     const admin = await prisma.user.upsert({
         where: { telegramId: '123456789' },
@@ -68,7 +63,6 @@ async function createUsers() {
             }
         }
     });
-    // Создаем организатора
     const organizerHashedPassword = await bcrypt.hash('organizer123', 10);
     const organizer = await prisma.user.upsert({
         where: { telegramId: '234567890' },
@@ -93,7 +87,6 @@ async function createUsers() {
             }
         }
     });
-    // Создаем обычных игроков
     const players = [];
     for (let i = 1; i <= 20; i++) {
         const playerHashedPassword = await bcrypt.hash(`player${i}`, 10);
@@ -128,7 +121,6 @@ async function createTournaments(adminId, organizerId) {
     const now = new Date();
     const oneWeekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     const twoWeeksLater = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
-    // Single Elimination турнир (активный)
     const singleEliminationTournament = await prisma.tournament.upsert({
         where: { id: 1 },
         update: {},
@@ -148,7 +140,6 @@ async function createTournaments(adminId, organizerId) {
             locationName: 'Central Tennis Court'
         }
     });
-    // Groups Playoff турнир (черновик)
     const groupsPlayoffTournament = await prisma.tournament.upsert({
         where: { id: 2 },
         update: {},
@@ -168,7 +159,6 @@ async function createTournaments(adminId, organizerId) {
             locationName: 'Tennis Park'
         }
     });
-    // League турнир (завершен)
     const leagueTournament = await prisma.tournament.upsert({
         where: { id: 3 },
         update: {},
@@ -188,7 +178,6 @@ async function createTournaments(adminId, organizerId) {
             locationName: 'Indoor Tennis Center'
         }
     });
-    // Blitz турнир (скоро начнется)
     const blitzTournament = await prisma.tournament.upsert({
         where: { id: 4 },
         update: {},
@@ -208,7 +197,6 @@ async function createTournaments(adminId, organizerId) {
             locationName: 'City Tennis Club'
         }
     });
-    // Добавляем создателей в турниры (организатор и админ)
     await prisma.$executeRaw `
     INSERT INTO "_TournamentToUser" ("A", "B") 
     VALUES (1, ${organizerId}), (2, ${organizerId}), (3, ${adminId}), (4, ${organizerId})
@@ -222,7 +210,6 @@ async function createTournaments(adminId, organizerId) {
     };
 }
 async function registerPlayersToTournaments(tournaments, users) {
-    // Регистрируем игроков на Single Elimination турнир (8 игроков)
     for (let i = 0; i < 8; i++) {
         const playerId = users.players[i].id;
         await prisma.$executeRaw `
@@ -231,12 +218,10 @@ async function registerPlayersToTournaments(tournaments, users) {
       ON CONFLICT DO NOTHING
     `;
     }
-    // Обновляем количество игроков
     await prisma.tournament.update({
         where: { id: tournaments.singleEliminationTournament.id },
-        data: { currentPlayers: 9 } // 8 игроков + 1 организатор
+        data: { currentPlayers: 9 }
     });
-    // Регистрируем игроков на Groups Playoff турнир (12 игроков)
     for (let i = 0; i < 12; i++) {
         const playerId = users.players[i].id;
         await prisma.$executeRaw `
@@ -245,12 +230,10 @@ async function registerPlayersToTournaments(tournaments, users) {
       ON CONFLICT DO NOTHING
     `;
     }
-    // Обновляем количество игроков
     await prisma.tournament.update({
         where: { id: tournaments.groupsPlayoffTournament.id },
-        data: { currentPlayers: 13 } // 12 игроков + 1 организатор
+        data: { currentPlayers: 13 }
     });
-    // Регистрируем игроков на League турнир (9 игроков + 1 админ = 10)
     for (let i = 0; i < 9; i++) {
         const playerId = users.players[i].id;
         await prisma.$executeRaw `
@@ -259,12 +242,10 @@ async function registerPlayersToTournaments(tournaments, users) {
       ON CONFLICT DO NOTHING
     `;
     }
-    // Обновляем количество игроков (уже должно быть 10)
     await prisma.tournament.update({
         where: { id: tournaments.leagueTournament.id },
-        data: { currentPlayers: 10 } // 9 игроков + 1 админ
+        data: { currentPlayers: 10 }
     });
-    // Регистрируем игроков на Blitz турнир (7 игроков + 1 организатор = 8)
     for (let i = 10; i < 17; i++) {
         const playerId = users.players[i].id;
         await prisma.$executeRaw `
@@ -273,15 +254,12 @@ async function registerPlayersToTournaments(tournaments, users) {
       ON CONFLICT DO NOTHING
     `;
     }
-    // Обновляем количество игроков
     await prisma.tournament.update({
         where: { id: tournaments.blitzTournament.id },
-        data: { currentPlayers: 8 } // 7 игроков + 1 организатор
+        data: { currentPlayers: 8 }
     });
 }
 async function createTournamentMatches(tournaments, users) {
-    // Создаем матчи для Single Elimination турнира
-    // 1-й раунд (4 матча)
     for (let i = 0; i < 4; i++) {
         await prisma.$executeRaw `
       INSERT INTO "TournamentMatch" (
@@ -295,7 +273,6 @@ async function createTournamentMatches(tournaments, users) {
       ON CONFLICT DO NOTHING
     `;
     }
-    // Добавляем результаты для некоторых матчей
     await prisma.$executeRaw `
     UPDATE "TournamentMatch"
     SET 
@@ -318,7 +295,6 @@ async function createTournamentMatches(tournaments, users) {
     WHERE "tournamentId" = ${tournaments.singleEliminationTournament.id} AND "round" = 1
     AND "playerAId" = 5 AND "playerBId" = 6
   `;
-    // Добавляем полуфинальный матч
     await prisma.$executeRaw `
     INSERT INTO "TournamentMatch" (
       "tournamentId", "round", "playerAId", "playerBId",
@@ -330,15 +306,13 @@ async function createTournamentMatches(tournaments, users) {
     )
     ON CONFLICT DO NOTHING
   `;
-    // Создаем матчи для League турнира (уже завершенного)
-    // Для упрощения создадим всего 10 матчей (не полный круг)
     for (let i = 0; i < 5; i++) {
         for (let j = i + 1; j < 5; j++) {
             const playerAId = users.players[i].id;
             const playerBId = users.players[j].id;
             const winnerId = Math.random() > 0.5 ? playerAId : playerBId;
-            const scoreA = Math.floor(Math.random() * 2) + 5; // 5 или 6
-            const scoreB = Math.floor(Math.random() * 5); // 0-4
+            const scoreA = Math.floor(Math.random() * 2) + 5;
+            const scoreB = Math.floor(Math.random() * 5);
             const score = winnerId === playerAId ? `${scoreA}-${scoreB}, 6-3` : `${scoreB}-${scoreA}, 3-6, 6-4`;
             await prisma.$executeRaw `
         INSERT INTO "TournamentMatch" (

@@ -5,12 +5,16 @@ import { UpdateUserDto } from '../../presentation/dto/update-user.dto';
 import { CreateUserDto } from '../../presentation/dto/create-user.dto';
 import { UpdateProfileDto } from '../../presentation/dto/update-profile.dto';
 import { ProfileStatisticsDto } from '../../presentation/dto/profile-statistics.dto';
+import { ProfileStepOneDto } from '../../presentation/dto/profile-step-one.dto';
+import { ProfileStepTwoDto } from '../../presentation/dto/profile-step-two.dto';
+import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class UsersService {
     private readonly usersRepository;
-    constructor(usersRepository: UsersRepository);
+    private readonly prisma;
+    constructor(usersRepository: UsersRepository, prisma: PrismaService);
     findAll(): Promise<UserEntity[]>;
     findById(id: string): Promise<UserEntity>;
-    findByTelegramId(telegramId: string): Promise<UserEntity>;
+    findByTelegramId(telegramId: string): Promise<UserEntity | null>;
     create(createUserDto: CreateUserDto): Promise<UserEntity>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity>;
     updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<UserEntity>;
@@ -22,4 +26,7 @@ export declare class UsersService {
     addAchievement(userId: string, achievementKey: string, achievementData: any): Promise<UserEntity>;
     getRecentMatches(userId: string, limit?: number): Promise<any[]>;
     updateAvatar(userId: string, file: Express.Multer.File): Promise<UserEntity>;
+    completeProfileStepOne(userId: string, profileData: ProfileStepOneDto): Promise<any>;
+    completeProfileStepTwo(userId: string, profileData: ProfileStepTwoDto): Promise<any>;
+    getProfileCompletionStatus(userId: string): Promise<any>;
 }

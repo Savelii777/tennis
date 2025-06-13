@@ -7,6 +7,7 @@ interface RequestWithUser {
 }
 export declare class AuthController {
     private readonly authService;
+    private readonly logger;
     constructor(authService: AuthService);
     loginWithTelegram(telegramLoginDto: TelegramLoginDto): Promise<{
         access_token: string;

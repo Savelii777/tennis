@@ -9,6 +9,7 @@ export declare class TelegramAuthService {
     private readonly usersService;
     private readonly botToken;
     private readonly apiUrl;
+    private readonly logger;
     constructor(configService: ConfigService, jwtService: JwtService, usersService: UsersService);
     validateTelegramSignature(telegramId: string, hash: string): boolean;
     getUserInfo(telegramId: string): Promise<any>;

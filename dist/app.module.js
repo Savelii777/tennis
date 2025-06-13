@@ -12,10 +12,11 @@ const config_1 = require("@nestjs/config");
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
 const matches_module_1 = require("./modules/matches/matches.module");
-const prisma_service_1 = require("./prisma/prisma.service");
-
+const requests_module_1 = require("./modules/requests/requests.module");
+const trainings_module_1 = require("./modules/trainings/trainings.module");
 const tournaments_module_1 = require("./modules/tournaments/tournaments.module");
-
+const telegram_module_1 = require("./modules/telegram/telegram.module");
+const prisma_service_1 = require("./prisma/prisma.service");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -27,8 +28,10 @@ AppModule = __decorate([
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             matches_module_1.MatchesModule,
+            requests_module_1.RequestsModule,
+            trainings_module_1.TrainingsModule,
             tournaments_module_1.TournamentsModule,
-
+            telegram_module_1.TelegramModule,
         ],
         providers: [prisma_service_1.PrismaService],
     })

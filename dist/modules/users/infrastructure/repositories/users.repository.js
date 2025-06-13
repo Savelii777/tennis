@@ -38,7 +38,7 @@ let UsersRepository = class UsersRepository {
             include: { profile: true }
         });
         if (!user) {
-            return null; // Or throw an exception
+            return null;
         }
         return this.mapToEntity(user);
     }
@@ -96,8 +96,6 @@ let UsersRepository = class UsersRepository {
         return this.mapToEntity(user);
     }
     async getRatingHistory(userId) {
-        // This would fetch from a separate rating_history table in a real implementation
-        // For now, returning mock data
         return [
             { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), rating: 940 },
             { date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), rating: 970 },
@@ -120,14 +118,11 @@ let UsersRepository = class UsersRepository {
         });
         if (!user || !user.profile)
             throw new common_1.NotFoundException('User profile not found');
-        // Current achievements or empty object
         const achievements = user.profile.achievements || {};
-        // Add new achievement
         achievements[achievementKey] = {
             ...achievementData,
             unlockedAt: new Date()
         };
-        // Update user profile with new achievements
         const updatedUser = await this.prisma.user.update({
             where: { id: parseInt(userId) },
             data: {
@@ -142,7 +137,6 @@ let UsersRepository = class UsersRepository {
         return this.mapToEntity(updatedUser);
     }
     async getRecentMatches(userId, limit = 5) {
-        // Get matches where user is creator, player1 or player2
         const matches = await this.prisma.match.findMany({
             where: {
                 OR: [
@@ -165,12 +159,10 @@ let UsersRepository = class UsersRepository {
                 }
             }
         });
-        // Загрузим оппонентов отдельно
         const result = await Promise.all(matches.map(async (match) => {
             const opponentId = match.player1Id === parseInt(userId)
                 ? match.player2Id
                 : match.player1Id;
-            // Получаем данные оппонента, если есть
             let opponent = null;
             if (opponentId) {
                 const user = await this.prisma.user.findUnique({
@@ -219,7 +211,6 @@ let UsersRepository = class UsersRepository {
         if (!user || !user.profile) {
             throw new common_1.NotFoundException('User profile not found');
         }
-        // Используем camelCase для имен полей
         const profile = await this.prisma.userProfile.update({
             where: { userId: parseInt(userId) },
             data: {
@@ -244,7 +235,6 @@ let UsersRepository = class UsersRepository {
         if (!user || !user.profile) {
             throw new common_1.NotFoundException('User profile not found');
         }
-        // Используем camelCase для имен полей
         const profile = await this.prisma.userProfile.update({
             where: { userId: parseInt(userId) },
             data: {
@@ -262,7 +252,7 @@ let UsersRepository = class UsersRepository {
     }
     mapToEntity(prismaUser) {
         if (!prismaUser) {
-            return null; // Or return a default user or throw exception
+            return null;
         }
         const user = new user_entity_1.UserEntity();
         user.id = prismaUser.id;
@@ -272,7 +262,6 @@ let UsersRepository = class UsersRepository {
         user.last_name = prismaUser.lastName;
         user.is_verified = prismaUser.isVerified;
         user.role = prismaUser.role;
-        // Map profile if it exists
         if (prismaUser.profile) {
             const profile = new user_profile_entity_1.UserProfileEntity({
                 id: prismaUser.profile.id,
@@ -292,8 +281,6 @@ let UsersRepository = class UsersRepository {
                 achievements: prismaUser.profile.achievements,
                 is_public_profile: prismaUser.profile.isPublicProfile
             });
-            // Создаем круговую связь
-            profile.user = user;
             user.profile = profile;
         }
         return user;

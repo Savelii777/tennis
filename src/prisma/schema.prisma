@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AuthSource {
+  WEB
+  TELEGRAM_BOT
+  MOBILE_APP
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   telegramId    String   @unique
@@ -19,13 +25,76 @@ model User {
   matches       Match[]  @relation("PlayerMatches")
   createdMatches Match[] @relation("CreatorMatches")
   createdTrainings Training[] @relation("TrainingCreator")
+  createdTrainingSessions TrainingSession[] @relation("TrainingSessionCreator")
   createdTournaments Tournament[] @relation("TournamentOrganizer")
   sentInvites Invite[] @relation("InviteSender")
   receivedInvites Invite[] @relation("InviteReceiver") 
   notifications Notification[]
-  tournaments    Tournament[] 
+  tournaments    Tournament[]
+  createdRequests     GameRequest[]      @relation()
+  requestParticipations GameRequest[]  @relation("RequestParticipants")
+  requestResponses    RequestResponse[]
+  trainingSessionParticipations TrainingSession[] @relation("TrainingParticipants")
   updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
+  authSource    AuthSource   @default(WEB)
+  lastLogin     DateTime?
+  ballsBalance  Int          @default(0)
+  casesOpened   Int          @default(0)
+  telegramChatId BigInt?      // Для хранения chat_id пользователя
+  
+  // Новые обратные связи
+  ballTransactions BallTransaction[]
+  caseOpenings    CaseOpening[]
+  stories         Story[]
+}
+
+
+model BallTransaction {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Int      // Положительное или отрицательное число
+  description   String
+  type          String   // "REWARD", "PURCHASE", "USAGE", "CASE_OPENING"
+  createdAt     DateTime @default(now())
+}
+
+model Case {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String
+  price         Int
+  image         String?
+  rewards       Json     // Массив возможных наград с вероятностями
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  openings      CaseOpening[]  // Добавьте эту строку - обратная связь с CaseOpening
+
+}
+
+
+model CaseOpening {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  caseId        Int
+  case          Case     @relation(fields: [caseId], references: [id])
+  reward        Json     // Полученная награда
+  createdAt     DateTime @default(now())
+}
+
+model Story {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  mediaUrl      String
+  caption       String?
+  isActive      Boolean  @default(true)
+  moderated     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
 }
 
 model Match {
@@ -142,6 +211,88 @@ model UserProfile {
   isPublicProfile Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+    // ШАГ 1: Основные данные игрока
+  preferredCourt      String?       // часто используемый корт
+  dominantHand        String?       @default("RIGHT") // RIGHT, LEFT
+  preferredPlayTime   String[]      // ['MORNING', 'DAY', 'EVENING', 'NIGHT']
+  playsInTournaments  Boolean       @default(false)   // играет ли в турнирах
+  weeklyPlayFrequency String?       // ONE, TWO_THREE, FOUR_PLUS
+  
+  // ШАГ 2: Стиль игры и уровень
+  backhandType        String?       // ONE_HANDED, TWO_HANDED
+  preferredSurface    String?       // HARD, CLAY, GRASS, CARPET
+  playingStyle        String?       // UNIVERSAL, DEFENSIVE, AGGRESSIVE, NET_PLAYER, BASIC
+  favoriteShot        String?       // SERVE, FOREHAND, BACKHAND, VOLLEY, SMASH
+  racket              String?       // модель ракетки
+  opponentPreference  String?       // ANY, MEN, WOMEN, SAME_LEVEL, STRONGER, WEAKER
+  
+  // Для рейтинга
+  initialRatingPoints Int?          // начальные рейтинговые очки
+  selfAssessedLevel   String?       // BEGINNER, AMATEUR, CONFIDENT, TOURNAMENT, SEMI_PRO
+  profileStepOneCompleted Boolean @default(false)
+  profileStepTwoCompleted Boolean @default(false)
+}
+
+
+
+model GameRequest {
+  id               Int          @id @default(autoincrement())
+  type             String       // Or use enum RequestType if defined
+  title            String
+  description      String?
+  creatorId        Int
+  creator          User         @relation(fields: [creatorId], references: [id])
+  locationName     String?
+  maxPlayers       Int
+  currentPlayers   Int          @default(1)
+  gameMode         String       // Or use enum MatchType
+  dateTime         DateTime
+  paymentType      String       // Or use enum PaymentType
+  ratingType       String       // Or use enum RatingType  
+  formatInfo       Json?
+  status           String       @default("OPEN")
+  participants     User[]       @relation("RequestParticipants")
+  responses        RequestResponse[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model RequestResponse {
+  id              Int           @id @default(autoincrement())
+  requestId       Int
+  request         GameRequest   @relation(fields: [requestId], references: [id])
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id])
+  status          String        @default("PENDING")
+  message         String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([requestId, userId])
+}
+
+model TrainingSession {
+  id               Int           @id @default(autoincrement())
+  title            String
+  description      String?
+  creatorId        Int
+  creator          User          @relation("TrainingSessionCreator", fields: [creatorId], references: [id])
+  locationName     String?
+  courtSurface     CourtSurface? @default(HARD)
+  minLevel         Float?        // Минимальный NTRP уровень
+  maxLevel         Float?        // Максимальный NTRP уровень
+  maxSlots         Int
+  currentSlots     Int           @default(1)
+  paymentType      PaymentType   @default(DIVIDED)
+  pricePerPerson   Float?
+  dateTime         DateTime
+  endTime          DateTime
+  status           TrainingState @default(OPEN)
+  trainingType     TrainingType  @default(WITHOUT_COACH)
+  participants     User[]        @relation("TrainingParticipants")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 enum Role {
@@ -186,4 +337,51 @@ enum InviteStatus {
 enum SportType {
   TENNIS
   PADEL
+}
+
+enum RequestType {
+  SINGLE_GAME
+  TOURNAMENT
+  TRAINING
+}
+
+enum RequestStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+  DONE
+}
+
+enum ResponseStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum PaymentType {
+  FREE
+  HOST_PAYS
+  LOSER_PAYS
+  DIVIDED
+  FIXED_PRICE
+}
+
+enum RatingType {
+  RATED
+  UNRATED
+}
+
+enum TrainingType {
+  WITH_COACH
+  WITHOUT_COACH
+  TIEBREAK
+  SPARRING
+  TECHNIQUE
+}
+
+enum CourtSurface {
+  HARD
+  CLAY
+  GRASS
+  CARPET
 }

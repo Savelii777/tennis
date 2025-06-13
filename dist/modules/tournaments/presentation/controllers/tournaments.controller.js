@@ -51,9 +51,7 @@ let TournamentsController = class TournamentsController {
         return this.tournamentsService.leaveTournament(id, userId);
     }
     async getTournamentPlayers(id) {
-        // Проверяем существование турнира
         await this.tournamentsService.findById(id);
-        // Получаем игроков через репозиторий
         return this.tournamentsService['tournamentsRepository'].getTournamentPlayers(id);
     }
     async startTournament(id, req) {
