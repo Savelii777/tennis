@@ -8,6 +8,7 @@ import { TrainingsModule } from './modules/trainings/trainings.module';
 import { TournamentsModule } from './modules/tournaments/tournaments.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { PrismaService } from './prisma/prisma.service';
+import { StoriesModule } from './modules/stories/stories.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PrismaService } from './prisma/prisma.service';
     TrainingsModule,
     TournamentsModule,
     TelegramModule,
+    StoriesModule,
   ],
   providers: [PrismaService],
 })

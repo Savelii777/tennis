@@ -47,6 +47,7 @@ async function bootstrap() {
         .addTag('trainings', 'Тренировки и групповые занятия')
         .addTag('tournaments', 'Создание и участие в турнирах')
         .addTag('matches', 'Управление матчами')
+        .addTag('stories', 'Stories - фото и видео с матчей')
         .addTag('media', 'Загрузка файлов и управление медиа')
         .setExternalDoc('Подробная документация', 'https://example.com/docs')
         .build();
