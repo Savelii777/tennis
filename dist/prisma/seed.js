@@ -25,9 +25,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
+const locations_seed_1 = require("./seeds/locations.seed");
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
+    await (0, locations_seed_1.seedLocations)();
     console.log('Creating users...');
     const users = await createUsers();
     console.log('Creating tournaments...');

@@ -9,7 +9,7 @@ import { TournamentsModule } from './modules/tournaments/tournaments.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { PrismaService } from './prisma/prisma.service';
 import { StoriesModule } from './modules/stories/stories.module';
-
+import { LocationsModule } from './modules/locations/locations.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +23,8 @@ import { StoriesModule } from './modules/stories/stories.module';
     TournamentsModule,
     TelegramModule,
     StoriesModule,
+    LocationsModule, 
+
   ],
   providers: [PrismaService],
 })

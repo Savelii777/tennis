@@ -136,7 +136,6 @@ export class UsersService {
         preferredPlayTime: profileData.preferredPlayTime,
         playsInTournaments: profileData.playsInTournaments,
         weeklyPlayFrequency: profileData.weeklyPlayFrequency,
-        sportType: profileData.sportType,
         profileStepOneCompleted: true
       },
       create: {
@@ -147,7 +146,6 @@ export class UsersService {
         preferredPlayTime: profileData.preferredPlayTime,
         playsInTournaments: profileData.playsInTournaments,
         weeklyPlayFrequency: profileData.weeklyPlayFrequency,
-        sportType: profileData.sportType,
         profileStepOneCompleted: true
       }
     });
@@ -252,5 +250,22 @@ export class UsersService {
       stepTwoCompleted: profile.profileStepTwoCompleted || false,
       profileComplete: (profile.profileStepOneCompleted && profile.profileStepTwoCompleted) || false
     };
+  }
+  // Добавьте эти методы в класс UsersService
+
+  async updateUserLocation(userId: string, locationData: {
+    countryCode?: string;
+    cityId?: number;
+    sportId?: number;
+  }) {
+    return this.usersRepository.updateUser(userId, {
+      countryCode: locationData.countryCode,
+      cityId: locationData.cityId,
+      sportId: locationData.sportId,
+    });
+  }
+
+  async getUserWithLocation(userId: string) {
+    return this.usersRepository.findByIdWithLocation(userId);
   }
 }

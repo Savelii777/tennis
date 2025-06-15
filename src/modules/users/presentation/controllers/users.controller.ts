@@ -1,6 +1,6 @@
 import { 
   Controller, Get, Post, Put, Patch, Body, Param, 
-  UseGuards, Request, NotFoundException, ForbiddenException 
+  UseGuards, Request, NotFoundException, ForbiddenException, Req 
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
 import { UsersService } from '../../application/services/users.service';
@@ -11,7 +11,7 @@ import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { ProfileStepOneDto } from '../dto/profile-step-one.dto';
 import { ProfileStepTwoDto } from '../dto/profile-step-two.dto';
 import { Request as ExpressRequest } from 'express';
-
+import { UpdateLocationDto } from '../../../locations/presentation/dto/update-location.dto';
 interface RequestWithUser extends ExpressRequest {
   user: { id: number; role: string; [key: string]: any };
 }
@@ -119,4 +119,27 @@ async completeProfileStepTwo(
 async getProfileStatus(@Request() req: RequestWithUser) {
   return this.usersService.getProfileCompletionStatus(req.user.id.toString());
 }
+  @Patch('me/location')
+  @ApiOperation({ 
+    summary: 'Обновить локацию пользователя',
+    description: 'Обновляет страну, город и вид спорта пользователя'
+  })
+  @ApiBody({ type: UpdateLocationDto })
+  async updateMyLocation(
+    @Req() req: RequestWithUser,
+    @Body() updateLocationDto: UpdateLocationDto,
+  ) {
+    const userId = req.user.id.toString(); // ← Добавить .toString()
+    return this.usersService.updateUserLocation(userId, updateLocationDto);
+  }
+
+  @Get('me/location')
+  @ApiOperation({ 
+    summary: 'Получить локацию пользователя',
+    description: 'Возвращает информацию о стране, городе и виде спорта'
+  })
+  async getMyLocation(@Req() req: RequestWithUser) {
+    const userId = req.user.id.toString(); // ← Добавить .toString()
+    return this.usersService.getUserWithLocation(userId);
+  }
 }

@@ -3,6 +3,7 @@ import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { ProfileStepOneDto } from '../dto/profile-step-one.dto';
 import { ProfileStepTwoDto } from '../dto/profile-step-two.dto';
 import { Request as ExpressRequest } from 'express';
+import { UpdateLocationDto } from '../../../locations/presentation/dto/update-location.dto';
 interface RequestWithUser extends ExpressRequest {
     user: {
         id: number;
@@ -25,5 +26,7 @@ export declare class UsersController {
     completeProfileStepOne(req: RequestWithUser, profileData: ProfileStepOneDto): Promise<any>;
     completeProfileStepTwo(req: RequestWithUser, profileData: ProfileStepTwoDto): Promise<any>;
     getProfileStatus(req: RequestWithUser): Promise<any>;
+    updateMyLocation(req: RequestWithUser, updateLocationDto: UpdateLocationDto): Promise<import("../../domain/entities/user.entity").UserEntity>;
+    getMyLocation(req: RequestWithUser): Promise<import("../../domain/entities/user.entity").UserEntity | null>;
 }
 export {};

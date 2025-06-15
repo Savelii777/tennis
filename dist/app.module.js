@@ -18,6 +18,7 @@ const tournaments_module_1 = require("./modules/tournaments/tournaments.module")
 const telegram_module_1 = require("./modules/telegram/telegram.module");
 const prisma_service_1 = require("./prisma/prisma.service");
 const stories_module_1 = require("./modules/stories/stories.module");
+const locations_module_1 = require("./modules/locations/locations.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -34,6 +35,7 @@ AppModule = __decorate([
             tournaments_module_1.TournamentsModule,
             telegram_module_1.TelegramModule,
             stories_module_1.StoriesModule,
+            locations_module_1.LocationsModule,
         ],
         providers: [prisma_service_1.PrismaService],
     })

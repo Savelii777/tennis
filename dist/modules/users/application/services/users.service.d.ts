@@ -29,4 +29,10 @@ export declare class UsersService {
     completeProfileStepOne(userId: string, profileData: ProfileStepOneDto): Promise<any>;
     completeProfileStepTwo(userId: string, profileData: ProfileStepTwoDto): Promise<any>;
     getProfileCompletionStatus(userId: string): Promise<any>;
+    updateUserLocation(userId: string, locationData: {
+        countryCode?: string;
+        cityId?: number;
+        sportId?: number;
+    }): Promise<UserEntity>;
+    getUserWithLocation(userId: string): Promise<UserEntity | null>;
 }

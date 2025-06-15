@@ -55,13 +55,33 @@ let UsersRepository = class UsersRepository {
                         avatarUrl: null,
                         city: null,
                         countryCode: null,
-                        sportType: 'TENNIS'
                     }
                 }
             },
             include: { profile: true }
         });
         return this.mapToEntity(createdUser);
+    }
+    async updateUser(id, updateData) {
+        const user = await this.prisma.user.update({
+            where: { id: parseInt(id) },
+            data: {
+                countryCode: updateData.countryCode,
+                cityId: updateData.cityId,
+                sportId: updateData.sportId,
+            },
+            include: {
+                profile: true,
+                country: true,
+                city: {
+                    include: {
+                        country: true
+                    }
+                },
+                sport: true,
+            }
+        });
+        return this.mapToEntity(user);
     }
     async update(id, updateUserDto) {
         const user = await this.prisma.user.update({
@@ -86,7 +106,6 @@ let UsersRepository = class UsersRepository {
                         avatarUrl: updateProfileDto.avatarUrl,
                         city: updateProfileDto.city,
                         countryCode: updateProfileDto.countryCode,
-                        sportType: updateProfileDto.sportType,
                         isPublicProfile: updateProfileDto.isPublicProfile
                     }
                 }
@@ -226,6 +245,23 @@ let UsersRepository = class UsersRepository {
             profile
         };
         return this.mapToEntity(updatedUser);
+    }
+    // Добавьте этот метод в класс UsersRepository
+    async findByIdWithLocation(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                profile: true,
+                country: true,
+                city: {
+                    include: {
+                        country: true
+                    }
+                },
+                sport: true,
+            },
+        });
+        return user ? this.mapToEntity(user) : null;
     }
     async updateTournamentStats(userId, isWin) {
         const user = await this.prisma.user.findUnique({

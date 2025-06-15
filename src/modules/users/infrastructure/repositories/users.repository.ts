@@ -51,7 +51,6 @@ export class UsersRepository {
             avatarUrl: null,
             city: null,
             countryCode: null,
-            sportType: 'TENNIS'
           }
         }
       },
@@ -59,7 +58,27 @@ export class UsersRepository {
     });
     return this.mapToEntity(createdUser);
   }
-
+  async updateUser(id: string, updateData: any): Promise<UserEntity> {
+    const user = await this.prisma.user.update({
+      where: { id: parseInt(id) },
+      data: {
+        countryCode: updateData.countryCode,
+        cityId: updateData.cityId,
+        sportId: updateData.sportId,
+      },
+      include: { 
+        profile: true,
+        country: true,
+        city: {
+          include: {
+            country: true
+          }
+        },
+        sport: true,
+      }
+    });
+    return this.mapToEntity(user);
+  }
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const user = await this.prisma.user.update({
       where: { id: parseInt(id) },
@@ -84,7 +103,6 @@ export class UsersRepository {
             avatarUrl: updateProfileDto.avatarUrl,
             city: updateProfileDto.city,
             countryCode: updateProfileDto.countryCode,
-            sportType: updateProfileDto.sportType,
             isPublicProfile: updateProfileDto.isPublicProfile
           }
         }
@@ -246,7 +264,25 @@ export class UsersRepository {
     
     return this.mapToEntity(updatedUser);
   }
+// Добавьте этот метод в класс UsersRepository
 
+  async findByIdWithLocation(id: string): Promise<UserEntity | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        profile: true,
+        country: true,
+        city: {
+          include: {
+            country: true
+          }
+        },
+        sport: true,
+      },
+    });
+
+    return user ? this.mapToEntity(user) : null;
+  }
   async updateTournamentStats(userId: string, isWin: boolean): Promise<UserEntity> {
     const user = await this.prisma.user.findUnique({
       where: { id: parseInt(userId) },

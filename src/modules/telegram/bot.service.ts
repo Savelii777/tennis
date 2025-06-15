@@ -3,7 +3,6 @@ import { InjectBot, Start, Command, Hears, On, Update, Action } from 'nestjs-tel
 import { Telegraf, Markup, Context } from 'telegraf';
 import { UsersService } from '../users/application/services/users.service';
 import { ProfileStep, UserState } from './interfaces/user-state.interface';
-import { SportType } from '../users/domain/enums/sport-type.enum';
 
 @Update()
 @Injectable()
@@ -606,7 +605,6 @@ export class BotService implements OnModuleInit {
         preferredPlayTime: ['EVENING'], // Значение по умолчанию
         playsInTournaments: profileData.playsInTournaments!,
         weeklyPlayFrequency: profileData.weeklyPlayFrequency!,
-        sportType: SportType.TENNIS
       };
 
       await this.usersService.completeProfileStepOne(user.id.toString(), stepOneData);

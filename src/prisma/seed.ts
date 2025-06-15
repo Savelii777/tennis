@@ -1,6 +1,6 @@
 import { PrismaClient, TournamentType, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-
+import { seedLocations } from './seeds/locations.seed';
 const prisma = new PrismaClient();
 
 interface UsersResult {
@@ -18,6 +18,8 @@ interface TournamentsResult {
 
 async function main() {
   console.log('Seeding database...');
+
+  await seedLocations();
 
   console.log('Creating users...');
   const users = await createUsers();

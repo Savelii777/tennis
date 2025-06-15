@@ -21,6 +21,7 @@ const roles_guard_1 = require("../../../../common/guards/roles.guard");
 const update_profile_dto_1 = require("../dto/update-profile.dto");
 const profile_step_one_dto_1 = require("../dto/profile-step-one.dto");
 const profile_step_two_dto_1 = require("../dto/profile-step-two.dto");
+const update_location_dto_1 = require("../../../locations/presentation/dto/update-location.dto");
 let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
@@ -68,6 +69,14 @@ let UsersController = class UsersController {
     }
     async getProfileStatus(req) {
         return this.usersService.getProfileCompletionStatus(req.user.id.toString());
+    }
+    async updateMyLocation(req, updateLocationDto) {
+        const userId = req.user.id.toString(); // ← Добавить .toString()
+        return this.usersService.updateUserLocation(userId, updateLocationDto);
+    }
+    async getMyLocation(req) {
+        const userId = req.user.id.toString(); // ← Добавить .toString()
+        return this.usersService.getUserWithLocation(userId);
     }
 };
 __decorate([
@@ -179,6 +188,30 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getProfileStatus", null);
+__decorate([
+    (0, common_1.Patch)('me/location'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Обновить локацию пользователя',
+        description: 'Обновляет страну, город и вид спорта пользователя'
+    }),
+    (0, swagger_1.ApiBody)({ type: update_location_dto_1.UpdateLocationDto }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_location_dto_1.UpdateLocationDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateMyLocation", null);
+__decorate([
+    (0, common_1.Get)('me/location'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Получить локацию пользователя',
+        description: 'Возвращает информацию о стране, городе и виде спорта'
+    }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getMyLocation", null);
 UsersController = __decorate([
     (0, swagger_1.ApiTags)('users'),
     (0, common_1.Controller)('users'),

@@ -19,7 +19,6 @@ const nestjs_telegraf_1 = require("nestjs-telegraf");
 const telegraf_1 = require("telegraf");
 const users_service_1 = require("../users/application/services/users.service");
 const user_state_interface_1 = require("./interfaces/user-state.interface");
-const sport_type_enum_1 = require("../users/domain/enums/sport-type.enum");
 let BotService = BotService_1 = class BotService {
     constructor(bot, usersService) {
         this.bot = bot;
@@ -457,7 +456,6 @@ let BotService = BotService_1 = class BotService {
                 preferredPlayTime: ['EVENING'],
                 playsInTournaments: profileData.playsInTournaments,
                 weeklyPlayFrequency: profileData.weeklyPlayFrequency,
-                sportType: sport_type_enum_1.SportType.TENNIS
             };
             await this.usersService.completeProfileStepOne(user.id.toString(), stepOneData);
             // Сохраняем второй шаг профиля

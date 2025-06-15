@@ -9,6 +9,7 @@ export declare class UsersRepository {
     findById(id: string): Promise<UserEntity>;
     findByTelegramId(telegramId: string): Promise<UserEntity>;
     create(user: UserEntity): Promise<UserEntity>;
+    updateUser(id: string, updateData: any): Promise<UserEntity>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity>;
     updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<UserEntity>;
     getRatingHistory(userId: string): Promise<any[]>;
@@ -17,6 +18,7 @@ export declare class UsersRepository {
     getRecentMatches(userId: string, limit?: number): Promise<any[]>;
     updateAvatar(userId: string, avatarUrl: string): Promise<UserEntity>;
     updateMatchStats(userId: string, isWin: boolean): Promise<UserEntity>;
+    findByIdWithLocation(id: string): Promise<UserEntity | null>;
     updateTournamentStats(userId: string, isWin: boolean): Promise<UserEntity>;
     private mapToEntity;
 }

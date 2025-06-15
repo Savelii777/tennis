@@ -42,6 +42,46 @@ model Story {
   @@index([createdAt])
 }
 
+model Country {
+  id       Int    @id @default(autoincrement())
+  name     String
+  code     String @unique // ISO 3166-1 alpha-2
+  flagUrl  String?
+  cities   City[]
+  users    User[]
+  createdAt DateTime @default(now())
+  
+  @@index([code])
+}
+
+
+model City {
+  id          Int     @id @default(autoincrement())
+  name        String
+  countryCode String
+  country     Country @relation(fields: [countryCode], references: [code])
+  population  Int
+  lat         Float
+  lng         Float
+  timezone    String?
+  users       User[]
+  createdAt   DateTime @default(now())
+  
+  @@index([countryCode])
+  @@index([population])
+  @@index([name])
+  @@unique([name, countryCode])
+}
+
+model Sport {
+  id        Int    @id @default(autoincrement())
+  title     String
+  slug      String @unique
+  emoji     String?
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   telegramId    String   @unique
@@ -50,6 +90,12 @@ model User {
   lastName      String?
   isVerified    Boolean  @default(false)
   role          Role     @default(USER)
+  countryCode String? 
+  country     Country? @relation(fields: [countryCode], references: [code])
+  cityId      Int?
+  city        City?    @relation(fields: [cityId], references: [id])
+  sportId     Int?
+  sport       Sport?   @relation(fields: [sportId], references: [id])
   profile       UserProfile?
   matches       Match[]  @relation("PlayerMatches")
   createdMatches Match[] @relation("CreatorMatches")
@@ -215,7 +261,6 @@ model UserProfile {
   avatarUrl       String?
   city            String?
   countryCode     String?
-  sportType       SportType @default(TENNIS)
   ntrpRating      Float?
   ratingPoints    Int      @default(0)
   matchesPlayed   Int      @default(0)

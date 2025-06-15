@@ -118,7 +118,6 @@ let UsersService = class UsersService {
                 preferredPlayTime: profileData.preferredPlayTime,
                 playsInTournaments: profileData.playsInTournaments,
                 weeklyPlayFrequency: profileData.weeklyPlayFrequency,
-                sportType: profileData.sportType,
                 profileStepOneCompleted: true
             },
             create: {
@@ -129,7 +128,6 @@ let UsersService = class UsersService {
                 preferredPlayTime: profileData.preferredPlayTime,
                 playsInTournaments: profileData.playsInTournaments,
                 weeklyPlayFrequency: profileData.weeklyPlayFrequency,
-                sportType: profileData.sportType,
                 profileStepOneCompleted: true
             }
         });
@@ -223,6 +221,17 @@ let UsersService = class UsersService {
             stepTwoCompleted: profile.profileStepTwoCompleted || false,
             profileComplete: (profile.profileStepOneCompleted && profile.profileStepTwoCompleted) || false
         };
+    }
+    // Добавьте эти методы в класс UsersService
+    async updateUserLocation(userId, locationData) {
+        return this.usersRepository.updateUser(userId, {
+            countryCode: locationData.countryCode,
+            cityId: locationData.cityId,
+            sportId: locationData.sportId,
+        });
+    }
+    async getUserWithLocation(userId) {
+        return this.usersRepository.findByIdWithLocation(userId);
     }
 };
 UsersService = __decorate([
