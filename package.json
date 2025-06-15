@@ -1,22 +1,27 @@
 {
-  "name": "tennis-app-backend",
+  "name": "tennis-app-backend", 
   "version": "1.0.0",
   "description": "Backend for a tennis application built with NestJS",
-  "prisma": {
-    "schema": "./src/prisma/schema.prisma"
-  },
   "main": "dist/main.js",
   "scripts": {
+    "build": "nest build",
     "start": "node dist/main.js",
-    "build": "tsc -p tsconfig.build.json",
-    "prestart": "npm run build",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "test:e2e:watch": "jest --config ./test/jest-e2e.json --runInBand --watch",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --write .",
-    "seed": "ts-node src/prisma/seed.ts",
-    "start:dev": "ts-node-dev --respawn src/main.ts",
-    "start:debug": "LOG_LEVEL=debug ts-node-dev --respawn src/main.ts"
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch", 
+    "start:prod": "node dist/main.js",
+    "db:seed": "npx prisma db seed",
+    "db:reset": "npx prisma migrate reset --force",
+    "db:setup": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d", 
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app",
+    "docker:clean": "docker-compose down -v && docker system prune -f",
+    "docker:restart": "docker-compose down && docker-compose up -d",
+    "docker:rebuild": "docker-compose down && docker-compose up --build -d"
+  },
+  "prisma": {
+    "seed": "ts-node src/prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "11.1.3",

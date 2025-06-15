@@ -1,22 +1,41 @@
-FROM node:16
+# Используем Node.js 20 Alpine для меньшего размера
+FROM node:20-alpine
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Устанавливаем рабочую директорию
+WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Устанавливаем системные зависимости
+RUN apk add --no-cache openssl curl netcat-openbsd
+
+# Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --only=production
+# Устанавливаем зависимости
+RUN npm install
 
-# Copy the rest of the application code
+# Копируем весь исходный код
 COPY . .
 
-# Build the application
+# Генерируем Prisma Client (если есть схема)
+RUN if [ -f "src/prisma/schema.prisma" ]; then npx prisma generate; fi
+
+# Собираем TypeScript проект
 RUN npm run build
 
-# Expose the application port
+# Создаем директории для uploads
+RUN mkdir -p uploads/avatars uploads/stories uploads/media
+RUN mkdir -p logs
+
+# Устанавливаем права доступа
+RUN chmod 755 uploads logs
+
+# Открываем порт
 EXPOSE 3000
 
-# Command to run the application
+# Копируем скрипт запуска
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Запускаем через entrypoint script
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]
