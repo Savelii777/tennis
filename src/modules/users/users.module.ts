@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { UsersService } from './application/services/users.service';
+import { BallsService } from './application/services/balls.service';
 import { UsersController } from './presentation/controllers/users.controller';
 import { MediaController } from './presentation/controllers/media.controller';
 import { UsersRepository } from './infrastructure/repositories/users.repository';
@@ -15,7 +16,7 @@ import { AuthModule } from '../auth/auth.module';
     }),
   ],
   controllers: [UsersController, MediaController],
-  providers: [UsersService, UsersRepository, PrismaService],
-  exports: [UsersService],
+  providers: [UsersService, BallsService, UsersRepository, PrismaService], // ← Добавить BallsService
+  exports: [UsersService, BallsService], // ← Оставить в exports
 })
 export class UsersModule {}

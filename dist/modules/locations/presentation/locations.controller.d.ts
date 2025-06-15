@@ -4,28 +4,28 @@ export declare class LocationsController {
     constructor(locationsService: LocationsService);
     getCountries(): Promise<(import(".prisma/client").Country & {
         _count: {
-            cities: number;
             users: number;
+            cities: number;
         };
     })[]>;
     searchCities(countryCode?: string, query?: string, limit?: string): Promise<(import(".prisma/client").City & {
-        _count: {
-            users: number;
-        };
         country: {
             name: string;
             code: string;
             flagUrl: string | null;
+        };
+        _count: {
+            users: number;
         };
     })[]>;
     getPopularCities(countryCode: string): Promise<(import(".prisma/client").City & {
-        _count: {
-            users: number;
-        };
         country: {
             name: string;
             code: string;
             flagUrl: string | null;
+        };
+        _count: {
+            users: number;
         };
     })[]>;
     getSports(): Promise<(import(".prisma/client").Sport & {
@@ -34,13 +34,13 @@ export declare class LocationsController {
         };
     })[]>;
     getCityById(id: string): Promise<import(".prisma/client").City & {
-        _count: {
-            users: number;
-        };
         country: {
             name: string;
             code: string;
             flagUrl: string | null;
+        };
+        _count: {
+            users: number;
         };
     }>;
 }

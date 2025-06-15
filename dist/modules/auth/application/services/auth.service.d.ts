@@ -19,4 +19,5 @@ export declare class AuthService {
     createUserFromTelegram(telegramData: any): Promise<UserEntity>;
     refreshToken(userId: string): Promise<any>;
     logout(userId: string): Promise<any>;
+    loginTelegram(telegramData: TelegramLoginDto): Promise<any>;
 }

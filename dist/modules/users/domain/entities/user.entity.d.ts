@@ -9,5 +9,6 @@ export declare class UserEntity {
     is_verified: boolean;
     role: Role;
     profile: UserProfileEntity;
+    ballsBalance?: number;
 }
 export { UserEntity as User };

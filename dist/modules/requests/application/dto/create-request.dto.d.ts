@@ -1,14 +1,24 @@
-import { RequestType, PaymentType, RatingType } from '../../domain/enums/request-type.enum';
-import { MatchType } from '@prisma/client';
+export declare enum RequestType {
+    GAME = "GAME",
+    TRAINING = "TRAINING",
+    TOURNAMENT = "TOURNAMENT"
+}
+export declare enum GameMode {
+    SINGLES = "SINGLES",
+    DOUBLES = "DOUBLES",
+    MIXED = "MIXED"
+}
 export declare class CreateRequestDto {
     type: RequestType;
     title: string;
-    description?: string;
-    locationName?: string;
-    maxPlayers: number;
-    gameMode: MatchType;
+    description: string;
+    gameMode: GameMode;
     dateTime: Date;
-    paymentType: PaymentType;
-    ratingType: RatingType;
-    formatInfo?: Record<string, any>;
+    location: string;
+    maxPlayers: number;
+    playerLevel?: string;
+    locationName?: string;
+    paymentType?: string;
+    ratingType?: string;
+    formatInfo?: any;
 }

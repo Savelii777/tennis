@@ -5,41 +5,41 @@ export declare class LocationsRepository {
     constructor(prisma: PrismaService);
     findAllCountries(): Promise<(import(".prisma/client").Country & {
         _count: {
-            cities: number;
             users: number;
+            cities: number;
         };
     })[]>;
     findCountryByCode(code: string): Promise<(import(".prisma/client").Country & {
         cities: import(".prisma/client").City[];
     }) | null>;
     searchCities(params: SearchCitiesParams): Promise<(import(".prisma/client").City & {
-        _count: {
-            users: number;
-        };
         country: {
             name: string;
             code: string;
             flagUrl: string | null;
+        };
+        _count: {
+            users: number;
         };
     })[]>;
     getPopularCities(countryCode: string, limit: number): Promise<(import(".prisma/client").City & {
-        _count: {
-            users: number;
-        };
         country: {
             name: string;
             code: string;
             flagUrl: string | null;
+        };
+        _count: {
+            users: number;
         };
     })[]>;
     findCityById(id: number): Promise<(import(".prisma/client").City & {
-        _count: {
-            users: number;
-        };
         country: {
             name: string;
             code: string;
             flagUrl: string | null;
+        };
+        _count: {
+            users: number;
         };
     }) | null>;
     findAllSports(): Promise<(import(".prisma/client").Sport & {

@@ -19,6 +19,8 @@ const telegram_module_1 = require("./modules/telegram/telegram.module");
 const prisma_service_1 = require("./prisma/prisma.service");
 const stories_module_1 = require("./modules/stories/stories.module");
 const locations_module_1 = require("./modules/locations/locations.module");
+const cases_module_1 = require("./modules/cases/cases.module"); // ← Добавить
+const referrals_module_1 = require("./modules/referrals/referrals.module"); // ← Добавить
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -36,6 +38,8 @@ AppModule = __decorate([
             telegram_module_1.TelegramModule,
             stories_module_1.StoriesModule,
             locations_module_1.LocationsModule,
+            cases_module_1.CasesModule,
+            referrals_module_1.ReferralsModule,
         ],
         providers: [prisma_service_1.PrismaService],
     })

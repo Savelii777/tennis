@@ -10,6 +10,7 @@ exports.UsersModule = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const users_service_1 = require("./application/services/users.service");
+const balls_service_1 = require("./application/services/balls.service");
 const users_controller_1 = require("./presentation/controllers/users.controller");
 const media_controller_1 = require("./presentation/controllers/media.controller");
 const users_repository_1 = require("./infrastructure/repositories/users.repository");
@@ -26,8 +27,8 @@ UsersModule = __decorate([
             }),
         ],
         controllers: [users_controller_1.UsersController, media_controller_1.MediaController],
-        providers: [users_service_1.UsersService, users_repository_1.UsersRepository, prisma_service_1.PrismaService],
-        exports: [users_service_1.UsersService],
+        providers: [users_service_1.UsersService, balls_service_1.BallsService, users_repository_1.UsersRepository, prisma_service_1.PrismaService],
+        exports: [users_service_1.UsersService, balls_service_1.BallsService], // ← Оставить в exports
     })
 ], UsersModule);
 exports.UsersModule = UsersModule;

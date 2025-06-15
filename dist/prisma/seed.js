@@ -26,10 +26,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
 const locations_seed_1 = require("./seeds/locations.seed");
+const cases_seed_1 = require("./seeds/cases.seed"); // ← Добавить
+const referrals_seed_1 = require("./seeds/referrals.seed"); // ← Добавить
 const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('Seeding database...');
     await (0, locations_seed_1.seedLocations)();
+    await (0, cases_seed_1.seedCases)(); // ← Добавить
     console.log('Creating users...');
     const users = await createUsers();
     console.log('Creating tournaments...');
@@ -38,6 +41,7 @@ async function main() {
     await registerPlayersToTournaments(tournaments, users);
     console.log('Creating tournament matches...');
     await createTournamentMatches(tournaments, users);
+    await (0, referrals_seed_1.seedReferrals)(); // ← Добавить
     console.log('Database seeded successfully');
 }
 async function createUsers() {

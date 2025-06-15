@@ -27,6 +27,9 @@ export class UserEntity {
 
   @OneToOne(() => UserProfileEntity, (profile: UserProfileEntity) => profile.user)
   profile: UserProfileEntity;
+
+  ballsBalance?: number; // ← Добавить если отсутствует
+
 }
 
 export { UserEntity as User };

@@ -10,6 +10,9 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { PrismaService } from './prisma/prisma.service';
 import { StoriesModule } from './modules/stories/stories.module';
 import { LocationsModule } from './modules/locations/locations.module';
+import { CasesModule } from './modules/cases/cases.module'; // ← Добавить
+import { ReferralsModule } from './modules/referrals/referrals.module'; // ← Добавить
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,6 +27,9 @@ import { LocationsModule } from './modules/locations/locations.module';
     TelegramModule,
     StoriesModule,
     LocationsModule, 
+    CasesModule, 
+    ReferralsModule, 
+
 
   ],
   providers: [PrismaService],

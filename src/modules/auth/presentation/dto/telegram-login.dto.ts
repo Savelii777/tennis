@@ -1,37 +1,39 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class TelegramLoginDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Telegram user ID' })
   @IsString()
   @IsNotEmpty()
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Telegram hash for verification' })
+  @IsString()
+  @IsNotEmpty()
+  hash: string;
+
+  @ApiPropertyOptional({ description: 'Username' })
+  @IsString()
+  username?: string;
+
+  @ApiProperty({ description: 'First name' })
   @IsString()
   @IsNotEmpty()
   first_name: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  username: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  auth_date: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  hash: string;
-  
-  @ApiProperty({ required: false })
-  @IsString()
-  photo_url?: string;
-  
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Last name' })
   @IsString()
   last_name?: string;
+
+  @ApiPropertyOptional({ description: 'Photo URL' })
+  @IsString()
+  photo_url?: string;
+
+  @ApiPropertyOptional({ description: 'Authorization date' })
+  @IsString()
+  auth_date?: string;
+
+  @ApiPropertyOptional({ description: 'Referral code from deep link' })
+  @IsString()
+  ref?: string; // ← Добавить поддержку реферального кода
 }

@@ -1,56 +1,74 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsInt, IsDate, IsNumber, Min, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { RequestType, PaymentType, RatingType } from '../../domain/enums/request-type.enum';
-import { MatchType } from '@prisma/client';
-import { Type, Transform } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsInt, IsDateString, Min, Max } from 'class-validator';
+
+export enum RequestType {
+  GAME = 'GAME',
+  TRAINING = 'TRAINING',
+  TOURNAMENT = 'TOURNAMENT'
+}
+
+export enum GameMode {
+  SINGLES = 'SINGLES',
+  DOUBLES = 'DOUBLES',
+  MIXED = 'MIXED'
+}
 
 export class CreateRequestDto {
-  @ApiProperty({ enum: RequestType, description: 'Тип заявки' })
+  @ApiProperty({ description: 'Тип заявки', enum: RequestType })
   @IsEnum(RequestType)
-  @IsNotEmpty()
   type: RequestType;
 
-  @ApiProperty({ description: 'Название заявки' })
+  @ApiProperty({ description: 'Заголовок заявки' })
   @IsString()
   @IsNotEmpty()
   title: string;
 
-  @ApiPropertyOptional({ description: 'Описание заявки' })
+  @ApiProperty({ description: 'Описание заявки' })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty({ description: 'Режим игры', enum: GameMode })
+  @IsEnum(GameMode)
+  gameMode: GameMode;
+
+  @ApiProperty({ description: 'Дата и время игры' })
+  @IsDateString()
+  dateTime: Date;
+
+  @ApiProperty({ description: 'Место проведения' })
+  @IsString()
+  @IsNotEmpty()
+  location: string;
+
+  @ApiProperty({ description: 'Максимальное количество игроков' })
+  @IsInt()
+  @Min(2)
+  @Max(10)
+  maxPlayers: number;
+
+  @ApiPropertyOptional({ description: 'Уровень игроков' })
   @IsString()
   @IsOptional()
-  description?: string;
+  playerLevel?: string;
 
-  @ApiPropertyOptional({ description: 'Место проведения' })
+  // Добавить недостающие поля для совместимости с репозиторием
+  @ApiPropertyOptional({ description: 'Название локации (для совместимости)' })
   @IsString()
   @IsOptional()
   locationName?: string;
 
-  @ApiProperty({ description: 'Максимальное количество участников' })
-  @IsInt()
-  @Min(2)
-  maxPlayers: number;
-
-  @ApiProperty({ enum: MatchType, description: 'Режим игры' })
-  @IsEnum(MatchType)
-  gameMode: MatchType;
-
-  @ApiProperty({ description: 'Дата и время проведения', example: '2025-06-11T14:41:39.058Z' })
-  @Type(() => Date)
-  @Transform(({ value }) => value ? new Date(value) : null)
-  @IsDate()
-  @IsNotEmpty()
-  dateTime: Date;
-
-  @ApiProperty({ enum: PaymentType, description: 'Тип оплаты' })
-  @IsEnum(PaymentType)
-  paymentType: PaymentType;
-
-  @ApiProperty({ enum: RatingType, description: 'Влияет на рейтинг' })
-  @IsEnum(RatingType)
-  ratingType: RatingType;
-
-  @ApiPropertyOptional({ description: 'Дополнительная информация о формате' })
-  @IsObject()
+  @ApiPropertyOptional({ description: 'Тип оплаты' })
+  @IsString()
   @IsOptional()
-  formatInfo?: Record<string, any>;
+  paymentType?: string;
+
+  @ApiPropertyOptional({ description: 'Тип рейтинга' })
+  @IsString()
+  @IsOptional()
+  ratingType?: string;
+
+  @ApiPropertyOptional({ description: 'Информация о формате' })
+  @IsOptional()
+  formatInfo?: any;
 }

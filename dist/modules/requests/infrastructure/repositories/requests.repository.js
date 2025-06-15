@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RequestsRepository = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../../../prisma/prisma.service");
+const request_type_enum_1 = require("../../domain/enums/request-type.enum");
 let RequestsRepository = class RequestsRepository {
     constructor(prisma) {
         this.prisma = prisma;
@@ -135,50 +136,41 @@ let RequestsRepository = class RequestsRepository {
             return null;
         return this.mapToEntity(request);
     }
+    // ...existing code...
     async create(userId, dto) {
-        console.log('Repository received dateTime:', dto.dateTime);
-        // Ensure dateTime is a valid Date object
-        const gameDateTime = dto.dateTime instanceof Date ?
-            dto.dateTime :
-            new Date(dto.dateTime || Date.now());
-        console.log('Processed dateTime:', gameDateTime);
+        const userIdInt = parseInt(userId);
+        const requestData = {
+            creatorId: userIdInt,
+            type: dto.type,
+            title: dto.title,
+            description: dto.description,
+            gameMode: dto.gameMode,
+            dateTime: dto.dateTime,
+            locationName: dto.locationName || dto.location,
+            maxPlayers: dto.maxPlayers,
+            playerLevel: dto.playerLevel,
+            status: request_type_enum_1.RequestStatus.OPEN,
+            formatInfo: dto.formatInfo || {},
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+        if (dto.paymentType) {
+            requestData.paymentType = dto.paymentType;
+        }
+        if (dto.ratingType) {
+            requestData.ratingType = dto.ratingType;
+        }
+        // Исправить название модели - используем правильное название из schema
         const request = await this.prisma.gameRequest.create({
-            data: {
-                type: dto.type,
-                title: dto.title,
-                description: dto.description,
-                creator: {
-                    connect: {
-                        id: parseInt(userId)
-                    }
-                },
-                locationName: dto.locationName,
-                maxPlayers: dto.maxPlayers,
-                gameMode: dto.gameMode,
-                dateTime: gameDateTime,
-                paymentType: dto.paymentType,
-                ratingType: dto.ratingType,
-                formatInfo: dto.formatInfo || {},
-                status: 'OPEN',
-                participants: {
-                    connect: {
-                        id: parseInt(userId)
-                    }
-                }
-            },
+            data: requestData,
             include: {
-                creator: {
-                    select: {
-                        id: true,
-                        username: true,
-                        firstName: true,
-                        lastName: true
-                    }
-                }
-            }
+                creator: true,
+                responses: true,
+            },
         });
         return this.mapToEntity(request);
     }
+    // ...existing code...
     async respond(requestId, userId, dto) {
         const response = await this.prisma.requestResponse.upsert({
             where: {

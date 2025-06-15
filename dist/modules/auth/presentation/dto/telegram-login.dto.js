@@ -10,48 +10,51 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TelegramLoginDto = void 0;
-const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
+const class_validator_1 = require("class-validator");
 class TelegramLoginDto {
 }
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ description: 'Telegram user ID' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], TelegramLoginDto.prototype, "first_name", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], TelegramLoginDto.prototype, "username", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], TelegramLoginDto.prototype, "auth_date", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ description: 'Telegram hash for verification' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "hash", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Username' }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], TelegramLoginDto.prototype, "username", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'First name' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TelegramLoginDto.prototype, "first_name", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Last name' }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], TelegramLoginDto.prototype, "last_name", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Photo URL' }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "photo_url", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Authorization date' }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], TelegramLoginDto.prototype, "last_name", void 0);
+], TelegramLoginDto.prototype, "auth_date", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Referral code from deep link' }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], TelegramLoginDto.prototype, "ref", void 0);
 exports.TelegramLoginDto = TelegramLoginDto;

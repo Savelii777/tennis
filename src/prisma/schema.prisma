@@ -117,38 +117,119 @@ model User {
   ballsBalance  Int          @default(0)
   casesOpened   Int          @default(0)
   telegramChatId BigInt?      // Для хранения chat_id пользователя
-  
+  caseOpenings    CaseOpening[]
+  caseWinnings    CaseWinning[]
   // Новые обратные связи
   ballTransactions BallTransaction[]
-  caseOpenings    CaseOpening[]
   stories         Story[]
-}
 
+  referralCode      String?  @unique // Уникальный код пользователя для приглашений
+  referredBy        Int?     // ID пользователя, который пригласил
+  referrer          User?    @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals         User[]   @relation("UserReferrals") // Список приглашенных пользователей
+  referralStats     ReferralStats?
+  referrerActivities  ReferralActivity[] @relation("ReferrerActivity")
+  invitedActivities   ReferralActivity[] @relation("InvitedActivity")
+}
+model ReferralStats {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  user              User     @relation(fields: [userId], references: [id])
+  
+  // Статистика приглашений
+  totalInvited      Int      @default(0) // Всего приглашено
+  activeInvited     Int      @default(0) // Активных приглашенных (сыграли хотя бы 1 матч)
+  registeredToday   Int      @default(0) // Зарегистрировались сегодня
+  registeredThisWeek Int     @default(0) // Зарегистрировались на этой неделе
+  registeredThisMonth Int    @default(0) // Зарегистрировались в этом месяце
+  
+  // Достижения и награды
+  achievementsEarned String[] // Полученные достижения за рефералов
+  bonusPointsEarned  Int      @default(0) // Бонусные очки за рефералов
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([userId])
+}
+model ReferralActivity {
+  id              Int      @id @default(autoincrement())
+  referrerId      Int      // Кто пригласил
+  referrer        User     @relation("ReferrerActivity", fields: [referrerId], references: [id])
+  invitedUserId   Int      // Кого пригласили
+  invitedUser     User     @relation("InvitedActivity", fields: [invitedUserId], references: [id])
+  
+  // Активность приглашенного
+  registeredAt    DateTime
+  firstMatchAt    DateTime? // Когда сыграл первый матч
+  isActive        Boolean  @default(false) // Считается активным если сыграл хотя бы 1 матч
+  
+  // Дополнительная информация
+  inviteSource    String?  // telegram, whatsapp, direct, etc.
+  ipAddress       String?  // IP при регистрации (для аналитики)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([referrerId])
+  @@index([invitedUserId])
+  @@index([registeredAt])
+}
 
 model BallTransaction {
   id            Int      @id @default(autoincrement())
   userId        Int
   user          User     @relation(fields: [userId], references: [id])
-  amount        Int      // Положительное или отрицательное число
-  description   String
-  type          String   // "REWARD", "PURCHASE", "USAGE", "CASE_OPENING"
+  amount        Int      // Положительное для пополнения, отрицательное для списания
+  type          BallTransactionType
+  reason        String   // Описание операции
+  balanceAfter  Int      // Баланс после операции
   createdAt     DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
 }
-
+enum BallTransactionType {
+  EARNED   // Заработано
+  SPENT    // Потрачено
+  BONUS    // Бонус
+  REFUND   // Возврат
+}
 model Case {
   id            Int      @id @default(autoincrement())
   name          String
   description   String
-  price         Int
+  priceBalls    Int      // Цена в теннисных мячах
   image         String?
-  rewards       Json     // Массив возможных наград с вероятностями
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  openings      CaseOpening[]  // Добавьте эту строку - обратная связь с CaseOpening
-
+  
+  // Связи
+  items         CaseItem[]
+  openings      CaseOpening[]
+  winnings      CaseWinning[]
 }
 
+model CaseItem {
+  id            Int      @id @default(autoincrement())
+  caseId        Int
+  case          Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  name          String   // "50 мячей", "Футболка", "Сертификат Ozon"
+  type          CaseItemType // virtual, physical, action
+  payload       Json     // {balls: 50} или {sku: "tshirt_l"}
+  dropChance    Float    // 0.01–1.0 (1% - 100%)
+  imageUrl      String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Связи
+  winnings      CaseWinning[]
+  
+  @@index([caseId])
+  @@index([isActive])
+}
 
 model CaseOpening {
   id            Int      @id @default(autoincrement())
@@ -156,10 +237,41 @@ model CaseOpening {
   user          User     @relation(fields: [userId], references: [id])
   caseId        Int
   case          Case     @relation(fields: [caseId], references: [id])
-  reward        Json     // Полученная награда
+  ballsSpent    Int      // Сколько мячей потратил
   createdAt     DateTime @default(now())
+  
+  // Связь с выигрышем
+  winning       CaseWinning?
 }
-
+model CaseWinning {
+  id              Int         @id @default(autoincrement())
+  openingId       Int         @unique
+  opening         CaseOpening @relation(fields: [openingId], references: [id])
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  caseId          Int
+  case            Case        @relation(fields: [caseId], references: [id])
+  itemId          Int
+  item            CaseItem    @relation(fields: [itemId], references: [id])
+  
+  // Статус получения приза
+  isProcessed     Boolean     @default(false)
+  processedAt     DateTime?
+  notes           String?     // Примечания для физических призов
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([userId])
+  @@index([caseId])
+  @@index([itemId])
+  @@index([isProcessed])
+}
+enum CaseItemType {
+  VIRTUAL   // виртуальные призы (мячи, бейджи)
+  PHYSICAL  // физические призы (футболки, сертификаты)
+  ACTION    // особые действия (скидки, доступы)
+}
 model Match {
   id            Int      @id @default(autoincrement())
   creator       User     @relation("CreatorMatches", fields: [creatorId], references: [id])

@@ -1,13 +1,9 @@
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { TelegramService } from '../../../telegram/telegram.service';
 export declare class BallsService {
     private readonly prisma;
-    private readonly telegramService;
-    private readonly logger;
-    constructor(prisma: PrismaService, telegramService: TelegramService);
-    getBalance(userId: string): Promise<number>;
-    addBalls(userId: string, amount: number, description: string): Promise<number>;
-    deductBalls(userId: string, amount: number, description: string): Promise<number>;
-    getTransactionHistory(userId: string, limit?: number): Promise<any[]>;
-    private createTransaction;
+    constructor(prisma: PrismaService);
+    addBalls(userId: string, amount: number, reason: string): Promise<import(".prisma/client").User>;
+    deductBalls(userId: string, amount: number, reason: string): Promise<import(".prisma/client").User>;
+    getUserBalance(userId: string): Promise<number>;
+    getBallsHistory(userId: string, page?: number, limit?: number): Promise<import(".prisma/client").BallTransaction[]>;
 }

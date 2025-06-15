@@ -1,9 +1,10 @@
 export declare class TelegramLoginDto {
     id: string;
-    first_name: string;
-    username: string;
-    auth_date: string;
     hash: string;
-    photo_url?: string;
+    username?: string;
+    first_name: string;
     last_name?: string;
+    photo_url?: string;
+    auth_date?: string;
+    ref?: string;
 }
