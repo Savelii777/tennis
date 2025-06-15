@@ -30,7 +30,23 @@ var ProfileStep;
     ProfileStep["AWAITING_MATCH_OPPONENT"] = "awaiting_match_opponent";
     ProfileStep["AWAITING_MATCH_SCORE"] = "awaiting_match_score";
     ProfileStep["AWAITING_MATCH_DATE"] = "awaiting_match_date";
+    ProfileStep["AWAITING_MATCH_TYPE"] = "awaiting_match_type";
     // Stories
     ProfileStep["UPLOADING_STORY"] = "uploading_story";
     ProfileStep["AWAITING_STORY_DESCRIPTION"] = "awaiting_story_description";
+    ProfileStep["AWAITING_STORY_MEDIA"] = "awaiting_story_media";
+    // Тренировки
+    ProfileStep["CREATING_TRAINING"] = "creating_training";
+    ProfileStep["AWAITING_TRAINING_TITLE"] = "awaiting_training_title";
+    ProfileStep["AWAITING_TRAINING_DATETIME"] = "awaiting_training_datetime";
+    ProfileStep["AWAITING_TRAINING_LOCATION"] = "awaiting_training_location";
+    ProfileStep["AWAITING_TRAINING_PRICE"] = "awaiting_training_price";
+    ProfileStep["AWAITING_TRAINING_MAX_PARTICIPANTS"] = "awaiting_training_max_participants";
+    // Поиск локаций
+    ProfileStep["AWAITING_CITY_SEARCH"] = "awaiting_city_search";
+    // Рефералы
+    ProfileStep["PROCESSING_REFERRAL"] = "processing_referral";
+    // AI Coach
+    ProfileStep["AI_CONSULTATION"] = "ai_consultation";
+    ProfileStep["AWAITING_AI_QUESTION"] = "awaiting_ai_question";
 })(ProfileStep = exports.ProfileStep || (exports.ProfileStep = {}));

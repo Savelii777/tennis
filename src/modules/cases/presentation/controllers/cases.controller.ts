@@ -3,9 +3,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/
 import { CasesService } from '../../application/services/cases.service';
 import { CaseOpeningService } from '../../application/services/case-opening.service';
 import { AuthGuard } from '../../../../common/guards/auth.guard';
-import { Request as ExpressRequest } from 'express'; // ← Изменить импорт
+import { Request as ExpressRequest } from 'express'; 
 
-// ← Добавить интерфейс локально
 interface RequestWithUser extends ExpressRequest {
   user: { id: number; role: string; [key: string]: any };
 }
@@ -22,7 +21,7 @@ export class CasesController {
   @ApiOperation({ summary: 'Получить список активных кейсов' })
   @ApiResponse({ status: 200, description: 'Список кейсов' })
   async getCases() {
-    return this.casesService.getAllCases(false); // только активные
+    return this.casesService.getAllCases(false); 
   }
 
   @Get(':id')

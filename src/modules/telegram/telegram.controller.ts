@@ -14,7 +14,6 @@ export class TelegramController {
     @Body() update: any,
     @Headers('x-telegram-bot-api-secret-token') secretToken: string,
   ) {
-    // В режиме polling вебхуки не используются
     return { ok: true };
   }
 }

@@ -133,8 +133,7 @@ export class RequestsRepository {
 
 
 
-
-  // ...existing code...
+// Заменить метод create (строка 140):
 
 async create(userId: string, dto: CreateRequestDto): Promise<RequestEntity> {
   const userIdInt = parseInt(userId);
@@ -148,9 +147,7 @@ async create(userId: string, dto: CreateRequestDto): Promise<RequestEntity> {
     dateTime: dto.dateTime,
     locationName: dto.locationName || dto.location,
     maxPlayers: dto.maxPlayers,
-    playerLevel: dto.playerLevel,
     status: RequestStatus.OPEN,
-    formatInfo: dto.formatInfo || {},
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -163,19 +160,57 @@ async create(userId: string, dto: CreateRequestDto): Promise<RequestEntity> {
     requestData.ratingType = dto.ratingType;
   }
 
-  // Исправить название модели - используем правильное название из schema
   const request = await this.prisma.gameRequest.create({
     data: requestData,
     include: {
-      creator: true,
-      responses: true,
-    },
+      creator: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          profile: {
+            select: {
+              avatarUrl: true,
+              ratingPoints: true
+            }
+          }
+        }
+      },
+      participants: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          profile: {
+            select: {
+              avatarUrl: true,
+              ratingPoints: true
+            }
+          }
+        }
+      },
+      responses: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              profile: {
+                select: {
+                  avatarUrl: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   });
 
   return this.mapToEntity(request);
 }
-
-// ...existing code...
 
 
 async respond(requestId: string, userId: string, dto: RespondRequestDto): Promise<RequestResponseEntity> {

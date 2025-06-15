@@ -19,13 +19,11 @@ export class StoriesService {
   ) {}
 
   async createStory(userId: number, createStoryDto: CreateStoryDto): Promise<StoryResponseDto> {
-    // Валидация размера файла
     const isValidSize = await this.telegramFileService.validateFileSize(createStoryDto.telegramFileId);
     if (!isValidSize) {
       throw new BadRequestException('File size exceeds 50MB limit');
     }
 
-    // Получаем информацию о файле из Telegram
     let telegramFilePath = createStoryDto.telegramFilePath;
     if (!telegramFilePath) {
       const fileInfo = await this.telegramFileService.getFile(createStoryDto.telegramFileId);
@@ -72,7 +70,6 @@ export class StoriesService {
       throw new BadRequestException('Story is not approved yet');
     }
 
-    // Если file_path еще не кэширован, получаем его
     if (!story.telegramFilePath) {
       const fileInfo = await this.telegramFileService.getFile(story.telegramFileId);
       if (fileInfo?.file_path) {
@@ -89,7 +86,6 @@ export class StoriesService {
     return { url };
   }
 
-  // Админские методы
   async getPendingStories(): Promise<StoryResponseDto[]> {
     const stories = await this.storiesRepository.findPendingForModeration();
     return stories.map(story => this.mapToResponseDto(story));
@@ -107,7 +103,6 @@ export class StoriesService {
 
     const updatedStory = await this.storiesRepository.updateStatus(storyId, StoryStatus.APPROVED);
     
-    // Уведомляем пользователя об одобрении
     try {
       await this.telegramService.sendNotification(
         updatedStory.userId,
@@ -134,7 +129,6 @@ export class StoriesService {
 
     const updatedStory = await this.storiesRepository.updateStatus(storyId, StoryStatus.REJECTED);
     
-    // Уведомляем пользователя об отклонении
     try {
       await this.telegramService.sendNotification(
         updatedStory.userId,
@@ -171,7 +165,6 @@ export class StoriesService {
       publishedAt: story.publishedAt,
     };
 
-    // Добавляем URL файла если story одобрена и есть file_path
     if (story.isApproved() && story.telegramFilePath) {
       const fileUrl = story.getFileUrl(this.telegramFileService.getBotToken());
       response.fileUrl = fileUrl || undefined;

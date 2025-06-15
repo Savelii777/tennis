@@ -39,7 +39,7 @@ export class LocationsRepository {
     
     const where: any = {
       population: {
-        gte: 500000 // Только города с населением от 500k
+        gte: 500000 
       }
     };
 

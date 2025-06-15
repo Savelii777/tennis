@@ -23,38 +23,143 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Tennis API')
+    .setTitle('🎾 Tennis Community API')
     .setDescription(`
-      <h3>Документация API для теннисного приложения</h3>
-      <p>Добро пожаловать в документацию API теннисного приложения. Здесь вы можете протестировать все доступные эндпоинты.</p>
-      <h4>Как использовать:</h4>
-      <ol>
-        <li>Для начала работы авторизуйтесь через <code>/auth/login-telegram</code> эндпоинт</li>
-        <li>Используйте полученный токен в кнопке Authorize вверху страницы</li>
-        <li>После этого вы можете тестировать любые эндпоинты</li>
-      </ol>
+      <div style="font-family: 'Segoe UI', sans-serif; line-height: 1.6;">
+        <h2>🎾 Добро пожаловать в Tennis Community API!</h2>
+        
+        <h3>🚀 Полнофункциональное теннисное приложение</h3>
+        <p>Современная платформа для теннисного сообщества с богатой функциональностью и интеграциями.</p>
+        
+        <h4>📱 Основные модули:</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin: 20px 0;">
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+            <strong>🔐 Auth (Авторизация)</strong><br>
+            • Вход через Telegram<br>
+            • JWT токены<br>
+            • Реферальная регистрация<br>
+            • Ролевая система
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+            <strong>👥 Users (Пользователи)</strong><br>
+            • Профили игроков<br>
+            • Рейтинги и статистика<br>
+            • Система мячей (валюта)<br>
+            • Загрузка аватаров
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <strong>🎾 Requests (Заявки)</strong><br>
+            • Поиск партнеров<br>
+            • Создание игровых заявок<br>
+            • Отклики и подтверждения<br>
+            • Фильтры по уровню
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545;">
+            <strong>⚡ Matches (Матчи)</strong><br>
+            • Запись результатов<br>
+            • История игр<br>
+            • Статистика побед/поражений<br>
+            • Рейтинговые матчи
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #6f42c1;">
+            <strong>🏆 Tournaments (Турниры)</strong><br>
+            • Создание турниров<br>
+            • Регистрация участников<br>
+            • Сетки на выбывание<br>
+            • Призовые фонды
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #17a2b8;">
+            <strong>🏃‍♂️ Trainings (Тренировки)</strong><br>
+            • Групповые занятия<br>
+            • Запись к тренерам<br>
+            • Расписание тренировок<br>
+            • Оплата занятий
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #fd7e14;">
+            <strong>📱 Stories (Истории)</strong><br>
+            • Фото и видео с матчей<br>
+            • Временные публикации<br>
+            • Лайки и комментарии<br>
+            • Модерация контента
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #20c997;">
+            <strong>🎁 Cases (Кейсы)</strong><br>
+            • Игровые кейсы с призами<br>
+            • Система наград<br>
+            • Редкие предметы<br>
+            • Административное управление
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #e83e8c;">
+            <strong>🔗 Referrals (Рефералы)</strong><br>
+            • Приглашение друзей<br>
+            • Бонусные программы<br>
+            • Статистика приглашений<br>
+            • Достижения за рефералов
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #6c757d;">
+            <strong>📍 Locations (Локации)</strong><br>
+            • Теннисные корты<br>
+            • Геолокация<br>
+            • Поиск ближайших кортов<br>
+            • Отзывы о местах
+          </div>
+          <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #343a40;">
+            <strong>🤖 Telegram Bot</strong><br>
+            • Полнофункциональный бот<br>
+            • Все возможности через Telegram<br>
+            • Push-уведомления<br>
+            • Интуитивный интерфейс
+          </div>
+        </div>
+        
+        <h4>🔐 Как начать работу:</h4>
+        <ol style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+          <li><strong>Авторизация:</strong> Используйте <code>POST /auth/login-telegram</code></li>
+          <li><strong>Получите токен:</strong> Скопируйте <code>access_token</code> из ответа</li>
+          <li><strong>Авторизуйтесь:</strong> Нажмите <strong>Authorize</strong> и введите токен</li>
+          <li><strong>Тестируйте API:</strong> Все эндпоинты теперь доступны!</li>
+        </ol>
+        
+        <h4>🛠️ Полезные инструменты:</h4>
+        <ul style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+          <li><a href="/api/auth-helper" target="_blank">🔧 Помощник авторизации с быстрым входом</a></li>
+          <li><a href="/api-json" target="_blank">📋 OpenAPI спецификация (JSON)</a></li>
+          <li><a href="https://t.me/your_tennis_bot" target="_blank">🤖 Telegram бот</a></li>
+        </ul>
+        
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <strong>💡 Совет:</strong> Для быстрого тестирования используйте помощник авторизации - он автоматически настроит токены для разных ролей (пользователь, админ, организатор).
+        </div>
+      </div>
     `)
-    .setVersion('1.0')
+    .setVersion('2.1')
     .addBearerAuth(
       {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
         name: 'Authorization',
-        description: 'Введите токен с префиксом Bearer: Bearer [token]',
+        description: '🔑 Введите JWT токен с префиксом Bearer',
         in: 'header'
       },
       'access-token'
     )
-    .addTag('auth', 'Авторизация и управление профилем')
-    .addTag('users', 'Управление пользователями и профилями')
-    .addTag('requests', 'Активные заявки и поиск партнеров')
-    .addTag('trainings', 'Тренировки и групповые занятия')
-    .addTag('tournaments', 'Создание и участие в турнирах')
-    .addTag('matches', 'Управление матчами')
-    .addTag('stories', 'Stories - фото и видео с матчей')
-    .addTag('media', 'Загрузка файлов и управление медиа')
-    .setExternalDoc('Подробная документация', 'https://example.com/docs')
+    .addTag('auth', '🔐 Авторизация и аутентификация')
+    .addTag('users', '👥 Пользователи и профили')  
+    .addTag('requests', '🎾 Заявки на игру')
+    .addTag('matches', '⚡ Матчи и результаты')
+    .addTag('tournaments', '🏆 Турниры и соревнования')
+    .addTag('trainings', '🏃‍♂️ Тренировки и занятия')
+    .addTag('stories', '📱 Stories и медиа')
+    .addTag('cases', '🎁 Кейсы и призы')
+    .addTag('admin-cases', '⚙️ Администрирование кейсов')
+    .addTag('referrals', '🔗 Реферальная система')
+    .addTag('locations', '📍 Локации и корты')
+    .addTag('media', '📸 Загрузка файлов')
+    .addTag('telegram', '🤖 Telegram интеграция')
+    .setContact('Tennis Community Support', 'https://t.me/support', 'support@tennis.app')
+    .setLicense('MIT License', 'https://opensource.org/licenses/MIT')
+    .setExternalDoc('📚 Документация проекта', 'https://github.com/your-repo/tennis-app')
     .build();
     
   const document = SwaggerModule.createDocument(app, config);

@@ -12,7 +12,6 @@ export class CaseOpeningService {
   ) {}
 
   async openCase(userId: string, caseId: number) {
-    // Получаем данные кейса с призами
     const caseData = await this.casesRepository.findById(caseId);
     if (!caseData || !caseData.isActive) {
       throw new NotFoundException('Кейс не найден или неактивен');
@@ -23,31 +22,26 @@ export class CaseOpeningService {
       throw new BadRequestException('В кейсе нет доступных призов');
     }
 
-    // Проверяем баланс пользователя
     const userIdInt = parseInt(userId);
     const user = await this.casesRepository.getUserById(userIdInt);
     if (!user || user.ballsBalance < caseData.priceBalls) {
       throw new BadRequestException('Недостаточно мячей для открытия кейса');
     }
 
-    // Списываем мячи
     await this.ballsService.deductBalls(
       userId, 
       caseData.priceBalls, 
       `Открытие кейса "${caseData.name}"`
     );
 
-    // Создаем запись об открытии
     const opening = await this.casesRepository.createOpening({
       userId: userIdInt,
       caseId: caseId,
       ballsSpent: caseData.priceBalls,
     });
 
-    // Определяем выигрышный приз
     const winningItem = this.selectRandomItem(activeItems);
 
-    // Создаем запись о выигрыше
     const winning = await this.casesRepository.createWinning({
       openingId: opening.id,
       userId: userIdInt,
@@ -55,10 +49,8 @@ export class CaseOpeningService {
       itemId: winningItem.id,
     });
 
-    // Применяем приз
     await this.processPrize(userId, winningItem);
 
-    // Возвращаем результат
     return {
       opening,
       winning: {
@@ -90,7 +82,6 @@ export class CaseOpeningService {
   }
 
   private selectRandomItem(items: any[]) {
-    // Создаем массив с накопительными вероятностями
     const cumulativeChances: number[] = [];
     let sum = 0;
     
@@ -99,17 +90,14 @@ export class CaseOpeningService {
       cumulativeChances.push(sum);
     }
 
-    // Генерируем случайное число от 0 до общей суммы шансов
     const random = Math.random() * sum;
 
-    // Находим выигрышный приз
     for (let i = 0; i < cumulativeChances.length; i++) {
       if (random <= cumulativeChances[i]) {
         return items[i];
       }
     }
 
-    // Fallback на последний приз
     return items[items.length - 1];
   }
 
@@ -122,7 +110,6 @@ export class CaseOpeningService {
         await this.processActionPrize(userId, item.payload);
         break;
       case CaseItemType.PHYSICAL:
-        // Физические призы обрабатываются администратором вручную
         break;
     }
   }
@@ -137,19 +124,16 @@ export class CaseOpeningService {
     }
 
     if (payload.badge_id) {
-      // TODO: Добавить логику выдачи бейджей
       console.log(`Выдать бейдж ${payload.badge_id} пользователю ${userId}`);
     }
   }
 
   private async processActionPrize(userId: string, payload: any) {
     if (payload.tournament_access) {
-      // TODO: Добавить логику бесплатного доступа к турнирам
       console.log(`Выдать бесплатный доступ к турниру пользователю ${userId}`);
     }
 
     if (payload.meme) {
-      // Просто мем-приз, ничего не делаем
       console.log(`Пользователь ${userId} получил мем-приз утешения`);
     }
   }

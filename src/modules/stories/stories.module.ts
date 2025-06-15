@@ -6,13 +6,13 @@ import { StoriesRepository } from './infrastructure/repositories/stories.reposit
 import { TelegramFileService } from './infrastructure/external/telegram-file.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TelegramModule } from '../telegram/telegram.module';
-import { AuthModule } from '../auth/auth.module'; // Добавляем импорт AuthModule
+import { AuthModule } from '../auth/auth.module'; 
 
 @Module({
   imports: [
     ConfigModule,
-    AuthModule, // Добавляем AuthModule для доступа к JwtService
-    forwardRef(() => TelegramModule), // Используйте forwardRef если есть перекрестные зависимости
+    AuthModule, 
+    forwardRef(() => TelegramModule), 
   ],
   controllers: [StoriesController],
   providers: [

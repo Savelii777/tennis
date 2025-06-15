@@ -23,8 +23,20 @@ export declare enum ProfileStep {
     AWAITING_MATCH_OPPONENT = "awaiting_match_opponent",
     AWAITING_MATCH_SCORE = "awaiting_match_score",
     AWAITING_MATCH_DATE = "awaiting_match_date",
+    AWAITING_MATCH_TYPE = "awaiting_match_type",
     UPLOADING_STORY = "uploading_story",
-    AWAITING_STORY_DESCRIPTION = "awaiting_story_description"
+    AWAITING_STORY_DESCRIPTION = "awaiting_story_description",
+    AWAITING_STORY_MEDIA = "awaiting_story_media",
+    CREATING_TRAINING = "creating_training",
+    AWAITING_TRAINING_TITLE = "awaiting_training_title",
+    AWAITING_TRAINING_DATETIME = "awaiting_training_datetime",
+    AWAITING_TRAINING_LOCATION = "awaiting_training_location",
+    AWAITING_TRAINING_PRICE = "awaiting_training_price",
+    AWAITING_TRAINING_MAX_PARTICIPANTS = "awaiting_training_max_participants",
+    AWAITING_CITY_SEARCH = "awaiting_city_search",
+    PROCESSING_REFERRAL = "processing_referral",
+    AI_CONSULTATION = "ai_consultation",
+    AWAITING_AI_QUESTION = "awaiting_ai_question"
 }
 export interface UserState {
     step: ProfileStep;
@@ -42,21 +54,35 @@ export interface UserState {
         requestLocation?: string;
         requestLevel?: string;
         requestDescription?: string;
+        requestType?: 'SINGLES' | 'DOUBLES' | 'MIXED';
         tournamentName?: string;
         tournamentDescription?: string;
         tournamentStartDate?: string;
         tournamentRegistrationEnd?: string;
         tournamentMaxParticipants?: number;
+        tournamentFormat?: string;
+        tournamentEntryFee?: number;
         matchOpponent?: string;
         matchScore?: string;
         matchDate?: string;
         matchType?: 'SINGLES' | 'DOUBLES';
+        matchResult?: 'WIN' | 'LOSS';
         storyMediaId?: string;
         storyDescription?: string;
         storyType?: 'PHOTO' | 'VIDEO';
+        trainingTitle?: string;
+        trainingDateTime?: string;
+        trainingLocation?: string;
+        trainingPrice?: number;
+        trainingMaxParticipants?: number;
+        trainingDescription?: string;
+        searchCity?: string;
+        aiQuestion?: string;
         currentRequestId?: string;
         currentTournamentId?: string;
         selectedMatchId?: string;
+        selectedTrainingId?: string;
         pageNumber?: number;
+        lastMessageId?: number;
     };
 }

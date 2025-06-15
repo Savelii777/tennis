@@ -268,4 +268,5 @@ export class UsersService {
   async getUserWithLocation(userId: string) {
     return this.usersRepository.findByIdWithLocation(userId);
   }
+  
 }

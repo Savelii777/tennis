@@ -7,12 +7,12 @@ import { CaseOpeningService } from './application/services/case-opening.service'
 import { CasesRepository } from './infrastructure/repositories/cases.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersModule } from '../users/users.module';
-import { AuthModule } from '../auth/auth.module'; // ← Добавить импорт
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     UsersModule, 
-    AuthModule  // ← Добавить AuthModule для доступа к JwtService и AuthGuard
+    AuthModule  
   ],
   controllers: [CasesController, AdminCasesController],
   providers: [

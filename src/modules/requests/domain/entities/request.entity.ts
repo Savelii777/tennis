@@ -1,9 +1,9 @@
 import { RequestType, RequestStatus, PaymentType, RatingType } from '../enums/request-type.enum';
-import { MatchType } from '@prisma/client'; // Fix the import path
+import { MatchType } from '@prisma/client'; 
 
 export class RequestEntity {
   id: number;
-  type: string; // Or use your RequestType enum
+  type: string;
   title: string;
   description?: string;
   creatorId: number;
@@ -11,12 +11,12 @@ export class RequestEntity {
   locationName?: string;
   maxPlayers: number;
   currentPlayers: number;
-  gameMode: string; // Or use your MatchType enum
+  gameMode: string; 
   dateTime: Date;
-  paymentType: string; // Or use your PaymentType enum
-  ratingType: string; // Or use your RatingType enum
+  paymentType: string; 
+  ratingType: string; 
   formatInfo?: any;
-  status: string; // Or use your RequestStatus enum
+  status: string; 
   participants?: any[];
   responses?: any[];
   createdAt: Date;
@@ -28,7 +28,7 @@ export class RequestResponseEntity {
   requestId: number;
   userId: number;
   userName?: string;
-  status: string; // Or use your ResponseStatus enum
+  status: string;
   message?: string;
   createdAt: Date;
   updatedAt: Date;

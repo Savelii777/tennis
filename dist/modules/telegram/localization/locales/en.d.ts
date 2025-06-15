@@ -1,0 +1,207 @@
+export declare const enLocale: {
+    commands: {
+        start: string;
+        menu: string;
+        profile: string;
+        play: string;
+        tournaments: string;
+        trainings: string;
+        stories: string;
+        cases: string;
+        invite: string;
+        aiCoach: string;
+        recordMatch: string;
+    };
+    profile: {
+        title: string;
+        name: string;
+        username: string;
+        id: string;
+        city: string;
+        statistics: string;
+        matches: string;
+        wins: string;
+        losses: string;
+        winRate: string;
+        rating: string;
+        balls: string;
+        notSpecified: string;
+        setupProfile: string;
+        editProfile: string;
+        achievements: string;
+        fillProfileWarning: string;
+    };
+    game: {
+        title: string;
+        subtitle: string;
+        findGame: string;
+        createRequest: string;
+        myRequests: string;
+        activeRequests: string;
+        noActiveRequests: string;
+        createRequestSuggestion: string;
+        requestCreated: string;
+        requestSteps: {
+            step1: string;
+            step2: string;
+            step3: string;
+            step4: string;
+        };
+        levels: {
+            beginner: string;
+            amateur: string;
+            confident: string;
+            tournament: string;
+            semiPro: string;
+            any: string;
+        };
+        dateTime: string;
+        location: string;
+        level: string;
+        description: string;
+        players: string;
+        respond: string;
+        responsesSent: string;
+        responseInfo: string;
+    };
+    tournaments: {
+        title: string;
+        subtitle: string;
+        active: string;
+        create: string;
+        my: string;
+        history: string;
+        noActive: string;
+        details: string;
+        startDate: string;
+        regEndDate: string;
+        participants: string;
+        entryFee: string;
+        refresh: string;
+        createSteps: {
+            name: string;
+            description: string;
+        };
+        created: string;
+    };
+    trainings: {
+        title: string;
+        subtitle: string;
+        find: string;
+        create: string;
+        my: string;
+        becomeTrainer: string;
+    };
+    stories: {
+        title: string;
+        subtitle: string;
+        upload: string;
+        my: string;
+        popular: string;
+        recent: string;
+        createSteps: {
+            description: string;
+        };
+        created: string;
+    };
+    cases: {
+        title: string;
+        subtitle: string;
+        balance: string;
+        noCases: string;
+        price: string;
+        canOpen: string;
+        locked: string;
+        history: string;
+        opening: string;
+        won: string;
+        spent: string;
+        openMore: string;
+        backToCases: string;
+        notEnoughBalls: string;
+    };
+    aiCoach: {
+        title: string;
+        subtitle: string;
+        chooseTopic: string;
+        techniqueTip: string;
+        trainingPlan: string;
+        gameAnalysis: string;
+        goalSetting: string;
+    };
+    matches: {
+        title: string;
+        chooseType: string;
+        singles: string;
+        doubles: string;
+        enterOpponent: string;
+        enterScore: string;
+    };
+    invite: {
+        title: string;
+        link: string;
+        shareInfo: string;
+        benefits: string;
+        shareButton: string;
+        stats: string;
+        welcome: string;
+        statsTitle: string;
+        totalInvited: string;
+        activePlayers: string;
+        today: string;
+        week: string;
+        month: string;
+        achievements: string;
+        bonusPoints: string;
+        comingSoon: string;
+    };
+    common: {
+        back: string;
+        refresh: string;
+        cancel: string;
+        save: string;
+        edit: string;
+        delete: string;
+        confirm: string;
+        skip: string;
+        next: string;
+        loading: string;
+        success: string;
+        saved: string;
+        created: string;
+        updated: string;
+        deleted: string;
+        error: string;
+        userNotFound: string;
+        tryAgain: string;
+        invalidFormat: string;
+        pastDate: string;
+        unknownCommand: string;
+        processingError: string;
+        mainMenu: string;
+        chooseAction: string;
+        welcomeBack: string;
+        registered: string;
+        unknownText: string;
+    };
+    profileSetup: {
+        firstName: string;
+        lastName: string;
+        city: string;
+        court: string;
+        completed: string;
+        steps: {
+            name: string;
+            lastName: string;
+            city: string;
+        };
+    };
+    debug: {
+        title: string;
+        userId: string;
+        chatId: string;
+        updateType: string;
+        text: string;
+        state: string;
+    };
+};

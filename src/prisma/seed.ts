@@ -1,8 +1,8 @@
 import { PrismaClient, TournamentType, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { seedLocations } from './seeds/locations.seed';
-import { seedCases } from './seeds/cases.seed'; // ← Добавить
-import { seedReferrals } from './seeds/referrals.seed'; // ← Добавить
+import { seedCases } from './seeds/cases.seed';
+import { seedReferrals } from './seeds/referrals.seed';
 
 const prisma = new PrismaClient();
 
@@ -23,7 +23,7 @@ async function main() {
   console.log('Seeding database...');
 
   await seedLocations();
-  await seedCases(); // ← Добавить
+  await seedCases();
   console.log('Creating users...');
   const users = await createUsers();
 
@@ -35,7 +35,7 @@ async function main() {
 
   console.log('Creating tournament matches...');
   await createTournamentMatches(tournaments, users);
-  await seedReferrals(); // ← Добавить
+  await seedReferrals();
 
   console.log('Database seeded successfully');
 }

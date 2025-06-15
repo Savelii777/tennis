@@ -10,12 +10,12 @@ import { CreateCaseItemDto, UpdateCaseItemDto } from '../dto/case-item.dto';
 import { AuthGuard } from '../../../../common/guards/auth.guard';
 import { RolesGuard } from '../../../../common/guards/roles.guard';
 import { Roles } from '../../../../common/decorators/roles.decorator';
-import { Role } from '../../../users/domain/enums/role.enum'; // ← Добавить импорт
+import { Role } from '../../../users/domain/enums/role.enum';
 
 @ApiTags('admin-cases')
 @Controller('admin/cases')
 @UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.ORGANIZER) // ← Использовать enum вместо строк
+@Roles(Role.ADMIN, Role.ORGANIZER) 
 export class AdminCasesController {
   constructor(
     private readonly casesService: CasesService,
@@ -23,7 +23,6 @@ export class AdminCasesController {
     private readonly caseOpeningService: CaseOpeningService,
   ) {}
 
-  // Управление кейсами
   @Post()
   @ApiOperation({ summary: 'Создать новый кейс' })
   @ApiBody({ type: CreateCaseDto })
@@ -73,7 +72,6 @@ export class AdminCasesController {
     return this.casesService.toggleCaseStatus(parseInt(id));
   }
 
-  // Управление призами
   @Post(':caseId/items')
   @ApiOperation({ summary: 'Добавить приз в кейс' })
   @ApiParam({ name: 'caseId', description: 'ID кейса' })
@@ -126,7 +124,6 @@ export class AdminCasesController {
     return this.caseItemsService.toggleItemStatus(parseInt(itemId));
   }
 
-  // Статистика
   @Get(':id/statistics')
   @ApiOperation({ summary: 'Статистика кейса' })
   @ApiParam({ name: 'id', description: 'ID кейса' })
@@ -150,7 +147,6 @@ export class AdminCasesController {
     return this.caseItemsService.getItemStatistics(parseInt(itemId));
   }
 
-  // Управление выигрышами
   @Patch('winnings/:winningId/process')
   @ApiOperation({ summary: 'Отметить физический приз как обработанный' })
   @ApiParam({ name: 'winningId', description: 'ID выигрыша' })

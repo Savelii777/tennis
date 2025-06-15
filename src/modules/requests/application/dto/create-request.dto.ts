@@ -13,6 +13,7 @@ export enum GameMode {
   MIXED = 'MIXED'
 }
 
+
 export class CreateRequestDto {
   @ApiProperty({ description: 'Тип заявки', enum: RequestType })
   @IsEnum(RequestType)
@@ -47,12 +48,8 @@ export class CreateRequestDto {
   @Max(10)
   maxPlayers: number;
 
-  @ApiPropertyOptional({ description: 'Уровень игроков' })
-  @IsString()
-  @IsOptional()
-  playerLevel?: string;
+  // Убираем playerLevel так как его нет в схеме базы данных
 
-  // Добавить недостающие поля для совместимости с репозиторием
   @ApiPropertyOptional({ description: 'Название локации (для совместимости)' })
   @IsString()
   @IsOptional()
@@ -68,7 +65,7 @@ export class CreateRequestDto {
   @IsOptional()
   ratingType?: string;
 
-  @ApiPropertyOptional({ description: 'Информация о формате' })
+  @ApiPropertyOptional({ description: 'Информация о формате (включая уровень)' })
   @IsOptional()
   formatInfo?: any;
 }

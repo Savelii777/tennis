@@ -7,7 +7,6 @@ import { CreateCaseItemDto, UpdateCaseItemDto } from '../../presentation/dto/cas
 export class CasesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Методы для кейсов
   async create(data: CreateCaseDto) {
     return this.prisma.case.create({
       data: {
@@ -87,7 +86,6 @@ export class CasesRepository {
     });
   }
 
-  // Методы для призов
   async createItem(caseId: number, data: CreateCaseItemDto) {
     return this.prisma.caseItem.create({
       data: {
@@ -134,7 +132,6 @@ export class CasesRepository {
     });
   }
 
-  // Методы для открытия кейсов
   async createOpening(data: any) {
     return this.prisma.caseOpening.create({
       data
@@ -198,7 +195,6 @@ export class CasesRepository {
     });
   }
 
-  // Методы для статистики
   async getCaseStatistics(caseId: number) {
     const [openings, winnings, itemStats] = await Promise.all([
       this.prisma.caseOpening.count({
