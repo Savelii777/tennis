@@ -46,7 +46,7 @@ let LocationsRepository = class LocationsRepository {
         const { countryCode, query, limit = 10 } = params;
         const where = {
             population: {
-                gte: 500000 // Только города с населением от 500k
+                gte: 500000
             }
         };
         if (countryCode) {

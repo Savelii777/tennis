@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: tennis_user
       POSTGRES_PASSWORD: tennis_password
     ports:
-      - "5432:5432"
+      - "15432:5432"  # Внешний порт 15432 вместо 5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -29,50 +29,49 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      # База данных
+      # База данных (внутренний порт остается 5432)
       DATABASE_URL: postgresql://tennis_user:tennis_password@postgres:5432/tennis_app
       
       # JWT
-      JWT_SECRET: tennis_super_secret_key_2024_production
+      JWT_SECRET: tennis_super_secret_key_2024_development
       JWT_EXPIRES_IN: 24h
       
       # Приложение
-      NODE_ENV: production
-      PORT: 3000
+      NODE_ENV: development
+      PORT: 3000  # Внутренний порт
       
-      # Telegram Bot (замените на ваш токен)
+      # Telegram Bot
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-your_telegram_bot_token_here}
       
-      # URLs
-      API_BASE_URL: http://localhost:3000
-      FRONTEND_URL: http://localhost:3000
+      # URLs (используем внешний порт)
+      API_BASE_URL: http://localhost:13000
+      FRONTEND_URL: http://localhost:13000
       
       # Файлы
       UPLOAD_PATH: ./uploads
       MAX_FILE_SIZE: 5242880
       
       # Логирование
-      LOG_LEVEL: info
+      LOG_LEVEL: debug
       
     ports:
-      - "3000:3000"
+      - "13000:3000"  # Внешний порт 13000 вместо 3000
+      - "19229:9229"  # Порт для отладки 19229 вместо 9229
     volumes:
+      - .:/app
+      - /app/node_modules
       - ./uploads:/app/uploads
       - ./logs:/app/logs
     networks:
       - tennis-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    command: ["npm", "run", "start:debug"]
 
   # Redis для кеширования (опционально)
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "16379:6379"  # Внешний порт 16379 вместо 6379
     volumes:
       - redis_data:/data
     networks:

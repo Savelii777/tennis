@@ -22,7 +22,6 @@ let TelegramController = TelegramController_1 = class TelegramController {
         this.logger = new common_1.Logger(TelegramController_1.name);
     }
     async handleWebhook(update, secretToken) {
-        // В режиме polling вебхуки не используются
         return { ok: true };
     }
 };

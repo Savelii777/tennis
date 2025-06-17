@@ -67,12 +67,6 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateRequestDto.prototype, "maxPlayers", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Уровень игроков' }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateRequestDto.prototype, "playerLevel", void 0);
-__decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Название локации (для совместимости)' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
@@ -91,7 +85,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateRequestDto.prototype, "ratingType", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Информация о формате' }),
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Информация о формате (включая уровень)' }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
 ], CreateRequestDto.prototype, "formatInfo", void 0);

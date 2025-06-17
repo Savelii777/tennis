@@ -107,5 +107,4 @@ export declare class BotService implements OnModuleInit {
     private generateCityCortsMessage;
     private createMatch;
     private createStory;
-    private updateHandleStatefulInput;
 }

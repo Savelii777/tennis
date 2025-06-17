@@ -32,15 +32,12 @@ let RequestsService = class RequestsService {
     }
     async respond(requestId, userId, respondDto) {
         const request = await this.findById(requestId);
-        // Нельзя откликнуться на свою заявку
         if (request.creatorId === parseInt(userId)) {
             throw new common_1.BadRequestException('You cannot respond to your own request');
         }
-        // Нельзя откликнуться на закрытую заявку
         if (request.status !== request_type_enum_1.RequestStatus.OPEN) {
             throw new common_1.BadRequestException('This request is not open for responses');
         }
-        // Проверка на наличие свободных мест
         if (request.currentPlayers >= request.maxPlayers) {
             throw new common_1.BadRequestException('This request is already full');
         }
@@ -48,11 +45,9 @@ let RequestsService = class RequestsService {
     }
     async acceptResponse(requestId, responseId, userId) {
         const request = await this.findById(requestId);
-        // Только создатель заявки может принимать отклики
         if (request.creatorId !== parseInt(userId)) {
             throw new common_1.ForbiddenException('Only request creator can accept responses');
         }
-        // Проверка на наличие свободных мест
         if (request.currentPlayers >= request.maxPlayers) {
             throw new common_1.BadRequestException('This request is already full');
         }
@@ -60,7 +55,6 @@ let RequestsService = class RequestsService {
     }
     async declineResponse(requestId, responseId, userId) {
         const request = await this.findById(requestId);
-        // Только создатель заявки может отклонять отклики
         if (request.creatorId !== parseInt(userId)) {
             throw new common_1.ForbiddenException('Only request creator can decline responses');
         }

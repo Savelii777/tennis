@@ -3,7 +3,7 @@
 
 set -e
 
-echo "🚀 Запуск Tennis App..."
+echo "🚀 Запуск Tennis App в режиме разработки..."
 
 # Ждем готовности базы данных
 echo "⏳ Ожидание готовности PostgreSQL..."
@@ -15,23 +15,31 @@ echo "✅ PostgreSQL готов!"
 
 # Проверяем что Prisma схема существует
 if [ -f "src/prisma/schema.prisma" ]; then
-    echo "🔧 Генерация Prisma Client..."
-    npx prisma generate
+    echo "✅ Найден файл src/prisma/schema.prisma"
     
-    echo "📦 Применение миграций Prisma..."
-    npx prisma migrate deploy
+    echo "🔧 Генерация Prisma Client в runtime..."
+    npx prisma generate --schema=src/prisma/schema.prisma
     
     if [ $? -eq 0 ]; then
-        echo "✅ Миграции применены успешно"
+        echo "✅ Prisma Client сгенерирован успешно"
         
-        # Проверяем есть ли данные в БД
-        echo "🔍 Проверка данных в базе..."
-        if npx prisma db execute --stdin <<< "SELECT 1;" > /dev/null 2>&1; then
-            USER_COUNT=$(npx prisma db execute --stdin <<< "SELECT COUNT(*) as count FROM \"User\";" 2>/dev/null | grep -o '"count":"[0-9]*"' | grep -o '[0-9]*' || echo "0")
+        echo "📦 Применение миграций Prisma..."
+        npx prisma migrate deploy --schema=src/prisma/schema.prisma
+        
+        if [ $? -eq 0 ]; then
+            echo "✅ Миграции применены успешно"
             
-            if [ "$USER_COUNT" = "0" ]; then
+            # Проверяем есть ли данные в БД (упрощенный способ)
+            echo "🔍 Проверка данных в базе..."
+            
+            # Создаем временный SQL файл для проверки
+            echo "SELECT COUNT(*) as count FROM \"User\";" > /tmp/check_users.sql
+            
+            USER_COUNT=$(npx prisma db execute --file /tmp/check_users.sql --schema=src/prisma/schema.prisma 2>/dev/null | grep -o '"count":"[0-9]*"' | grep -o '[0-9]*' || echo "0")
+            
+            if [ "$USER_COUNT" = "0" ] || [ -z "$USER_COUNT" ]; then
                 echo "🌱 База данных пуста, запускаем сиды..."
-                npx prisma db seed
+                npm run db:seed
                 
                 if [ $? -eq 0 ]; then
                     echo "✅ Сиды выполнены успешно"
@@ -41,14 +49,42 @@ if [ -f "src/prisma/schema.prisma" ]; then
             else
                 echo "ℹ️ База данных уже содержит данные ($USER_COUNT пользователей), пропускаем сиды"
             fi
+            
+            # Удаляем временный файл
+            rm -f /tmp/check_users.sql
         else
-            echo "⚠️ Не удалось проверить данные в БД, пропускаем сиды"
+            echo "⚠️ Ошибка применения миграций, продолжаем без них..."
         fi
     else
-        echo "⚠️ Ошибка применения миграций, продолжаем без них..."
+        echo "❌ Ошибка генерации Prisma Client"
+        echo "🔧 Пробуем альтернативный способ..."
+        
+        # Создаем символическую ссылку на стандартное место
+        mkdir -p prisma
+        ln -sf ../src/prisma/schema.prisma prisma/schema.prisma 2>/dev/null || true
+        ln -sf ../src/prisma/migrations prisma/migrations 2>/dev/null || true
+        
+        npx prisma generate
+        npx prisma migrate deploy
+        
+        # Простая проверка и запуск сидов
+        echo "🌱 Запускаем сиды..."
+        npm run db:seed || echo "⚠️ Сиды не выполнены"
     fi
+elif [ -f "prisma/schema.prisma" ]; then
+    echo "✅ Найден файл prisma/schema.prisma"
+    
+    npx prisma generate
+    npx prisma migrate deploy
+    
+    echo "🌱 Запускаем сиды..."
+    npm run db:seed || echo "⚠️ Сиды не выполнены"
 else
-    echo "⚠️ Prisma схема не найдена, запускаем приложение без настройки БД"
+    echo "⚠️ Prisma схема не найдена ни в src/prisma/, ни в prisma/"
+    echo "📋 Содержимое корневой папки:"
+    ls -la
+    echo "📋 Попытка найти файлы схемы:"
+    find . -name "schema.prisma" -type f 2>/dev/null || echo "Файлы schema.prisma не найдены"
 fi
 
 # Создаем необходимые директории
@@ -59,10 +95,10 @@ mkdir -p /app/uploads/media
 mkdir -p /app/logs
 
 # Устанавливаем права доступа
-chmod 755 /app/uploads /app/logs
-chmod 755 /app/uploads/avatars /app/uploads/stories /app/uploads/media
+chmod 755 /app/uploads /app/logs 2>/dev/null || true
+chmod 755 /app/uploads/* 2>/dev/null || true
 
-echo "🎾 Запуск Tennis App сервера..."
+echo "🎾 Запуск Tennis App сервера в режиме разработки..."
 
 # Запускаем основное приложение
 exec "$@"

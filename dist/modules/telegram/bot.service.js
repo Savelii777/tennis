@@ -26,7 +26,7 @@ const trainings_service_1 = require("../trainings/application/services/trainings
 const stories_service_1 = require("../stories/application/services/stories.service");
 const cases_service_1 = require("../cases/application/services/cases.service");
 const case_opening_service_1 = require("../cases/application/services/case-opening.service");
-const profile_state_enum_1 = require("./interfaces/profile-state.enum"); // ← Исправить импорт
+const profile_state_enum_1 = require("./interfaces/profile-state.enum");
 const create_request_dto_1 = require("../requests/application/dto/create-request.dto");
 const tournament_enum_1 = require("../tournaments/domain/enums/tournament.enum");
 const match_enum_1 = require("../matches/domain/enums/match.enum");
@@ -60,7 +60,6 @@ let BotService = BotService_1 = class BotService {
         this.logger.log('✅ Middleware добавлен');
     }
     // ==================== ОСНОВНЫЕ КОМАНДЫ ====================
-    // Заменить метод getMainKeyboard:
     getMainKeyboard() {
         return telegraf_1.Markup.keyboard([
             ['👤 Профиль', '🎾 Играть'],
@@ -222,12 +221,19 @@ let BotService = BotService_1 = class BotService {
         try {
             if (!ctx.from)
                 return;
-            // Получаем активные заявки других пользователей (используем существующий метод)
+            // Получаем активные заявки других пользователей
             const requests = await this.requestsService.findAll({
                 page: 1,
                 limit: 10
-            }); // ← Временное решение
-            const filteredRequests = requests.filter((req) => req.creator?.telegram_id !== ctx.from?.id.toString()).slice(0, 10);
+            });
+            // Фильтруем заявки с более безопасной проверкой
+            const filteredRequests = requests.filter((req) => {
+                // Проверяем разные возможные поля для ID создателя
+                const creatorTelegramId = req.creator?.telegram_id ||
+                    req.creator?.telegramId ||
+                    req.creatorId?.toString();
+                return creatorTelegramId && creatorTelegramId !== ctx.from?.id.toString();
+            }).slice(0, 10);
             if (filteredRequests.length === 0) {
                 await ctx.editMessageText(`🔍 **Поиск игры**\n\n` +
                     `😔 Пока нет активных заявок.\n\n` +
@@ -237,11 +243,28 @@ let BotService = BotService_1 = class BotService {
             let message = `🔍 **Активные заявки:**\n\n`;
             const buttons = [];
             filteredRequests.forEach((request, index) => {
-                const datetime = new Date(request.scheduledTime).toLocaleString('ru-RU');
-                message += `${index + 1}. **${request.creator.first_name}**\n`;
+                // Безопасное получение данных с fallback значениями
+                const datetime = request.dateTime || request.scheduledTime
+                    ? new Date(request.dateTime || request.scheduledTime).toLocaleString('ru-RU')
+                    : 'Время не указано';
+                const creatorName = request.creator?.first_name ||
+                    request.creator?.firstName ||
+                    request.creatorName ||
+                    'Игрок';
+                const location = request.locationName ||
+                    request.location ||
+                    'Место не указано';
+                const currentPlayers = request.currentPlayers || 0;
+                const maxPlayers = request.maxPlayers || 2;
+                message += `${index + 1}. **${creatorName}**\n`;
                 message += `📅 ${datetime}\n`;
-                message += `📍 ${request.location}\n`;
-                message += `👥 ${request.currentPlayers}/${request.maxPlayers}\n\n`;
+                message += `📍 ${location}\n`;
+                message += `👥 ${currentPlayers}/${maxPlayers}\n`;
+                // Добавляем описание если есть
+                if (request.description && request.description !== 'Поиск партнера для игры в теннис') {
+                    message += `📝 ${request.description}\n`;
+                }
+                message += `\n`;
                 buttons.push([telegraf_1.Markup.button.callback(`${index + 1}. Откликнуться`, `respond_request_${request.id}`)]);
             });
             buttons.push([telegraf_1.Markup.button.callback('🔄 Обновить', 'find_game')]);
@@ -254,7 +277,11 @@ let BotService = BotService_1 = class BotService {
         }
         catch (error) {
             this.logger.error(`Ошибка в handleFindGame: ${error}`);
-            await ctx.reply('❌ Ошибка при поиске игр');
+            // Показываем более информативную ошибку для отладки
+            this.logger.error(`Детали ошибки: ${JSON.stringify(error, null, 2)}`);
+            await ctx.editMessageText(`🔍 **Поиск игры**\n\n` +
+                `😔 Временная ошибка при загрузке заявок.\n\n` +
+                `Попробуйте позже или создайте свою заявку!`, { parse_mode: 'Markdown' });
         }
     }
     async handleCreateRequest(ctx) {
@@ -306,7 +333,7 @@ let BotService = BotService_1 = class BotService {
             const tournaments = await this.tournamentsService.findAll({
                 page: 1,
                 limit: 10
-            }); // ← Временное решение
+            });
             const activeTournaments = tournaments.slice(0, 10);
             if (activeTournaments.length === 0) {
                 await ctx.editMessageText(`🏆 **Активные турниры**\n\n` +
@@ -358,13 +385,13 @@ let BotService = BotService_1 = class BotService {
                 return;
             }
             let message = `🎁 **Доступные кейсы:**\n\n`;
-            message += `💰 Ваш баланс: ${ballsBalance} мячей\n\n`; // ← Исправить
+            message += `💰 Ваш баланс: ${ballsBalance} мячей\n\n`;
             const buttons = [];
             cases.forEach((caseItem, index) => {
                 message += `${index + 1}. **${caseItem.name}**\n`;
                 message += `💰 Цена: ${caseItem.priceBalls} мячей\n`;
                 message += `📝 ${caseItem.description}\n\n`;
-                const canOpen = ballsBalance >= caseItem.priceBalls; // ← Исправить
+                const canOpen = ballsBalance >= caseItem.priceBalls;
                 buttons.push([telegraf_1.Markup.button.callback(`${canOpen ? '🎁' : '🔒'} ${caseItem.name} (${caseItem.priceBalls} мячей)`, canOpen ? `open_case_${caseItem.id}` : `case_info_${caseItem.id}`)]);
             });
             buttons.push([telegraf_1.Markup.button.callback('📊 История открытий', 'case_history')]);
@@ -461,7 +488,7 @@ let BotService = BotService_1 = class BotService {
                 await ctx.reply('❌ Пользователь не найден. Отправьте /start');
                 return;
             }
-            const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'your_bot_name';
+            const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'tennistestdssbot';
             const referralCode = `ref_${user.id.toString().padStart(6, '0')}`;
             const inviteLink = `https://t.me/${botUsername}?start=${referralCode}`;
             const keyboard = telegraf_1.Markup.inlineKeyboard([
@@ -504,7 +531,6 @@ let BotService = BotService_1 = class BotService {
         }
     }
     // ==================== ОБРАБОТКА ТЕКСТА ====================
-    // Заменить строку 695:
     async handleText(ctx) {
         if (!ctx.from || !ctx.message || !('text' in ctx.message))
             return;
@@ -577,7 +603,6 @@ let BotService = BotService_1 = class BotService {
         }
     }
     // ==================== ОБРАБОТКА СОСТОЯНИЙ ====================
-    // Заменить метод handleStatefulInput целиком:
     async handleStatefulInput(ctx, text, userId, userState) {
         switch (userState.step) {
             // Профиль
@@ -692,7 +717,7 @@ let BotService = BotService_1 = class BotService {
                 await ctx.reply('❌ Пользователь не найден');
                 return;
             }
-            // Создаем корректный объект CreateRequestDto
+            // Создаем корректный объект CreateRequestDto без playerLevel
             const requestData = {
                 type: create_request_dto_1.RequestType.GAME,
                 title: `Игра ${new Date(userState.data.requestDateTime).toLocaleDateString('ru-RU')}`,
@@ -702,16 +727,18 @@ let BotService = BotService_1 = class BotService {
                 location: userState.data.requestLocation,
                 locationName: userState.data.requestLocation,
                 maxPlayers: 2,
-                playerLevel: userState.data.requestLevel || 'ANY',
+                // Убираем playerLevel так как его нет в схеме
                 paymentType: 'FREE',
                 ratingType: 'NTRP',
-                formatInfo: {},
+                formatInfo: {
+                    level: userState.data.requestLevel || 'ANY' // Сохраняем уровень в formatInfo
+                },
             };
             const request = await this.requestsService.create(user.id.toString(), requestData);
             const summaryMessage = `✅ **Заявка создана!**\n\n` +
                 `📅 **Время:** ${new Date(requestData.dateTime).toLocaleString('ru-RU')}\n` +
                 `📍 **Место:** ${requestData.location}\n` +
-                `🎯 **Уровень:** ${this.getLevelText(requestData.playerLevel || 'ANY')}\n` + // Исправить null check
+                `🎯 **Уровень:** ${this.getLevelText(userState.data.requestLevel || 'ANY')}\n` +
                 `📝 **Описание:** ${requestData.description}\n\n` +
                 `Ваша заявка опубликована. Другие игроки смогут к вам присоединиться!`;
             await ctx.reply(summaryMessage, {
@@ -726,7 +753,6 @@ let BotService = BotService_1 = class BotService {
         }
     }
     // ==================== ДОБАВИТЬ НЕДОСТАЮЩИЕ МЕТОДЫ ====================
-    // Добавить в класс BotService:
     async handleFirstName(ctx, text, userId, userState) {
         userState.data.firstName = text.trim();
         userState.step = profile_state_enum_1.ProfileStep.AWAITING_LAST_NAME;
@@ -755,7 +781,6 @@ let BotService = BotService_1 = class BotService {
         await ctx.reply(`✅ Соперник: **${text}**\n\n` +
             `Введите счет матча (например: 6-4, 6-2):`, { parse_mode: 'Markdown' });
     }
-    // Добавить в класс BotService перед строкой 1033:
     async handleCity(ctx, text, userId, userState) {
         userState.data.city = text.trim();
         userState.step = profile_state_enum_1.ProfileStep.AWAITING_COURT;
@@ -772,7 +797,6 @@ let BotService = BotService_1 = class BotService {
         // Завершаем создание турнира
         await this.createTournament(ctx, userId, userState);
     }
-    // Заменить метод completeProfileSetup (строка 1054):
     async completeProfileSetup(ctx, userId, userState) {
         try {
             const user = await this.usersService.findByTelegramId(userId);
@@ -799,7 +823,6 @@ let BotService = BotService_1 = class BotService {
             await ctx.reply('❌ Ошибка при сохранении профиля');
         }
     }
-    // Заменить метод createTournament:
     async createTournament(ctx, userId, userState) {
         try {
             const user = await this.usersService.findByTelegramId(userId);
@@ -864,7 +887,6 @@ let BotService = BotService_1 = class BotService {
         }
     }
     // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
-    // Добавить в класс BotService:
     getLevelText(level) {
         const levels = {
             'beginner': '🟢 Новичок',
@@ -953,11 +975,6 @@ let BotService = BotService_1 = class BotService {
                 await ctx.reply('❌ Пользователь не найден');
                 return;
             }
-            // Временно убираем createResponse, так как метода нет
-            // const response = await this.requestsService.createResponse(requestId.toString(), {
-            //   playerId: user.id,
-            //   message: 'Хочу присоединиться к игре!'
-            // });
             await ctx.editMessageText(`✅ **Отклик отправлен!**\n\n` +
                 `Создатель заявки получит уведомление о вашем желании присоединиться.\n\n` +
                 `Ожидайте подтверждения!`, { parse_mode: 'Markdown' });
@@ -1017,7 +1034,6 @@ let BotService = BotService_1 = class BotService {
             await ctx.reply('❌ Ошибка при загрузке статистики');
         }
     }
-    // Добавить в конец класса BotService перед последней закрывающей скобкой
     // ==================== НЕДОСТАЮЩИЕ ОБРАБОТЧИКИ ====================
     async handleMyRequests(ctx) {
         await ctx.answerCbQuery();
@@ -1031,21 +1047,37 @@ let BotService = BotService_1 = class BotService {
             }
             // Используем существующий метод findAll с фильтрацией
             const allRequests = await this.requestsService.findAll({ page: 1, limit: 100 });
-            const myRequests = allRequests.filter(req => req.creatorId === user.id);
+            // Безопасная фильтрация своих заявок
+            const myRequests = allRequests.filter((req) => {
+                const creatorId = req.creatorId || req.creator?.id;
+                return creatorId && creatorId.toString() === user.id.toString();
+            });
             if (myRequests.length === 0) {
                 await ctx.editMessageText(`📋 **Мои заявки**\n\n` +
                     `У вас пока нет активных заявок.\n\n` +
-                    `Создайте новую заявку!`, { parse_mode: 'Markdown' });
+                    `Создайте новую заявку!`, {
+                    parse_mode: 'Markdown',
+                    reply_markup: telegraf_1.Markup.inlineKeyboard([
+                        [telegraf_1.Markup.button.callback('➕ Создать заявку', 'create_request')],
+                        [telegraf_1.Markup.button.callback('⬅️ Назад', 'back_to_play')]
+                    ]).reply_markup
+                });
                 return;
             }
             let message = `📋 **Мои заявки (${myRequests.length}):**\n\n`;
             const buttons = [];
             myRequests.slice(0, 5).forEach((request, index) => {
-                const datetime = new Date(request.dateTime || request.scheduledTime).toLocaleString('ru-RU');
-                message += `${index + 1}. **${request.title}**\n`;
+                const datetime = request.dateTime || request.scheduledTime
+                    ? new Date(request.dateTime || request.scheduledTime).toLocaleString('ru-RU')
+                    : 'Время не указано';
+                const title = request.title || `Заявка ${index + 1}`;
+                const location = request.locationName || request.location || 'Место не указано';
+                const currentPlayers = request.currentPlayers || 0;
+                const maxPlayers = request.maxPlayers || 2;
+                message += `${index + 1}. **${title}**\n`;
                 message += `📅 ${datetime}\n`;
-                message += `📍 ${request.location}\n`;
-                message += `👥 ${request.currentPlayers || 0}/${request.maxPlayers}\n\n`;
+                message += `📍 ${location}\n`;
+                message += `👥 ${currentPlayers}/${maxPlayers}\n\n`;
                 buttons.push([
                     telegraf_1.Markup.button.callback(`✏️ ${index + 1}`, `edit_request_${request.id}`),
                     telegraf_1.Markup.button.callback(`❌ ${index + 1}`, `delete_request_${request.id}`)
@@ -1072,7 +1104,6 @@ let BotService = BotService_1 = class BotService {
         await ctx.answerCbQuery();
         await this.handlePlay(ctx);
     }
-    // Заменить строку 1314:
     async handleRequestLevelCallback(ctx) {
         await ctx.answerCbQuery();
         if (!ctx.from || !ctx.callbackQuery || !('data' in ctx.callbackQuery))
@@ -1188,8 +1219,6 @@ let BotService = BotService_1 = class BotService {
         await ctx.editMessageText(`🎥 **Загрузка видео**\n\n` +
             `Отправьте видео для вашей истории:`, { parse_mode: 'Markdown' });
     }
-    // Заменить метод handleViewStories:
-    // Заменить метод handleViewStories (строка 1630):
     async handleViewStories(ctx) {
         await ctx.answerCbQuery();
         try {
@@ -1212,7 +1241,6 @@ let BotService = BotService_1 = class BotService {
             `Здесь будут отображаться ваши Stories.`, { parse_mode: 'Markdown' });
     }
     // ==================== ОБРАБОТЧИКИ КЕЙСОВ ====================
-    // Заменить строку 1549:
     async handleOpenCaseAction(ctx) {
         await ctx.answerCbQuery();
         if (!ctx.from || !ctx.callbackQuery || !('data' in ctx.callbackQuery))
@@ -1494,7 +1522,6 @@ let BotService = BotService_1 = class BotService {
         });
     }
     // ==================== ДОПОЛНИТЕЛЬНЫЕ ОБРАБОТЧИКИ ====================
-    // Добавить в класс BotService:
     generateCityCortsMessage(city) {
         // Расширенные моковые данные для разных городов
         const courtsByCity = {
@@ -1569,7 +1596,6 @@ let BotService = BotService_1 = class BotService {
         message += `💡 **Совет:** Проверьте наличие свободного времени заранее!`;
         return message;
     }
-    // Заменить метод createMatch:
     async createMatch(ctx, userId, userState) {
         try {
             const user = await this.usersService.findByTelegramId(userId);
@@ -1611,7 +1637,6 @@ let BotService = BotService_1 = class BotService {
             await ctx.reply('❌ Ошибка при записи матча');
         }
     }
-    // Заменить метод createStory (строка 2238):
     async createStory(ctx, userId, userState) {
         try {
             const user = await this.usersService.findByTelegramId(userId);
@@ -1638,21 +1663,6 @@ let BotService = BotService_1 = class BotService {
             this.logger.error(`Ошибка создания истории: ${error}`);
             await ctx.reply('❌ Ошибка при публикации истории');
         }
-    }
-    // Добавить обработчик в switch в handleStatefulInput
-    async updateHandleStatefulInput() {
-        // В существующем методе handleStatefulInput добавить:
-        /*
-        case ProfileStep.AWAITING_CITY_SEARCH:
-          await this.handleCitySearch(ctx, text, userId, userState);
-          break;
-        case ProfileStep.AWAITING_MATCH_DATE:
-          await this.handleMatchDate(ctx, text, userId, userState);
-          break;
-        case ProfileStep.AWAITING_STORY_DESCRIPTION:
-          await this.handleStoryDescription(ctx, text, userId, userState);
-          break;
-        */
     }
 };
 __decorate([

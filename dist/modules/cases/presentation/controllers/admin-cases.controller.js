@@ -23,14 +23,13 @@ const case_item_dto_1 = require("../dto/case-item.dto");
 const auth_guard_1 = require("../../../../common/guards/auth.guard");
 const roles_guard_1 = require("../../../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../../../common/decorators/roles.decorator");
-const role_enum_1 = require("../../../users/domain/enums/role.enum"); // ← Добавить импорт
+const role_enum_1 = require("../../../users/domain/enums/role.enum");
 let AdminCasesController = class AdminCasesController {
     constructor(casesService, caseItemsService, caseOpeningService) {
         this.casesService = casesService;
         this.caseItemsService = caseItemsService;
         this.caseOpeningService = caseOpeningService;
     }
-    // Управление кейсами
     async createCase(createCaseDto) {
         return this.casesService.createCase(createCaseDto);
     }
@@ -49,7 +48,6 @@ let AdminCasesController = class AdminCasesController {
     async toggleCaseStatus(id) {
         return this.casesService.toggleCaseStatus(parseInt(id));
     }
-    // Управление призами
     async createCaseItem(caseId, createItemDto) {
         return this.caseItemsService.createCaseItem(parseInt(caseId), createItemDto);
     }
@@ -65,7 +63,6 @@ let AdminCasesController = class AdminCasesController {
     async toggleItemStatus(itemId) {
         return this.caseItemsService.toggleItemStatus(parseInt(itemId));
     }
-    // Статистика
     async getCaseStatistics(id) {
         return this.casesService.getCaseStatistics(parseInt(id));
     }
@@ -75,7 +72,6 @@ let AdminCasesController = class AdminCasesController {
     async getItemStatistics(itemId) {
         return this.caseItemsService.getItemStatistics(parseInt(itemId));
     }
-    // Управление выигрышами
     async processWinning(winningId, notes) {
         return this.caseOpeningService.markWinningAsProcessed(parseInt(winningId), notes);
     }
@@ -241,8 +237,7 @@ AdminCasesController = __decorate([
     (0, swagger_1.ApiTags)('admin-cases'),
     (0, common_1.Controller)('admin/cases'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN, role_enum_1.Role.ORGANIZER) // ← Использовать enum вместо строк
-    ,
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.ADMIN, role_enum_1.Role.ORGANIZER),
     __metadata("design:paramtypes", [cases_service_1.CasesService,
         case_items_service_1.CaseItemsService,
         case_opening_service_1.CaseOpeningService])

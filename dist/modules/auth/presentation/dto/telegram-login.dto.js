@@ -15,45 +15,75 @@ const class_validator_1 = require("class-validator");
 class TelegramLoginDto {
 }
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Telegram user ID' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Telegram user ID',
+        example: '123456789'
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Telegram hash for verification' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Telegram hash for verification',
+        example: 'test_hash_for_development'
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "hash", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Username' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Username',
+        example: 'testuser'
+    }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "username", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'First name' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'First name',
+        example: 'Test'
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "first_name", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Last name' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Last name',
+        example: 'User'
+    }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "last_name", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Photo URL' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Photo URL',
+        example: 'https://example.com/photo.jpg'
+    }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "photo_url", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Authorization date' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Authorization date',
+        example: '1654837742'
+    }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "auth_date", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Referral code from deep link' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Реферальный код (необязательный)',
+        example: 'REF123ABC',
+        required: false
+    }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "ref", void 0);

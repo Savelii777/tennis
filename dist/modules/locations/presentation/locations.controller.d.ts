@@ -4,8 +4,8 @@ export declare class LocationsController {
     constructor(locationsService: LocationsService);
     getCountries(): Promise<(import(".prisma/client").Country & {
         _count: {
-            users: number;
             cities: number;
+            users: number;
         };
     })[]>;
     searchCities(countryCode?: string, query?: string, limit?: string): Promise<(import(".prisma/client").City & {

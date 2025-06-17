@@ -24,7 +24,7 @@ let CasesController = class CasesController {
         this.caseOpeningService = caseOpeningService;
     }
     async getCases() {
-        return this.casesService.getAllCases(false); // только активные
+        return this.casesService.getAllCases(false);
     }
     async getCaseById(id) {
         return this.casesService.getCaseById(parseInt(id));

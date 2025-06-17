@@ -16,7 +16,6 @@ export declare class CreateRequestDto {
     dateTime: Date;
     location: string;
     maxPlayers: number;
-    playerLevel?: string;
     locationName?: string;
     paymentType?: string;
     ratingType?: string;

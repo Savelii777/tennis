@@ -16,7 +16,6 @@ let CasesRepository = class CasesRepository {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    // Методы для кейсов
     async create(data) {
         return this.prisma.case.create({
             data: {
@@ -91,7 +90,6 @@ let CasesRepository = class CasesRepository {
             where: { id }
         });
     }
-    // Методы для призов
     async createItem(caseId, data) {
         return this.prisma.caseItem.create({
             data: {
@@ -133,7 +131,6 @@ let CasesRepository = class CasesRepository {
             where: { id }
         });
     }
-    // Методы для открытия кейсов
     async createOpening(data) {
         return this.prisma.caseOpening.create({
             data
@@ -190,7 +187,6 @@ let CasesRepository = class CasesRepository {
             }
         });
     }
-    // Методы для статистики
     async getCaseStatistics(caseId) {
         const [openings, winnings, itemStats] = await Promise.all([
             this.prisma.caseOpening.count({

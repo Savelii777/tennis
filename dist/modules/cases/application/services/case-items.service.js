@@ -17,12 +17,10 @@ let CaseItemsService = class CaseItemsService {
         this.casesRepository = casesRepository;
     }
     async createCaseItem(caseId, createItemDto) {
-        // Проверяем существование кейса
         const caseData = await this.casesRepository.findById(caseId);
         if (!caseData) {
             throw new common_1.NotFoundException(`Кейс с ID ${caseId} не найден`);
         }
-        // Проверяем, что сумма шансов не превышает 100%
         await this.validateDropChances(caseId, createItemDto.dropChance);
         return this.casesRepository.createItem(caseId, createItemDto);
     }
@@ -34,7 +32,6 @@ let CaseItemsService = class CaseItemsService {
         if (!item) {
             throw new common_1.NotFoundException(`Приз с ID ${itemId} не найден`);
         }
-        // Если изменяется шанс, проверяем валидность
         if (updateItemDto.dropChance !== undefined) {
             await this.validateDropChances(item.caseId, updateItemDto.dropChance, itemId);
         }

@@ -5,8 +5,8 @@ export declare class LocationsRepository {
     constructor(prisma: PrismaService);
     findAllCountries(): Promise<(import(".prisma/client").Country & {
         _count: {
-            users: number;
             cities: number;
+            users: number;
         };
     })[]>;
     findCountryByCode(code: string): Promise<(import(".prisma/client").Country & {

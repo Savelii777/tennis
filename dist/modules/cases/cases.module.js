@@ -16,14 +16,14 @@ const case_opening_service_1 = require("./application/services/case-opening.serv
 const cases_repository_1 = require("./infrastructure/repositories/cases.repository");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const users_module_1 = require("../users/users.module");
-const auth_module_1 = require("../auth/auth.module"); // ← Добавить импорт
+const auth_module_1 = require("../auth/auth.module");
 let CasesModule = class CasesModule {
 };
 CasesModule = __decorate([
     (0, common_1.Module)({
         imports: [
             users_module_1.UsersModule,
-            auth_module_1.AuthModule // ← Добавить AuthModule для доступа к JwtService и AuthGuard
+            auth_module_1.AuthModule
         ],
         controllers: [cases_controller_1.CasesController, admin_cases_controller_1.AdminCasesController],
         providers: [

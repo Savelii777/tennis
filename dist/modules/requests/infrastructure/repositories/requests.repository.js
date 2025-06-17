@@ -136,7 +136,7 @@ let RequestsRepository = class RequestsRepository {
             return null;
         return this.mapToEntity(request);
     }
-    // ...existing code...
+    // Заменить метод create (строка 140):
     async create(userId, dto) {
         const userIdInt = parseInt(userId);
         const requestData = {
@@ -148,9 +148,7 @@ let RequestsRepository = class RequestsRepository {
             dateTime: dto.dateTime,
             locationName: dto.locationName || dto.location,
             maxPlayers: dto.maxPlayers,
-            playerLevel: dto.playerLevel,
             status: request_type_enum_1.RequestStatus.OPEN,
-            formatInfo: dto.formatInfo || {},
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -160,17 +158,56 @@ let RequestsRepository = class RequestsRepository {
         if (dto.ratingType) {
             requestData.ratingType = dto.ratingType;
         }
-        // Исправить название модели - используем правильное название из schema
         const request = await this.prisma.gameRequest.create({
             data: requestData,
             include: {
-                creator: true,
-                responses: true,
-            },
+                creator: {
+                    select: {
+                        id: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true,
+                        profile: {
+                            select: {
+                                avatarUrl: true,
+                                ratingPoints: true
+                            }
+                        }
+                    }
+                },
+                participants: {
+                    select: {
+                        id: true,
+                        username: true,
+                        firstName: true,
+                        lastName: true,
+                        profile: {
+                            select: {
+                                avatarUrl: true,
+                                ratingPoints: true
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                username: true,
+                                profile: {
+                                    select: {
+                                        avatarUrl: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         });
         return this.mapToEntity(request);
     }
-    // ...existing code...
     async respond(requestId, userId, dto) {
         const response = await this.prisma.requestResponse.upsert({
             where: {

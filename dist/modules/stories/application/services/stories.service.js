@@ -24,12 +24,10 @@ let StoriesService = StoriesService_1 = class StoriesService {
         this.logger = new common_1.Logger(StoriesService_1.name);
     }
     async createStory(userId, createStoryDto) {
-        // Валидация размера файла
         const isValidSize = await this.telegramFileService.validateFileSize(createStoryDto.telegramFileId);
         if (!isValidSize) {
             throw new common_1.BadRequestException('File size exceeds 50MB limit');
         }
-        // Получаем информацию о файле из Telegram
         let telegramFilePath = createStoryDto.telegramFilePath;
         if (!telegramFilePath) {
             const fileInfo = await this.telegramFileService.getFile(createStoryDto.telegramFileId);
@@ -67,7 +65,6 @@ let StoriesService = StoriesService_1 = class StoriesService {
         if (!story.isApproved()) {
             throw new common_1.BadRequestException('Story is not approved yet');
         }
-        // Если file_path еще не кэширован, получаем его
         if (!story.telegramFilePath) {
             const fileInfo = await this.telegramFileService.getFile(story.telegramFileId);
             if (fileInfo?.file_path) {
@@ -81,7 +78,6 @@ let StoriesService = StoriesService_1 = class StoriesService {
         const url = this.telegramFileService.getFileUrl(story.telegramFilePath);
         return { url };
     }
-    // Админские методы
     async getPendingStories() {
         const stories = await this.storiesRepository.findPendingForModeration();
         return stories.map(story => this.mapToResponseDto(story));
@@ -95,7 +91,6 @@ let StoriesService = StoriesService_1 = class StoriesService {
             throw new common_1.BadRequestException('Story is not pending approval');
         }
         const updatedStory = await this.storiesRepository.updateStatus(storyId, story_status_enum_1.StoryStatus.APPROVED);
-        // Уведомляем пользователя об одобрении
         try {
             await this.telegramService.sendNotification(updatedStory.userId, '✅ Ваша story была одобрена и опубликована!');
         }
@@ -115,7 +110,6 @@ let StoriesService = StoriesService_1 = class StoriesService {
             throw new common_1.BadRequestException('Story is not pending approval');
         }
         const updatedStory = await this.storiesRepository.updateStatus(storyId, story_status_enum_1.StoryStatus.REJECTED);
-        // Уведомляем пользователя об отклонении
         try {
             await this.telegramService.sendNotification(updatedStory.userId, '❌ Ваша story была отклонена модератором');
         }
@@ -145,7 +139,6 @@ let StoriesService = StoriesService_1 = class StoriesService {
             createdAt: story.createdAt,
             publishedAt: story.publishedAt,
         };
-        // Добавляем URL файла если story одобрена и есть file_path
         if (story.isApproved() && story.telegramFilePath) {
             const fileUrl = story.getFileUrl(this.telegramFileService.getBotToken());
             response.fileUrl = fileUrl || undefined;
