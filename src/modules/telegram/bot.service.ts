@@ -20,7 +20,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AchievementsService } from '../achievements/application/services/achievements.service';
 import { RatingsService } from '../ratings/ratings.service';
 import { SettingsService } from '../settings/settings.service';
-
+import { LocationsService } from '../locations/application/services/locations.service'; 
+import { ReferralsService } from '../referrals/application/services/referrals.service';
 interface RequestEntity {
   id: number;
   creator: {
@@ -67,6 +68,8 @@ export class BotService implements OnModuleInit {
     private readonly achievementsService: AchievementsService,
     private readonly ratingsService: RatingsService,
     private readonly settingsService: SettingsService,
+    private readonly locationsService: LocationsService, 
+    private readonly referralsService: ReferralsService, 
 
   ) {}
 
@@ -94,8 +97,9 @@ private getMainKeyboard() {
     ['👤 Профиль', '🎾 Играть'],
     ['🏆 Турниры', '🏃‍♂️ Тренировки'],
     ['📱 Stories', '🎁 Кейсы'],
-    ['🔗 Пригласить друга', '⚙️ Настройки'], // Добавляем кнопку настроек
-    ['🤖 AI-Coach', '📝 Записать результат']
+    ['📍 Корты', '🔗 Пригласить друга'], // Добавить кнопку кортов
+    ['🤖 AI-Coach', '⚙️ Настройки'],
+    ['📝 Записать результат']
   ]).resize();
 }
 
@@ -359,6 +363,22 @@ async handleStart(ctx: Context) {
         await ctx.reply('❌ Пользователь не найден. Отправьте /start');
         return;
       }
+      let ratingInfo = '';
+      try {
+        const rating = await this.ratingsService.getRatingForUser(user.id);
+        if (rating) {
+          const levelText = this.getSkillLevelText(rating.skillRating);
+          ratingInfo = `🏆 **Рейтинговая система:**\n` +
+                      `🎯 **NTRP уровень:** ${rating.skillRating?.toFixed(1)} (${levelText})\n` +
+                      `⚡ **Очки силы:** ${rating.skillPoints || 0}\n` +
+                      `⭐ **Очки активности:** ${rating.pointsRating || 0}\n`;
+        } else {
+          ratingInfo = `🏆 **Рейтинг:** Пройдите первый матч для расчета!\n`;
+        }
+      } catch (error) {
+        this.logger.error(`Ошибка получения рейтинга: ${error}`);
+        ratingInfo = `🏆 **Рейтинг:** Временно недоступен\n`;
+      }
 
       try {
         const stats = await this.usersService.getProfileStatistics(user.id.toString());
@@ -369,13 +389,13 @@ async handleStart(ctx: Context) {
           `Имя: ${user.first_name} ${user.last_name || ''}\n` +
           `Username: @${user.username || 'не указан'}\n` +
           `ID: ${user.telegram_id}\n\n` +
+          ratingInfo + `\n` + 
           `📊 **Статистика:**\n` +
           `🎾 Матчей сыграно: ${stats.matchesPlayed}\n` +
           `🏆 Побед: ${stats.matchWins}\n` +
           `😔 Поражений: ${stats.matchLosses}\n` +
           `📈 Процент побед: ${stats.winRate || 0}%\n` +
-          `🏅 Рейтинг: ${stats.ratingPoints} очков\n` +
-          `🎾 Мячей: ${ballsBalance}\n\n` + // ← Исправить
+          `🎾 Мячей: ${ballsBalance}\n\n`; 
           `${!profileStatus.profileComplete ? '⚠️ Профиль не полностью заполнен' : '✅ Профиль заполнен'}`;
 
         const keyboard = Markup.inlineKeyboard([
@@ -775,63 +795,271 @@ private getSkillLevelText(rating: number): string {
     }
   }
 
-  @Action('active_tournaments')
-  async handleActiveTournaments(ctx: Context) {
-    await ctx.answerCbQuery();
+
+async handleActiveTournaments(ctx: Context) {
+  await ctx.answerCbQuery();
+  this.logger.log('🔍 Начинаем handleActiveTournaments');
+  
+  try {
+    this.logger.log('📡 Вызываем tournamentsService.findAll...');
+    
+    // Используем существующий метод findAll
+    const tournaments = await this.tournamentsService.findAll({ 
+      page: 1, 
+      limit: 10 
+    }) as any;
+
+    this.logger.log(`📊 Получено турниров: ${JSON.stringify(tournaments, null, 2)}`);
+    this.logger.log(`📏 Тип данных: ${typeof tournaments}`);
+    this.logger.log(`📦 Это массив? ${Array.isArray(tournaments)}`);
+    
+    // Проверяем структуру данных
+    if (tournaments && typeof tournaments === 'object') {
+      this.logger.log(`🔑 Ключи объекта: ${Object.keys(tournaments)}`);
+      
+      // Возможно это объект с items
+      if (tournaments.items) {
+        this.logger.log(`📋 Найдены items: ${tournaments.items.length} элементов`);
+        this.logger.log(`📋 Items данные: ${JSON.stringify(tournaments.items, null, 2)}`);
+      }
+    }
+
+    // Извлекаем турниры с учетом возможной структуры
+    let activeTournaments: any[] = [];
+    
+    if (Array.isArray(tournaments)) {
+      activeTournaments = tournaments.slice(0, 10);
+      this.logger.log(`✅ Турниры - прямой массив, взяли ${activeTournaments.length} элементов`);
+    } else if (tournaments && tournaments.items && Array.isArray(tournaments.items)) {
+      activeTournaments = tournaments.items.slice(0, 10);
+      this.logger.log(`✅ Турниры в items, взяли ${activeTournaments.length} элементов`);
+    } else if (tournaments && tournaments.data && Array.isArray(tournaments.data)) {
+      activeTournaments = tournaments.data.slice(0, 10);
+      this.logger.log(`✅ Турниры в data, взяли ${activeTournaments.length} элементов`);
+    } else {
+      this.logger.error(`❌ Неизвестная структура данных турниров: ${typeof tournaments}`);
+      activeTournaments = [];
+    }
+
+    this.logger.log(`🎯 Итого активных турниров для отображения: ${activeTournaments.length}`);
+
+    if (activeTournaments.length === 0) {
+      this.logger.log('📝 Отображаем сообщение "нет турниров"');
+      
+      await ctx.editMessageText(
+        `🏆 **Активные турниры**\n\n` +
+        `😔 Пока нет активных турниров.\n\n` +
+        `Создайте свой турнир!`,
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+
+    let message = `🏆 **Активные турниры:**\n\n`;
+    const buttons: any[] = [];
+
+    this.logger.log('🔨 Начинаем формирование сообщения и кнопок...');
+
+    activeTournaments.forEach((tournament: any, index: number) => {
+      this.logger.log(`🏆 Обрабатываем турнир ${index + 1}: ${JSON.stringify(tournament, null, 2)}`);
+      
+      const startDate = tournament.startDate 
+        ? new Date(tournament.startDate).toLocaleDateString('ru-RU')
+        : 'Не указана';
+      
+      // Правильные названия полей из схемы Prisma
+      const title = tournament.title || 'Турнир';
+      const currentPlayers = tournament.currentPlayers || 0;
+      const maxPlayers = tournament.maxPlayers || 0;
+      
+      this.logger.log(`📋 Турнир ${index + 1} данные: title="${title}", currentPlayers=${currentPlayers}, maxPlayers=${maxPlayers}, startDate="${startDate}"`);
+      
+      // Получаем entryFee из formatDetails
+      let entryFee = 0;
+      if (tournament.formatDetails) {
+        this.logger.log(`💰 formatDetails найдены: ${JSON.stringify(tournament.formatDetails)}`);
+        entryFee = tournament.formatDetails.entryFee || 0;
+      } else {
+        this.logger.log(`💰 formatDetails отсутствуют`);
+      }
+      
+      // Получаем registrationEnd из formatDetails
+      let regEndDate = 'Не указана';
+      if (tournament.formatDetails?.registrationEnd) {
+        try {
+          regEndDate = new Date(tournament.formatDetails.registrationEnd).toLocaleDateString('ru-RU');
+          this.logger.log(`📅 Дата окончания регистрации: ${regEndDate}`);
+        } catch (error) {
+          this.logger.error(`❌ Ошибка парсинга даты регистрации: ${error}`);
+        }
+      }
+      
+      const tournamentText = `${index + 1}. **${title}**\n` +
+        `📅 Начало: ${startDate}\n` +
+        `📝 Регистрация до: ${regEndDate}\n` +
+        `👥 ${currentPlayers}/${maxPlayers}\n` +
+        `💰 Взнос: ${entryFee} мячей\n\n`;
+      
+      this.logger.log(`📄 Текст турнира ${index + 1}: ${tournamentText}`);
+      
+      message += tournamentText;
+      
+      buttons.push([Markup.button.callback(
+        `${index + 1}. Подробнее`, 
+        `tournament_details_${tournament.id}`
+      )]);
+      
+      this.logger.log(`🔘 Добавлена кнопка для турнира ${tournament.id}`);
+    });
+
+    buttons.push([Markup.button.callback('🔄 Обновить', 'active_tournaments')]);
+
+    this.logger.log(`📝 Финальное сообщение (длина ${message.length} символов):`);
+    this.logger.log(message);
+    this.logger.log(`🔘 Всего кнопок: ${buttons.length}`);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+    this.logger.log('✅ Сообщение отправлено успешно');
+
+  } catch (error) {
+    this.logger.error(`❌ Ошибка в handleActiveTournaments:`);
+    this.logger.error(`Error message: ${error instanceof Error ? error.message : String(error)}`);
+    this.logger.error(`Error stack: ${error instanceof Error ? error.stack : 'No stack'}`);
+    this.logger.error(`Error details: ${JSON.stringify(error, null, 2)}`);
     
     try {
-      // Используем существующий метод findAll
-      const tournaments = await this.tournamentsService.findAll({ 
-        page: 1, 
-        limit: 10 
-      }) as any;
-
-      const activeTournaments: TournamentEntity[] = tournaments.slice(0, 10);
-
-      if (activeTournaments.length === 0) {
-        await ctx.editMessageText(
-          `🏆 **Активные турниры**\n\n` +
-          `😔 Пока нет активных турниров.\n\n` +
-          `Создайте свой турнир!`,
-          { parse_mode: 'Markdown' }
-        );
-        return;
-      }
-
-      let message = `🏆 **Активные турниры:**\n\n`;
-      const buttons: any[] = [];
-
-      activeTournaments.forEach((tournament: TournamentEntity, index: number) => {
-        const startDate = new Date(tournament.startDate).toLocaleDateString('ru-RU');
-        const regEndDate = new Date(tournament.registrationEndDate).toLocaleDateString('ru-RU');
-        
-        message += `${index + 1}. **${tournament.name}**\n`;
-        message += `📅 Начало: ${startDate}\n`;
-        message += `📝 Регистрация до: ${regEndDate}\n`;
-        message += `👥 ${tournament.currentParticipants}/${tournament.maxParticipants}\n`;
-        message += `💰 Взнос: ${tournament.entryFee || 0} мячей\n\n`;
-        
-        buttons.push([Markup.button.callback(
-          `${index + 1}. Подробнее`, 
-          `tournament_details_${tournament.id}`
-        )]);
-      });
-
-      buttons.push([Markup.button.callback('🔄 Обновить', 'active_tournaments')]);
-
-      const keyboard = Markup.inlineKeyboard(buttons);
-
-      await ctx.editMessageText(message, {
-        parse_mode: 'Markdown',
-        reply_markup: keyboard.reply_markup
-      });
-
-    } catch (error) {
-      this.logger.error(`Ошибка в handleActiveTournaments: ${error}`);
-      await ctx.reply('❌ Ошибка при загрузке турниров');
+      await ctx.reply('❌ Ошибка при загрузке турниров. Попробуйте позже.');
+    } catch (replyError) {
+      this.logger.error(`❌ Ошибка отправки сообщения об ошибке: ${replyError}`);
     }
   }
+}
 
+@Action('active_tournaments')
+async handleActiveTournamentsAction(ctx: Context) {
+  this.logger.log('🎯 Action: active_tournaments');
+  await this.handleActiveTournaments(ctx);
+}
+
+@Action('create_tournament')
+async handleCreateTournamentAction(ctx: Context) {
+  this.logger.log('🎯 Action: create_tournament');
+  await ctx.answerCbQuery();
+  
+  if (!ctx.from) return;
+  const userId = ctx.from.id.toString();
+  
+  this.setUserState(userId, {
+    step: ProfileStep.AWAITING_TOURNAMENT_NAME,
+    data: {}
+  });
+
+  await ctx.editMessageText(
+    `🏆 **Создание турнира**\n\n` +
+    `**Шаг 1 из 5**\n\n` +
+    `Введите название турнира:`,
+    { parse_mode: 'Markdown' }
+  );
+}
+
+@Action('join_tournament')
+async handleJoinTournamentAction(ctx: Context) {
+  this.logger.log('🎯 Action: join_tournament');
+  await this.handleJoinTournament(ctx);
+}
+
+@Action('my_tournaments')
+async handleMyTournamentsAction(ctx: Context) {
+  this.logger.log('🎯 Action: my_tournaments');
+  await ctx.answerCbQuery();
+  
+  try {
+    if (!ctx.from) return;
+
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) {
+      await ctx.reply('❌ Пользователь не найден');
+      return;
+    }
+
+    // Получаем турниры где пользователь участвует
+    const tournaments = await this.tournamentsService.findAll({ page: 1, limit: 10 }) as any[];
+    const myTournaments = tournaments.filter((t: any) => 
+      t.creatorId === user.id || 
+      (t.players && t.players.some((p: any) => p.id === user.id))
+    );
+
+    if (myTournaments.length === 0) {
+      await ctx.editMessageText(
+        `🏆 **Мои турниры**\n\n` +
+        `Вы пока не участвуете в турнирах.\n\n` +
+        `Присоединитесь к существующему или создайте свой!`,
+        { 
+          parse_mode: 'Markdown',
+          reply_markup: Markup.inlineKeyboard([
+            [Markup.button.callback('🔍 Активные турниры', 'active_tournaments')],
+            [Markup.button.callback('➕ Создать турнир', 'create_tournament')],
+            [Markup.button.callback('⬅️ Назад', 'back_to_tournaments')]
+          ]).reply_markup
+        }
+      );
+      return;
+    }
+
+    let message = `🏆 **Мои турниры (${myTournaments.length}):**\n\n`;
+    const buttons: any[] = [];
+
+    myTournaments.forEach((tournament: any, index: number) => {
+      const title = tournament.title || 'Турнир';
+      const startDate = new Date(tournament.startDate).toLocaleDateString('ru-RU');
+      const isCreator = tournament.creatorId === user.id;
+      
+      message += `${index + 1}. **${title}**\n`;
+      message += `📅 ${startDate}\n`;
+      message += `${isCreator ? '👑 Организатор' : '🎾 Участник'}\n\n`;
+      
+      buttons.push([Markup.button.callback(
+        `${index + 1}. Подробнее`, 
+        `tournament_details_${tournament.id}`
+      )]);
+    });
+
+    buttons.push([Markup.button.callback('⬅️ Назад к турнирам', 'back_to_tournaments')]);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleMyTournaments: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке турниров');
+  }
+}
+
+@Action('back_to_tournaments')
+async handleBackToTournaments(ctx: Context) {
+  this.logger.log('🎯 Action: back_to_tournaments');
+  await ctx.answerCbQuery();
+  await this.handleTournaments(ctx);
+}
+
+@Action('back_to_profile')
+async handleBackToProfileAction(ctx: Context) {
+  this.logger.log('🎯 Action: back_to_profile');
+  await ctx.answerCbQuery();
+  await this.handleProfile(ctx);
+}
+
+@Action('detailed_stats')
+async handleDetailedStatsAction(ctx: Context) {
+  this.logger.log('🎯 Action: detailed_stats');
+  await this.handleDetailedStats(ctx);
+}
   // ==================== КЕЙСЫ ====================
 
   @Hears('🎁 Кейсы')
@@ -894,33 +1122,181 @@ private getSkillLevelText(rating: number): string {
 
   // ==================== STORIES ====================
 
-  @Hears('📱 Stories')
-  async handleStories(ctx: Context) {
-    this.logger.log('📱 STORIES кнопка нажата');
-    
-    try {
-      const keyboard = Markup.inlineKeyboard([
-        [Markup.button.callback('📷 Загрузить фото', 'upload_photo_story')],
-        [Markup.button.callback('🎥 Загрузить видео', 'upload_video_story')],
-        [Markup.button.callback('👀 Просмотреть Stories', 'view_stories')],
-        [Markup.button.callback('📋 Мои Stories', 'my_stories')],
-      ]);
+ 
 
-      await ctx.reply(
-        `📱 **Stories**\n\n` +
-        `Делитесь фото и видео с ваших матчей!`,
-        {
-          parse_mode: 'Markdown',
-          reply_markup: keyboard.reply_markup
-        }
-      );
+@Hears('📱 Stories')
+async handleStories(ctx: Context) {
+  this.logger.log('📱 STORIES кнопка нажата');
+  
+  try {
+    if (!ctx.from) return;
 
-    } catch (error) {
-      this.logger.error(`Ошибка в handleStories: ${error}`);
-      await ctx.reply('❌ Ошибка при загрузке Stories');
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) {
+      await ctx.reply('❌ Пользователь не найден. Отправьте /start');
+      return;
     }
-  }
 
+    // Временная заглушка для stories
+    let stories: any[] = [];
+    try {
+      // TODO: Реализовать правильный метод в StoriesService
+      // stories = await this.storiesService.findAll({ page: 1, limit: 5 });
+      stories = []; // Пока используем пустой массив
+    } catch (error) {
+      this.logger.error(`Ошибка получения stories: ${error}`);
+      stories = [];
+    }
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('➕ Создать Story', 'create_story')],
+      [Markup.button.callback('📷 Мои Stories', 'my_stories')],
+      [Markup.button.callback('🔥 Популярные', 'popular_stories')],
+      [Markup.button.callback('👥 Друзья', 'friends_stories')],
+    ]);
+
+    let message = `📱 **Stories**\n\n`;
+    
+    if (stories && stories.length > 0) {
+      message += `🔥 **Последние истории:**\n\n`;
+      
+      stories.slice(0, 3).forEach((story: any, index: number) => {
+        const authorName = story.author?.firstName || story.author?.username || 'Игрок';
+        const timeAgo = this.getTimeAgo(new Date(story.createdAt));
+        
+        message += `${index + 1}. **${authorName}**\n`;
+        message += `⏰ ${timeAgo}\n`;
+        if (story.caption) {
+          message += `📝 ${story.caption.substring(0, 50)}${story.caption.length > 50 ? '...' : ''}\n`;
+        }
+        message += `\n`;
+      });
+    } else {
+      message += `😔 Пока нет историй.\n\n`;
+    }
+
+    message += `Создайте свою первую историю!`;
+
+    await ctx.reply(message, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard.reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleStories: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке Stories');
+  }
+}
+
+// Добавить вспомогательный метод:
+private getTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'только что';
+  if (diffMins < 60) return `${diffMins} мин назад`;
+  if (diffHours < 24) return `${diffHours} ч назад`;
+  if (diffDays < 7) return `${diffDays} дн назад`;
+  return date.toLocaleDateString('ru-RU');
+}
+
+
+@Action('create_story')
+async handleCreateStoryAction(ctx: Context) {
+  this.logger.log('🎯 Action: create_story');
+  await ctx.answerCbQuery();
+  
+  await ctx.editMessageText(
+    `📱 **Создание Story**\n\n` +
+    `Функция в разработке!\n\n` +
+    `Скоро вы сможете:\n` +
+    `• Загружать фото с матчей\n` +
+    `• Делиться достижениями\n` +
+    `• Показывать прогресс\n` +
+    `• Приглашать на игру`,
+    { 
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback('⬅️ Назад к Stories', 'back_to_stories')]
+      ]).reply_markup
+    }
+  );
+}
+
+@Action('my_stories')
+async handleMyStoriesAction(ctx: Context) {
+  this.logger.log('🎯 Action: my_stories');
+  await ctx.answerCbQuery();
+  
+  await ctx.editMessageText(
+    `📷 **Мои Stories**\n\n` +
+    `У вас пока нет историй.\n\n` +
+    `Создайте первую Story о своих успехах в теннисе!`,
+    { 
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback('➕ Создать Story', 'create_story')],
+        [Markup.button.callback('⬅️ Назад', 'back_to_stories')]
+      ]).reply_markup
+    }
+  );
+}
+
+@Action('popular_stories')
+async handlePopularStoriesAction(ctx: Context) {
+  this.logger.log('🎯 Action: popular_stories');
+  await ctx.answerCbQuery();
+  
+  await ctx.editMessageText(
+    `🔥 **Популярные Stories**\n\n` +
+    `Скоро здесь будут отображаться:\n` +
+    `• Самые интересные истории\n` +
+    `• Впечатляющие результаты\n` +
+    `• Мотивирующие посты\n` +
+    `• Советы от профи`,
+    { 
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback('⬅️ Назад', 'back_to_stories')]
+      ]).reply_markup
+    }
+  );
+}
+
+@Action('friends_stories')
+async handleFriendsStoriesAction(ctx: Context) {
+  this.logger.log('🎯 Action: friends_stories');
+  await ctx.answerCbQuery();
+  
+  await ctx.editMessageText(
+    `👥 **Stories друзей**\n\n` +
+    `Здесь будут отображаться истории ваших друзей и постоянных партнеров по теннису.\n\n` +
+    `Пригласите друзей, чтобы следить за их прогрессом!`,
+    { 
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback('🔗 Пригласить друзей', 'invite_friends')],
+        [Markup.button.callback('⬅️ Назад', 'back_to_stories')]
+      ]).reply_markup
+    }
+  );
+}
+
+@Action('back_to_stories')
+async handleBackToStoriesAction(ctx: Context) {
+  this.logger.log('🎯 Action: back_to_stories');
+  await ctx.answerCbQuery();
+  await this.handleStories(ctx);
+}
+
+@Action('invite_friends')
+async handleInviteFriendsAction(ctx: Context) {
+  this.logger.log('🎯 Action: invite_friends');
+  await this.handleInvite(ctx);
+}
   // ==================== ТРЕНИРОВКИ ====================
 
   @Hears('🏃‍♂️ Тренировки')
@@ -1160,73 +1536,7 @@ async handleText(ctx: Context) {
 
 
 
-  // ==================== ОБРАБОТКА СОСТОЯНИЙ ====================
 
-
-private async handleStatefulInput(ctx: Context, text: string, userId: string, userState: UserState) {
-  switch (userState.step) {
-    // Профиль
-    case ProfileStep.AWAITING_FIRST_NAME:
-      await this.handleFirstName(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_LAST_NAME:
-      await this.handleLastName(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_CITY:
-      await this.handleCity(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_COURT:
-      await this.handleCourt(ctx, text, userId, userState);
-      break;
-
-    // Заявки на игру
-    case ProfileStep.AWAITING_REQUEST_DATETIME:
-      await this.handleRequestDateTime(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_REQUEST_LOCATION:
-      await this.handleRequestLocation(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_REQUEST_DESCRIPTION:
-      await this.handleRequestDescription(ctx, text, userId, userState);
-      break;
-
-    // Турниры
-    case ProfileStep.AWAITING_TOURNAMENT_NAME:
-      await this.handleTournamentName(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_TOURNAMENT_DESCRIPTION:
-      await this.handleTournamentDescription(ctx, text, userId, userState);
-      break;
-
-    // Матчи
-    case ProfileStep.AWAITING_MATCH_OPPONENT:
-      await this.handleMatchOpponent(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_MATCH_SCORE:
-      await this.handleMatchScore(ctx, text, userId, userState);
-      break;
-    case ProfileStep.AWAITING_MATCH_DATE:
-      await this.handleMatchDate(ctx, text, userId, userState);
-      break;
-
-    // Stories
-    case ProfileStep.AWAITING_STORY_DESCRIPTION:
-      userState.data.storyDescription = text.trim();
-      await this.createStory(ctx, userId, userState);
-      break;
-
-    // Поиск кортов
-    case ProfileStep.AWAITING_CITY_SEARCH:
-      await this.handleCitySearch(ctx, text, userId, userState);
-      break;
-
-    default:
-      this.logger.warn(`Неизвестное состояние: ${userState.step}`);
-      this.clearUserState(userId);
-      await ctx.reply('❌ Произошла ошибка. Попробуйте начать сначала.');
-      break;
-  }
-}
 
 
 
@@ -1989,26 +2299,255 @@ async handleRequestLevelCallback(ctx: Context) {
 
   // ==================== ОБРАБОТЧИКИ ТУРНИРОВ ====================
 
-  @Action('create_tournament')
-  async handleCreateTournament(ctx: Context) {
-    await ctx.answerCbQuery();
-    
-    if (!ctx.from) return;
 
-    const userId = ctx.from.id.toString();
+@Action('create_tournament')
+async handleCreateTournament(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.from) return;
+  const userId = ctx.from.id.toString();
+  
+  this.setUserState(userId, {
+    step: ProfileStep.AWAITING_TOURNAMENT_NAME,
+    data: {}
+  });
+
+  await ctx.editMessageText(
+    `🏆 **Создание турнира**\n\n` +
+    `**Шаг 1 из 4**\n\n` +
+    `Введите название турнира:`,
+    { parse_mode: 'Markdown' }
+  );
+}
+
+
+// Добавить новый метод:
+
+@Action(/^tournament_players_(\d+)$/)
+async handleTournamentPlayers(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.callbackQuery || !('data' in ctx.callbackQuery)) return;
+  
+  const tournamentId = ctx.callbackQuery.data.split('_')[2];
+  
+  try {
+    const tournament = await this.tournamentsService.findById(tournamentId);
     
-    this.setUserState(userId, {
-      step: ProfileStep.AWAITING_TOURNAMENT_NAME,
-      data: {}
+    if (!tournament) {
+      await ctx.editMessageText('❌ Турнир не найден');
+      return;
+    }
+
+    // Получаем список участников через репозиторий
+    const players = await this.tournamentsService['tournamentsRepository'].getTournamentPlayers(tournamentId);
+
+    let message = `👥 **Участники турнира "${tournament.title}"**\n\n`;
+    
+    if (players.length === 0) {
+      message += `😔 Пока нет участников.\n\nСтаньте первым!`;
+    } else {
+      message += `**Зарегистрировано: ${players.length}/${tournament.maxPlayers}**\n\n`;
+      
+      players.forEach((player: any, index: number) => {
+        const name = player.firstName || player.username || `Игрок ${player.id}`;
+        const rating = player.rating_points || 0;
+        message += `${index + 1}. ${name} (${rating} очков)\n`;
+      });
+    }
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🎾 Зарегистрироваться', `join_tournament_${tournament.id}`)],
+      [Markup.button.callback('⬅️ Назад к турниру', `tournament_details_${tournament.id}`)],
+    ]);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard.reply_markup
     });
 
+  } catch (error) {
+    this.logger.error(`Ошибка получения участников турнира: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке участников');
+  }
+}
+
+
+@Action(/^tournament_details_(\d+)$/)
+async handleTournamentDetails(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.callbackQuery || !('data' in ctx.callbackQuery)) return;
+  
+  const tournamentId = ctx.callbackQuery.data.split('_')[2];
+  
+  try {
+    const tournament = await this.tournamentsService.findById(tournamentId);
+    
+    if (!tournament) {
+      await ctx.editMessageText('❌ Турнир не найден');
+      return;
+    }
+
+    const startDate = new Date(tournament.startDate).toLocaleDateString('ru-RU');
+    const endDate = new Date(tournament.endDate).toLocaleDateString('ru-RU');
+    
+    let regEndDate = 'Не указана';
+    if (tournament.formatDetails?.registrationEnd) {
+      regEndDate = new Date(tournament.formatDetails.registrationEnd).toLocaleDateString('ru-RU');
+    }
+
+    const entryFee = tournament.formatDetails?.entryFee || 0;
+    const prizePool = tournament.formatDetails?.prizePool || 0;
+    const requirements = tournament.formatDetails?.requirements || {};
+
+    let message = `🏆 **${tournament.title}**\n\n`;
+    message += `📝 **Описание:**\n${tournament.description || 'Описание отсутствует'}\n\n`;
+    message += `📅 **Даты:**\n`;
+    message += `• Начало: ${startDate}\n`;
+    message += `• Окончание: ${endDate}\n`;
+    message += `• Регистрация до: ${regEndDate}\n\n`;
+    message += `👥 **Участники:** ${tournament.currentPlayers}/${tournament.maxPlayers}\n`;
+    message += `🎾 **Тип:** ${this.getTournamentTypeText(tournament.type)}\n`;
+    message += `📍 **Место:** ${tournament.locationName || 'Не указано'}\n\n`;
+    
+    if (entryFee > 0) {
+      message += `💰 **Взнос:** ${entryFee} мячей\n`;
+    }
+    if (prizePool > 0) {
+      message += `🏆 **Призовой фонд:** ${prizePool} мячей\n`;
+    }
+    
+    if (requirements.minRating || requirements.maxRating) {
+      message += `📊 **Требования по рейтингу:** ${requirements.minRating || 0} - ${requirements.maxRating || '∞'}\n`;
+    }
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🎾 Зарегистрироваться', `join_tournament_${tournament.id}`)],
+      [Markup.button.callback('👥 Участники', `tournament_players_${tournament.id}`)],
+      [Markup.button.callback('⬅️ Назад к турнирам', 'active_tournaments')],
+    ]);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard.reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка получения деталей турнира: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке турнира');
+  }
+}
+
+// Добавить вспомогательный метод для типов турниров:
+private getTournamentTypeText(type: string): string {
+  switch (type) {
+    case 'SINGLE_ELIMINATION':
+      return 'На выбывание';
+    case 'GROUPS_PLAYOFF':
+      return 'Группы + Плей-офф';
+    case 'LEAGUE':
+      return 'Лига (круговая)';
+    case 'BLITZ':
+      return 'Блиц-турнир';
+    default:
+      return 'Неизвестный тип';
+  }
+}
+
+
+@Action('join_tournament')
+async handleJoinTournament(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    const tournaments = await this.tournamentsService.findAll({ 
+      page: 1, 
+      limit: 10,
+      status: 'DRAFT' // Только турниры открытые для регистрации
+    }) as any[];
+
+    if (tournaments.length === 0) {
+      await ctx.editMessageText(
+        `🏆 **Турниры**\n\n` +
+        `😔 Нет открытых турниров для регистрации.\n\n` +
+        `Создайте свой турнир!`,
+        { 
+          parse_mode: 'Markdown',
+          reply_markup: Markup.inlineKeyboard([
+            [Markup.button.callback('➕ Создать турнир', 'create_tournament')]
+          ]).reply_markup
+        }
+      );
+      return;
+    }
+
+    let message = `🏆 **Доступные турниры:**\n\n`;
+    const buttons: any[] = [];
+
+    tournaments.forEach((tournament: any, index: number) => {
+      const startDate = new Date(tournament.startDate).toLocaleDateString('ru-RU');
+      
+      // Правильные названия полей
+      const title = tournament.title || 'Турнир';
+      const currentPlayers = tournament.currentPlayers || 0;
+      const maxPlayers = tournament.maxPlayers || 0;
+      const entryFee = tournament.formatDetails?.entryFee || 0;
+      
+      message += `${index + 1}. **${title}**\n`;
+      message += `📅 Начало: ${startDate}\n`;
+      message += `👥 Участников: ${currentPlayers}/${maxPlayers}\n`;
+      message += `💰 Взнос: ${entryFee} мячей\n\n`;
+      
+      buttons.push([Markup.button.callback(
+        `🎾 ${title}`, 
+        `join_tournament_${tournament.id}`
+      )]);
+    });
+
+    buttons.push([Markup.button.callback('⬅️ Назад', 'back_to_tournaments')]);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка загрузки турниров: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке турниров');
+  }
+}
+
+
+@Action(/^join_tournament_(\d+)$/)
+async handleJoinSpecificTournament(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.callbackQuery || !('data' in ctx.callbackQuery)) return;
+  
+  const tournamentId = parseInt(ctx.callbackQuery.data.split('_')[2]);
+  const userId = ctx.from?.id.toString();
+  
+  if (!userId) return;
+
+  try {
+    const user = await this.usersService.findByTelegramId(userId);
+    if (!user) return;
+
+    await this.tournamentsService.joinTournament(tournamentId.toString(), user.id.toString());
+    
     await ctx.editMessageText(
-      `🏆 **Создание турнира**\n\n` +
-      `**Шаг 1 из 5**\n\n` +
-      `Введите название турнира:`,
+      `✅ **Успешно!**\n\n` +
+      `Вы зарегистрированы в турнире!\n\n` +
+      `Следите за обновлениями и готовьтесь к игре! 🎾`,
       { parse_mode: 'Markdown' }
     );
+
+  } catch (error) {
+    this.logger.error(`Ошибка регистрации в турнире: ${error}`);
+    await ctx.reply('❌ Ошибка при регистрации в турнире');
   }
+}
 
   @Action('my_tournaments')
   async handleMyTournaments(ctx: Context) {
@@ -2086,6 +2625,84 @@ async handleRequestLevelCallback(ctx: Context) {
       await ctx.reply('❌ Ошибка при поиске тренировок');
     }
   }
+  // Добавить новые методы для тренировок:
+
+@Action('create_training')
+async handleCreateTraining(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.from) return;
+  const userId = ctx.from.id.toString();
+  
+  this.setUserState(userId, {
+    step: ProfileStep.AWAITING_TRAINING_TITLE,
+    data: {}
+  });
+
+  await ctx.editMessageText(
+    `🏃‍♂️ **Создание тренировки**\n\n` +
+    `**Шаг 1 из 3**\n\n` +
+    `Введите название тренировки:`,
+    { parse_mode: 'Markdown' }
+  );
+}
+
+@Action('join_training')
+async handleJoinTraining(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    const trainings = await this.trainingsService.findAll({ 
+      page: 1, 
+      limit: 10 
+    }) as any[];
+
+    if (trainings.length === 0) {
+      await ctx.editMessageText(
+        `🏃‍♂️ **Тренировки**\n\n` +
+        `😔 Нет активных тренировок.\n\n` +
+        `Создайте свою тренировку!`,
+        { 
+          parse_mode: 'Markdown',
+          reply_markup: Markup.inlineKeyboard([
+            [Markup.button.callback('➕ Создать тренировку', 'create_training')]
+          ]).reply_markup
+        }
+      );
+      return;
+    }
+
+    let message = `🏃‍♂️ **Доступные тренировки:**\n\n`;
+    const buttons: any[] = [];
+
+    trainings.forEach((training: any, index: number) => {
+      const date = new Date(training.scheduledTime).toLocaleString('ru-RU');
+      const participantsCount = training.participants?.length || 0;
+      const maxParticipants = training.maxParticipants || 'Не ограничено';
+      
+      message += `${index + 1}. **${training.title}**\n`;
+      message += `📅 ${date}\n`;
+      message += `👥 ${participantsCount}/${maxParticipants}\n`;
+      message += `📍 ${training.location || 'Не указано'}\n\n`;
+      
+      buttons.push([Markup.button.callback(
+        `🏃‍♂️ ${training.title}`, 
+        `join_training_${training.id}`
+      )]);
+    });
+
+    buttons.push([Markup.button.callback('⬅️ Назад', 'back_to_trainings')]);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка загрузки тренировок: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке тренировок');
+  }
+}
 
   @Action('my_trainings')
   async handleMyTrainings(ctx: Context) {
@@ -2398,17 +3015,114 @@ async handleOpenCaseAction(ctx: Context) {
     );
   }
 
-  @Action('detailed_stats')
-  async handleDetailedStats(ctx: Context) {
-    await ctx.answerCbQuery();
+// Добавить новые действия для статистики:
+@Action('detailed_stats')
+async handleDetailedStats(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.from) return;
+
+  try {
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) return;
+
+// Получаем детальную статистику
+const [stats, rating, matches] = await Promise.all([
+  this.usersService.getProfileStatistics(user.id.toString()),
+  this.ratingsService.getRatingForUser(user.id),
+  this.matchesService.findByCreator(user.id.toString())
+]);
+
+    let message = `📊 **Детальная статистика**\n\n`;
     
-    await ctx.editMessageText(
-      `📊 **Подробная статистика**\n\n` +
-      `Функция в разработке.\n\n` +
-      `Здесь будет детальная аналитика вашей игры.`,
-      { parse_mode: 'Markdown' }
-    );
+    // Рейтинги
+    if (rating) {
+      message += `🏆 **Рейтинговая система:**\n`;
+      message += `🎯 **NTRP уровень:** ${rating.skillRating?.toFixed(1) || 'N/A'}\n`;
+      message += `⚡ **Очки силы:** ${rating.skillPoints || 0}\n`;
+      message += `⭐ **Очки активности:** ${rating.pointsRating || 0}\n\n`;
+    }
+
+    // Статистика матчей
+    message += `🎾 **Матчи:**\n`;
+    message += `✅ Всего: ${stats.matchesPlayed || 0}\n`;
+    message += `🏆 Побед: ${stats.matchWins || 0}\n`;
+    message += `😔 Поражений: ${stats.matchLosses || 0}\n`;
+    message += `📈 Процент побед: ${stats.winRate || 0}%\n\n`;
+
+    // Турниры
+    message += `🏆 **Турниры:**\n`;
+    message += `🎯 Участий: ${stats.tournamentsPlayed || 0}\n`;
+    message += `🥇 Побед: ${stats.tournamentsWon || 0}\n\n`;
+    // Достижения
+    const achievements = await this.achievementsService.getUserAchievements(user.id.toString());
+    message += `🏅 **Достижения:** ${achievements.length}\n`;
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🏅 Достижения', 'user_achievements')],
+      [Markup.button.callback('📈 График прогресса', 'progress_chart')],
+      [Markup.button.callback('⬅️ Назад к профилю', 'back_to_profile')],
+    ]);
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard.reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка получения детальной статистики: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке статистики');
   }
+}
+
+@Action('user_achievements')
+async handleUserAchievements(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.from) return;
+
+  try {
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) return;
+
+    const achievements = await this.achievementsService.getUserAchievements(user.id.toString());
+
+    if (achievements.length === 0) {
+      await ctx.editMessageText(
+        `🏅 **Достижения**\n\n` +
+        `У вас пока нет достижений.\n\n` +
+        `Играйте в матчи, участвуйте в турнирах и приглашайте друзей, чтобы получить первые награды!`,
+        { 
+          parse_mode: 'Markdown',
+          reply_markup: Markup.inlineKeyboard([
+            [Markup.button.callback('⬅️ Назад', 'detailed_stats')]
+          ]).reply_markup
+        }
+      );
+      return;
+    }
+
+    let message = `🏅 **Ваши достижения (${achievements.length}):**\n\n`;
+
+    achievements.forEach((achievement: any, index: number) => {
+      const earnedDate = new Date(achievement.earnedAt).toLocaleDateString('ru-RU');
+      message += `${index + 1}. **${achievement.achievement.title}**\n`;
+      message += `📝 ${achievement.achievement.description}\n`;
+      message += `📅 Получено: ${earnedDate}\n\n`;
+    });
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard([
+        [Markup.button.callback('⬅️ Назад', 'detailed_stats')]
+      ]).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка получения достижений: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке достижений');
+  }
+}
 
   @Action('match_history')
   async handleMatchHistoryAction(ctx: Context) {
@@ -2581,38 +3295,54 @@ async notifyNewAchievement(userId: string, achievementCode: string) {
 
   // ==================== ПОИСК КОРТОВ ====================
 
-  @Hears('📍 Найти корты')
-  async handleFindCourtsButton(ctx: Context) {
-    await this.handleFindCourts(ctx);
+@Hears('📍 Корты')
+async handleLocations(ctx: Context) {
+  this.logger.log('📍 КОРТЫ кнопка нажата');
+  
+  try {
+    if (!ctx.from) return;
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🔍 Найти корты', 'find_courts')],
+      [Markup.button.callback('➕ Добавить корт', 'add_court')],
+      [Markup.button.callback('📍 Корты рядом', 'nearby_courts')],
+      [Markup.button.callback('⭐ Популярные', 'popular_courts')],
+    ]);
+
+    await ctx.reply(
+      `📍 **Теннисные корты**\n\n` +
+      `🎾 Найдите лучшие корты в вашем городе!\n\n` +
+      `Что вас интересует?`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: keyboard.reply_markup
+      }
+    );
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleLocations: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке раздела кортов');
   }
+}
 
-  async handleFindCourts(ctx: Context) {
-    this.logger.log('📍 НАЙТИ КОРТЫ функция');
-    
-    try {
-      if (!ctx.from) return;
+ @Action('find_courts')
+async handleFindCourts(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  if (!ctx.from) return;
+  const userId = ctx.from.id.toString();
+  
+  this.setUserState(userId, {
+    step: ProfileStep.AWAITING_CITY_SEARCH,
+    data: {}
+  });
 
-      const keyboard = Markup.inlineKeyboard([
-        [Markup.button.callback('🏙️ Москва', 'courts_moscow')],
-        [Markup.button.callback('🏙️ СПб', 'courts_spb')],
-        [Markup.button.callback('🌆 Другой город', 'courts_other_city')],
-        [Markup.button.callback('📍 По геолокации', 'courts_location')],
-      ]);
-
-      await ctx.reply(
-        `📍 **Поиск теннисных кортов**\n\n` +
-        `Выберите способ поиска:`,
-        {
-          parse_mode: 'Markdown',
-          reply_markup: keyboard.reply_markup
-        }
-      );
-
-    } catch (error) {
-      this.logger.error(`Ошибка в handleFindCourts: ${error}`);
-      await ctx.reply('❌ Ошибка при поиске кортов');
-    }
-  }
+  await ctx.editMessageText(
+    `🔍 **Поиск кортов**\n\n` +
+    `Введите название города:`,
+    { parse_mode: 'Markdown' }
+  );
+}
 
   @Action('courts_moscow')
   async handleCourtsMoscow(ctx: Context) {

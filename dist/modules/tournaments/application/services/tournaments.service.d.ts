@@ -8,6 +8,7 @@ import { UsersService } from '../../../users/application/services/users.service'
 export declare class TournamentsService {
     private readonly tournamentsRepository;
     private readonly usersService;
+    private readonly logger;
     constructor(tournamentsRepository: TournamentsRepository, usersService: UsersService);
     findAll(filters?: any): Promise<TournamentEntity[]>;
     findById(id: string): Promise<TournamentEntity>;

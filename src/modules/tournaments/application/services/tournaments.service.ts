@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { TournamentsRepository } from '../../infrastructure/repositories/tournaments.repository';
 import { TournamentEntity } from '../../domain/entities/tournament.entity';
 import { TournamentMatchEntity } from '../../domain/entities/tournament-match.entity';
@@ -10,14 +10,33 @@ import { UsersService } from '../../../users/application/services/users.service'
 
 @Injectable()
 export class TournamentsService {
+  private readonly logger = new Logger(TournamentsService.name);
+
   constructor(
     private readonly tournamentsRepository: TournamentsRepository,
     private readonly usersService: UsersService,
   ) {}
 
-  async findAll(filters?: any): Promise<TournamentEntity[]> {
-    return this.tournamentsRepository.findAll(filters);
+async findAll(filters?: any): Promise<TournamentEntity[]> {
+  this.logger.log(`🔍 TournamentsService.findAll вызван с фильтрами: ${JSON.stringify(filters)}`);
+  
+  try {
+    const result = await this.tournamentsRepository.findAll(filters);
+    
+    this.logger.log(`📊 TournamentsRepository.findAll вернул: ${JSON.stringify(result, null, 2)}`);
+    this.logger.log(`📏 Тип результата: ${typeof result}`);
+    this.logger.log(`📦 Это массив? ${Array.isArray(result)}`);
+    
+    if (result && typeof result === 'object' && !Array.isArray(result)) {
+      this.logger.log(`🔑 Ключи объекта результата: ${Object.keys(result)}`);
+    }
+    
+    return result;
+  } catch (error) {
+    this.logger.error(`❌ Ошибка в TournamentsService.findAll: ${error}`);
+    throw error;
   }
+}
 
   async findById(id: string): Promise<TournamentEntity> {
     const tournament = await this.tournamentsRepository.findById(id);

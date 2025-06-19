@@ -8,19 +8,35 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var TournamentsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TournamentsService = void 0;
 const common_1 = require("@nestjs/common");
 const tournaments_repository_1 = require("../../infrastructure/repositories/tournaments.repository");
 const tournament_enum_1 = require("../../domain/enums/tournament.enum");
 const users_service_1 = require("../../../users/application/services/users.service");
-let TournamentsService = class TournamentsService {
+let TournamentsService = TournamentsService_1 = class TournamentsService {
     constructor(tournamentsRepository, usersService) {
         this.tournamentsRepository = tournamentsRepository;
         this.usersService = usersService;
+        this.logger = new common_1.Logger(TournamentsService_1.name);
     }
     async findAll(filters) {
-        return this.tournamentsRepository.findAll(filters);
+        this.logger.log(`🔍 TournamentsService.findAll вызван с фильтрами: ${JSON.stringify(filters)}`);
+        try {
+            const result = await this.tournamentsRepository.findAll(filters);
+            this.logger.log(`📊 TournamentsRepository.findAll вернул: ${JSON.stringify(result, null, 2)}`);
+            this.logger.log(`📏 Тип результата: ${typeof result}`);
+            this.logger.log(`📦 Это массив? ${Array.isArray(result)}`);
+            if (result && typeof result === 'object' && !Array.isArray(result)) {
+                this.logger.log(`🔑 Ключи объекта результата: ${Object.keys(result)}`);
+            }
+            return result;
+        }
+        catch (error) {
+            this.logger.error(`❌ Ошибка в TournamentsService.findAll: ${error}`);
+            throw error;
+        }
     }
     async findById(id) {
         const tournament = await this.tournamentsRepository.findById(id);
@@ -861,7 +877,7 @@ let TournamentsService = class TournamentsService {
         return result;
     }
 };
-TournamentsService = __decorate([
+TournamentsService = TournamentsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [tournaments_repository_1.TournamentsRepository,
         users_service_1.UsersService])
