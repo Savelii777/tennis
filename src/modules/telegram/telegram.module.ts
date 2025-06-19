@@ -15,6 +15,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AchievementsModule } from '../achievements/achievements.module'; // Добавляем
 import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
     forwardRef(() => NotificationsModule),
     forwardRef(() => AchievementsModule), 
     forwardRef(() => RatingsModule),
+    forwardRef(() => SettingsModule),
 
   ],
   controllers: [TelegramController],

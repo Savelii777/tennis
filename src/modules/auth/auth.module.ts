@@ -6,12 +6,16 @@ import { TelegramAuthService } from './infrastructure/telegram/telegram-auth.ser
 import { AuthController } from './presentation/controllers/auth.controller';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersModule } from '../users/users.module';
-import { AchievementsModule } from '../achievements/achievements.module'; // Добавляем
+import { AchievementsModule } from '../achievements/achievements.module';
+import { SettingsModule } from '../settings/settings.module';
+import { RatingsModule } from '../ratings/ratings.module'; // Добавляем RatingsModule
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
     forwardRef(() => AchievementsModule),
+    forwardRef(() => SettingsModule),
+    forwardRef(() => RatingsModule), // Добавляем циклический импорт RatingsModule
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

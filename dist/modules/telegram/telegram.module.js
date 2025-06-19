@@ -24,6 +24,7 @@ const notifications_module_1 = require("../notifications/notifications.module");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const achievements_module_1 = require("../achievements/achievements.module"); // Добавляем
 const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем
+const settings_module_1 = require("../settings/settings.module");
 let TelegramModule = class TelegramModule {
 };
 TelegramModule = __decorate([
@@ -55,6 +56,7 @@ TelegramModule = __decorate([
             (0, common_1.forwardRef)(() => notifications_module_1.NotificationsModule),
             (0, common_1.forwardRef)(() => achievements_module_1.AchievementsModule),
             (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule),
+            (0, common_1.forwardRef)(() => settings_module_1.SettingsModule),
         ],
         controllers: [telegram_controller_1.TelegramController],
         providers: [

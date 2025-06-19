@@ -6,11 +6,11 @@ export declare class ReferralsRepository {
         referralStats: import(".prisma/client").ReferralStats | null;
     }) | null>;
     findUserByReferralCode(referralCode: string): Promise<{
-        id: number;
+        lastName: string | null;
         username: string;
         firstName: string;
-        lastName: string | null;
         referralCode: string | null;
+        id: number;
     } | null>;
     updateUserReferralCode(userId: number, referralCode: string): Promise<import(".prisma/client").User & {
         referralStats: import(".prisma/client").ReferralStats | null;
@@ -18,9 +18,9 @@ export declare class ReferralsRepository {
     createUserWithReferrer(userData: any): Promise<import(".prisma/client").User & {
         profile: import(".prisma/client").UserProfile | null;
         referrer: {
-            id: number;
             username: string;
             firstName: string;
+            id: number;
         } | null;
     }>;
     createReferralActivity(data: any): Promise<import(".prisma/client").ReferralActivity>;
@@ -30,19 +30,19 @@ export declare class ReferralsRepository {
     updateReferralStats(userId: number, data: any): Promise<import(".prisma/client").ReferralStats>;
     getUserReferrals(userId: number): Promise<(import(".prisma/client").ReferralActivity & {
         invitedUser: {
-            id: number;
+            lastName: string | null;
             username: string;
             firstName: string;
-            lastName: string | null;
+            id: number;
         };
     })[]>;
     getReferralActivity(userId: number): Promise<import(".prisma/client").ReferralActivity[]>;
     getTopReferrers(limit: number): Promise<(import(".prisma/client").ReferralStats & {
         user: {
-            id: number;
+            lastName: string | null;
             username: string;
             firstName: string;
-            lastName: string | null;
+            id: number;
         };
     })[]>;
     getTotalUsersCount(): Promise<number>;

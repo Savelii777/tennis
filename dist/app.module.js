@@ -24,6 +24,7 @@ const shared_module_1 = require("./shared/shared.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const achievements_module_1 = require("./modules/achievements/achievements.module");
 const ratings_module_1 = require("./modules/ratings/ratings.module"); // Добавляем
+const settings_module_1 = require("./modules/settings/settings.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -35,6 +36,7 @@ AppModule = __decorate([
             shared_module_1.SharedModule,
             achievements_module_1.AchievementsModule,
             ratings_module_1.RatingsModule,
+            settings_module_1.SettingsModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             matches_module_1.MatchesModule,

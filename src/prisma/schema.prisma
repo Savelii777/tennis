@@ -65,6 +65,8 @@ model City {
   lng         Float
   timezone    String?
   users       User[]
+  userSettings  UserSettings[]
+
   createdAt   DateTime @default(now())
   
   @@index([countryCode])
@@ -79,7 +81,58 @@ model Sport {
   slug      String @unique
   emoji     String?
   users     User[]
+  userSettings  UserSettings[]
+
   createdAt DateTime @default(now())
+}
+
+
+model UserSettings {
+  id                      Int      @id @default(autoincrement())
+  userId                  Int      @unique
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Основные настройки
+  language                String   @default("ru") // 'ru' | 'en'
+  cityId                  Int?
+  city                    City?    @relation(fields: [cityId], references: [id])
+  sportId                 Int?
+  sport                   Sport?   @relation(fields: [sportId], references: [id])
+  
+  // Настройки уведомлений
+  notificationsEnabled    Boolean  @default(true)
+  notifyTelegram          Boolean  @default(true)
+  notifyEmail             Boolean  @default(false)
+  matchReminderTime       String   @default("1h") // '1h' | '1d' | 'off'
+  notifyMatchResults      Boolean  @default(true)
+  notifyTournamentResults Boolean  @default(true)
+  
+  // Приватность и безопасность
+  showProfilePublicly     Boolean  @default(true)
+  showRatingPublicly      Boolean  @default(true)
+  allowMatchInvites       Boolean  @default(true)
+  requireMatchConfirm     Boolean  @default(false)
+  
+  // Предпочтения по соперникам
+  preferredGender         String?  // 'male' | 'female' | 'any'
+  preferredAgeMin         Int?
+  preferredAgeMax         Int?
+  preferredLevelMin       Float?   // NTRP рейтинг
+  preferredLevelMax       Float?
+  
+  // Дополнительные настройки
+  theme                   String   @default("light") // 'light' | 'dark' | 'auto'
+  timezone                String   @default("Europe/Moscow")
+  
+  // Telegram специфичные
+  telegramChatId          String?
+  
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([language])
+  @@index([notificationsEnabled])
 }
 
 model User {
@@ -131,12 +184,14 @@ model User {
   invitedActivities   ReferralActivity[] @relation("InvitedActivity")
 
   notifications Notification[]
-  userSettings  UserSettings?
   achievements UserAchievement[] @relation("UserAchievements")
 
   rating        PlayerRating?
   ratingHistory RatingHistory[]
   opponentHistory RatingHistory[] @relation("OpponentHistory")
+
+  settings      UserSettings?
+
 }
 
 
@@ -466,19 +521,7 @@ model Invite {
   createdAt     DateTime @default(now())
 }
 
-model UserSettings {
-  id                   Int     @id @default(autoincrement())
-  userId               Int     @unique
-  user                 User    @relation(fields: [userId], references: [id])
-  telegramChatId       String?
-  notificationsEnabled Boolean @default(true)
-  emailNotifications   Boolean @default(true)
-  pushNotifications    Boolean @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
-  @@index([userId])
-}
+
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int

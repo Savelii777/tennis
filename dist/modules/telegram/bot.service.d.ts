@@ -14,6 +14,7 @@ import { NotificationsService } from '../notifications/application/services/noti
 import { PrismaService } from '../../prisma/prisma.service';
 import { AchievementsService } from '../achievements/application/services/achievements.service';
 import { RatingsService } from '../ratings/ratings.service';
+import { SettingsService } from '../settings/settings.service';
 export declare class BotService implements OnModuleInit {
     private readonly bot;
     private readonly usersService;
@@ -30,9 +31,10 @@ export declare class BotService implements OnModuleInit {
     private readonly prisma;
     private readonly achievementsService;
     private readonly ratingsService;
+    private readonly settingsService;
     private readonly logger;
     private userStates;
-    constructor(bot: Telegraf<Context>, usersService: UsersService, ballsService: BallsService, requestsService: RequestsService, tournamentsService: TournamentsService, matchesService: MatchesService, trainingsService: TrainingsService, storiesService: StoriesService, casesService: CasesService, caseOpeningService: CaseOpeningService, telegramService: TelegramService, notificationsService: NotificationsService, prisma: PrismaService, achievementsService: AchievementsService, ratingsService: RatingsService);
+    constructor(bot: Telegraf<Context>, usersService: UsersService, ballsService: BallsService, requestsService: RequestsService, tournamentsService: TournamentsService, matchesService: MatchesService, trainingsService: TrainingsService, storiesService: StoriesService, casesService: CasesService, caseOpeningService: CaseOpeningService, telegramService: TelegramService, notificationsService: NotificationsService, prisma: PrismaService, achievementsService: AchievementsService, ratingsService: RatingsService, settingsService: SettingsService);
     onModuleInit(): Promise<void>;
     private getMainKeyboard;
     private getUserState;
@@ -59,6 +61,10 @@ export declare class BotService implements OnModuleInit {
     handleAICoach(ctx: Context): Promise<void>;
     handleText(ctx: Context): Promise<void>;
     private handleStatefulInput;
+    handleSettings(ctx: Context): Promise<void>;
+    handleSettingsLanguage(ctx: Context): Promise<void>;
+    handleSetLanguage(ctx: Context): Promise<void>;
+    handleBackToSettings(ctx: Context): Promise<void>;
     private handleRequestDateTime;
     private handleRequestLocation;
     private handleRequestDescription;

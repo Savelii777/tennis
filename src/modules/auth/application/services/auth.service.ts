@@ -5,6 +5,8 @@ import { UsersService } from '../../../users/application/services/users.service'
 import { TelegramLoginDto } from '../../presentation/dto/telegram-login.dto';
 import { UserEntity } from '../../../users/domain/entities/user.entity';
 import { AchievementsService } from '../../../achievements/application/services/achievements.service';
+import { SettingsService } from '../../../settings/settings.service';
+import { RatingsService } from '../../../ratings/ratings.service'; // Добавляем импорт RatingsService
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,8 @@ export class AuthService {
     private telegramAuthService: TelegramAuthService,
     private userService: UsersService,
     private readonly achievementsService: AchievementsService,
+    private readonly settingsService: SettingsService,
+    private readonly ratingsService: RatingsService, // Добавляем RatingsService
   ) {}
 
   async loginTelegram(telegramLoginDto: TelegramLoginDto): Promise<any> {
@@ -28,9 +32,50 @@ export class AuthService {
         this.logger.log(`Creating new user for Telegram ID: ${telegramLoginDto.id}`);
         user = await this.userService.createFromTelegram(telegramLoginDto);
         isNewUser = true;
+
+        // Создаем дефолтный рейтинг для нового пользователя
+        try {
+          await this.ratingsService.createDefaultRating(user.id);
+          this.logger.log(`Created default rating for new user ${user.id}`);
+        } catch (ratingError) {
+          this.logger.error(`Failed to create rating for user ${user.id}:`, ratingError);
+          // Не прерываем процесс регистрации из-за ошибки рейтинга
+        }
+
+        // Создаем дефолтные настройки для нового пользователя
+        try {
+          await this.settingsService.createDefaultSettings(user.id);
+          this.logger.log(`Created default settings for new user ${user.id}`);
+        } catch (settingsError) {
+          this.logger.error(`Failed to create settings for user ${user.id}:`, settingsError);
+          // Не прерываем процесс регистрации из-за ошибки настроек
+        }
+
       } else {
         this.logger.log(`Existing user found: ${user.id}`);
         user = await this.userService.updateLastLogin(user.id.toString());
+
+        // Проверяем, есть ли у существующего пользователя рейтинг
+        try {
+          const existingRating = await this.ratingsService.getRatingForUser(user.id);
+          if (!existingRating) {
+            await this.ratingsService.createDefaultRating(user.id);
+            this.logger.log(`Created missing rating for existing user ${user.id}`);
+          }
+        } catch (ratingError) {
+          this.logger.error(`Failed to check/create rating for existing user ${user.id}:`, ratingError);
+        }
+
+        // Проверяем, есть ли у существующего пользователя настройки
+        try {
+          const existingSettings = await this.settingsService.getUserSettings(user.id);
+          if (!existingSettings) {
+            await this.settingsService.createDefaultSettings(user.id);
+            this.logger.log(`Created missing settings for existing user ${user.id}`);
+          }
+        } catch (settingsError) {
+          this.logger.error(`Failed to check/create settings for existing user ${user.id}:`, settingsError);
+        }
       }
 
       // Проверяем, что user не null после создания/обновления
@@ -48,7 +93,6 @@ export class AuthService {
             'registration_completed'
           );
         } catch (achievementError) {
-          // Логируем ошибку, но не прерываем процесс авторизации
           this.logger.error(`Failed to check achievements for new user ${user.id}:`, achievementError);
         }
       }
@@ -57,7 +101,7 @@ export class AuthService {
         user: {
           id: user.id,
           username: user.username,
-          firstName: user.first_name, // Исправляем имена полей
+          firstName: user.first_name,
           lastName: user.last_name,
           telegramId: user.telegram_id,
           role: user.role,
@@ -104,6 +148,16 @@ export class AuthService {
         first_name: telegramLoginDto.first_name,
         last_name: telegramLoginDto.last_name,
       });
+
+      // Создаем рейтинг и настройки для нового пользователя
+      try {
+        await this.ratingsService.createDefaultRating(user.id);
+        await this.settingsService.createDefaultSettings(user.id);
+        this.logger.log(`Created rating and settings for new user: ${user.username} (ID: ${user.id})`);
+      } catch (error) {
+        this.logger.error(`Failed to create rating/settings for new user ${user.id}:`, error);
+      }
+
       this.logger.log(`Создан новый пользователь: ${user.username} (ID: ${user.id})`);
     } else {
       this.logger.log(`Пользователь найден: ${user.username} (ID: ${user.id})`);
@@ -148,17 +202,74 @@ export class AuthService {
       photo_url: telegramData.photo_url || null,
     };
 
-    return this.userService.create(userData);
+    const user = await this.userService.create(userData);
+
+    // Создаем рейтинг и настройки для нового пользователя
+    try {
+      await this.ratingsService.createDefaultRating(user.id);
+      await this.settingsService.createDefaultSettings(user.id);
+      this.logger.log(`Created rating and settings for new Telegram user ${user.id}`);
+    } catch (error) {
+      this.logger.error(`Failed to create rating/settings for new Telegram user ${user.id}:`, error);
+    }
+
+    return user;
   }
 
   async refreshToken(userId: string): Promise<any> {
     this.logger.log(`Обновление токена для пользователя: ${userId}`);
     const user = await this.userService.findById(userId);
-    return this.generateJwt(user);
+    return this.generateTokens(user.id.toString(), user.username);
   }
 
   async logout(userId: string): Promise<any> {
     this.logger.log(`Выход пользователя: ${userId}`);
-    return { success: true };
+    return { message: 'Успешный выход из системы' };
+  }
+
+  /**
+   * Получить рейтинг пользователя (вспомогательный метод)
+   */
+  async getUserRating(userId: string): Promise<any> {
+    try {
+      return await this.ratingsService.getRatingForUser(parseInt(userId));
+    } catch (error) {
+      this.logger.error(`Failed to get rating for user ${userId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Получить настройки пользователя (вспомогательный метод)
+   */
+  async getUserSettings(userId: string): Promise<any> {
+    try {
+      return await this.settingsService.getUserSettings(parseInt(userId));
+    } catch (error) {
+      this.logger.error(`Failed to get settings for user ${userId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Полная информация о пользователе (профиль + рейтинг + настройки)
+   */
+  async getFullUserProfile(userId: string): Promise<any> {
+    try {
+      const [user, rating, settings] = await Promise.all([
+        this.getProfile(userId),
+        this.getUserRating(userId),
+        this.getUserSettings(userId),
+      ]);
+
+      return {
+        user,
+        rating,
+        settings,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get full profile for user ${userId}:`, error);
+      throw error;
+    }
   }
 }

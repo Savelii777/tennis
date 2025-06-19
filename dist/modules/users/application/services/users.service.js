@@ -77,14 +77,6 @@ let UsersService = class UsersService {
             role: role_enum_1.Role.USER,
         };
         const user = await this.create(userData);
-        // Создаем дефолтный рейтинг при регистрации
-        try {
-            await this.ratingsService.createDefaultRating(user.id);
-        }
-        catch (error) {
-            console.error(`Failed to create default rating for user ${user.id}:`, error);
-            // Не прерываем создание пользователя из-за ошибки рейтинга
-        }
         return user;
     }
     // Добавляем недостающий метод updateLastLogin
@@ -105,13 +97,6 @@ let UsersService = class UsersService {
         const user = new user_entity_1.UserEntity();
         Object.assign(user, createUserDto);
         const createdUser = await this.usersRepository.create(user);
-        // Создаем дефолтный рейтинг при создании пользователя
-        try {
-            await this.ratingsService.createDefaultRating(createdUser.id);
-        }
-        catch (error) {
-            console.error(`Failed to create default rating for user ${createdUser.id}:`, error);
-        }
         return createdUser;
     }
     async update(id, updateUserDto) {

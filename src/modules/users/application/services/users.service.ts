@@ -83,13 +83,6 @@ async findByTelegramId(telegramId: string): Promise<UserEntity | null> {
 
     const user = await this.create(userData);
     
-    // Создаем дефолтный рейтинг при регистрации
-    try {
-      await this.ratingsService.createDefaultRating(user.id);
-    } catch (error) {
-      console.error(`Failed to create default rating for user ${user.id}:`, error);
-      // Не прерываем создание пользователя из-за ошибки рейтинга
-    }
     
     return user;
   }
@@ -115,12 +108,6 @@ async findByTelegramId(telegramId: string): Promise<UserEntity | null> {
     Object.assign(user, createUserDto);
     const createdUser = await this.usersRepository.create(user);
     
-    // Создаем дефолтный рейтинг при создании пользователя
-    try {
-      await this.ratingsService.createDefaultRating(createdUser.id);
-    } catch (error) {
-      console.error(`Failed to create default rating for user ${createdUser.id}:`, error);
-    }
     
     return createdUser;
   }

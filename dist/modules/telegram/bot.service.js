@@ -35,8 +35,9 @@ const match_enum_1 = require("../matches/domain/enums/match.enum");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const achievements_service_1 = require("../achievements/application/services/achievements.service");
 const ratings_service_1 = require("../ratings/ratings.service");
+const settings_service_1 = require("../settings/settings.service");
 let BotService = BotService_1 = class BotService {
-    constructor(bot, usersService, ballsService, requestsService, tournamentsService, matchesService, trainingsService, storiesService, casesService, caseOpeningService, telegramService, notificationsService, prisma, achievementsService, ratingsService) {
+    constructor(bot, usersService, ballsService, requestsService, tournamentsService, matchesService, trainingsService, storiesService, casesService, caseOpeningService, telegramService, notificationsService, prisma, achievementsService, ratingsService, settingsService) {
         this.bot = bot;
         this.usersService = usersService;
         this.ballsService = ballsService;
@@ -52,6 +53,7 @@ let BotService = BotService_1 = class BotService {
         this.prisma = prisma;
         this.achievementsService = achievementsService;
         this.ratingsService = ratingsService;
+        this.settingsService = settingsService;
         this.logger = new common_1.Logger(BotService_1.name);
         // Храним состояния пользователей в памяти (в продакшене лучше использовать Redis)
         this.userStates = new Map();
@@ -73,11 +75,11 @@ let BotService = BotService_1 = class BotService {
     getMainKeyboard() {
         return telegraf_1.Markup.keyboard([
             ['👤 Профиль', '🎾 Играть'],
-            ['🏆 Турниры', '🎁 Кейсы'],
-            ['📝 Записать результат', '📱 Stories'],
-            ['🏃‍♂️ Тренировки', '🔗 Пригласить друга'],
-            ['🤖 AI-Coach', '📍 Найти корты']
-        ]).resize().persistent();
+            ['🏆 Турниры', '🏃‍♂️ Тренировки'],
+            ['📱 Stories', '🎁 Кейсы'],
+            ['🔗 Пригласить друга', '⚙️ Настройки'],
+            ['🤖 AI-Coach', '📝 Записать результат']
+        ]).resize();
     }
     getUserState(userId) {
         return this.userStates.get(userId) || { step: profile_state_enum_1.ProfileStep.IDLE, data: {} };
@@ -926,6 +928,91 @@ let BotService = BotService_1 = class BotService {
                 await ctx.reply('❌ Произошла ошибка. Попробуйте начать сначала.');
                 break;
         }
+    }
+    async handleSettings(ctx) {
+        this.logger.log('⚙️ НАСТРОЙКИ кнопка нажата');
+        try {
+            if (!ctx.from)
+                return;
+            const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+            if (!user) {
+                await ctx.reply('❌ Пользователь не найден. Отправьте /start');
+                return;
+            }
+            const settings = await this.settingsService.getUserSettings(user.id);
+            const keyboard = telegraf_1.Markup.inlineKeyboard([
+                [telegraf_1.Markup.button.callback('🧑 Профиль', 'settings_profile')],
+                [telegraf_1.Markup.button.callback('🔔 Уведомления', 'settings_notifications')],
+                [telegraf_1.Markup.button.callback('🎯 Предпочтения', 'settings_preferences')],
+                [telegraf_1.Markup.button.callback('🌐 Язык', 'settings_language')],
+                [telegraf_1.Markup.button.callback('🔒 Приватность', 'settings_privacy')],
+            ]);
+            const languageFlag = settings.language === 'ru' ? '🇷🇺' : '🇬🇧';
+            const notificationStatus = settings.notificationsEnabled ? '🔔' : '🔕';
+            const profileVisibility = settings.showProfilePublicly ? '👁️' : '🙈';
+            await ctx.reply(`⚙️ **Настройки**\n\n` +
+                `🌐 **Язык:** ${languageFlag} ${settings.language.toUpperCase()}\n` +
+                `${notificationStatus} **Уведомления:** ${settings.notificationsEnabled ? 'Включены' : 'Отключены'}\n` +
+                `${profileVisibility} **Профиль:** ${settings.showProfilePublicly ? 'Публичный' : 'Приватный'}\n` +
+                `🏙️ **Город:** ${settings.city?.name || 'Не указан'}\n` +
+                `🎾 **Спорт:** ${settings.sport?.title || 'Не указан'}\n\n` + // Исправляем name на title
+                `Выберите раздел для настройки:`, {
+                parse_mode: 'Markdown',
+                reply_markup: keyboard.reply_markup
+            });
+        }
+        catch (error) {
+            this.logger.error(`Ошибка в handleSettings: ${error}`);
+            await ctx.reply('❌ Ошибка при загрузке настроек');
+        }
+    }
+    async handleSettingsLanguage(ctx) {
+        await ctx.answerCbQuery();
+        try {
+            if (!ctx.from)
+                return;
+            const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+            if (!user)
+                return;
+            const settings = await this.settingsService.getUserSettings(user.id);
+            const keyboard = telegraf_1.Markup.inlineKeyboard([
+                [telegraf_1.Markup.button.callback('🇷🇺 Русский', 'set_language_ru')],
+                [telegraf_1.Markup.button.callback('🇬🇧 English', 'set_language_en')],
+                [telegraf_1.Markup.button.callback('⬅️ Назад', 'back_to_settings')],
+            ]);
+            await ctx.editMessageText(`🌐 **Выбор языка**\n\n` +
+                `Текущий язык: ${settings.language === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English'}\n\n` +
+                `Выберите язык интерфейса:`, {
+                parse_mode: 'Markdown',
+                reply_markup: keyboard.reply_markup
+            });
+        }
+        catch (error) {
+            this.logger.error(`Ошибка в handleSettingsLanguage: ${error}`);
+            await ctx.reply('❌ Ошибка при загрузке языковых настроек');
+        }
+    }
+    async handleSetLanguage(ctx) {
+        await ctx.answerCbQuery();
+        try {
+            if (!ctx.from || !ctx.callbackQuery || !('data' in ctx.callbackQuery))
+                return;
+            const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+            if (!user)
+                return;
+            const language = ctx.callbackQuery.data.replace('set_language_', '');
+            await this.settingsService.updateLanguage(user.id, language);
+            const languageText = language === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English';
+            await ctx.reply(`✅ Язык изменен на ${languageText}`, { parse_mode: 'Markdown' });
+            await this.handleSettings(ctx);
+        }
+        catch (error) {
+            this.logger.error(`Ошибка в handleSetLanguage: ${error}`);
+            await ctx.reply('❌ Ошибка при изменении языка');
+        }
+    }
+    async handleBackToSettings(ctx) {
+        await this.handleSettings(ctx);
     }
     // ==================== ОБРАБОТЧИКИ ЗАЯВОК ====================
     async handleRequestDateTime(ctx, text, userId, userState) {
@@ -2092,6 +2179,30 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], BotService.prototype, "handleText", null);
 __decorate([
+    (0, nestjs_telegraf_1.Hears)('⚙️ Настройки'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [telegraf_1.Context]),
+    __metadata("design:returntype", Promise)
+], BotService.prototype, "handleSettings", null);
+__decorate([
+    (0, nestjs_telegraf_1.Action)('settings_language'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [telegraf_1.Context]),
+    __metadata("design:returntype", Promise)
+], BotService.prototype, "handleSettingsLanguage", null);
+__decorate([
+    (0, nestjs_telegraf_1.Action)(/^set_language_(.+)$/),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [telegraf_1.Context]),
+    __metadata("design:returntype", Promise)
+], BotService.prototype, "handleSetLanguage", null);
+__decorate([
+    (0, nestjs_telegraf_1.Action)('back_to_settings'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [telegraf_1.Context]),
+    __metadata("design:returntype", Promise)
+], BotService.prototype, "handleBackToSettings", null);
+__decorate([
     (0, nestjs_telegraf_1.Action)(/^open_case_(\d+)$/),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [telegraf_1.Context]),
@@ -2343,6 +2454,7 @@ BotService = BotService_1 = __decorate([
         notifications_service_1.NotificationsService,
         prisma_service_1.PrismaService,
         achievements_service_1.AchievementsService,
-        ratings_service_1.RatingsService])
+        ratings_service_1.RatingsService,
+        settings_service_1.SettingsService])
 ], BotService);
 exports.BotService = BotService;

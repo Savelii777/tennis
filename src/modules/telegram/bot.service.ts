@@ -19,6 +19,7 @@ import { MatchType } from '../matches/domain/enums/match.enum';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AchievementsService } from '../achievements/application/services/achievements.service';
 import { RatingsService } from '../ratings/ratings.service';
+import { SettingsService } from '../settings/settings.service';
 
 interface RequestEntity {
   id: number;
@@ -65,6 +66,7 @@ export class BotService implements OnModuleInit {
     private readonly prisma: PrismaService, 
     private readonly achievementsService: AchievementsService,
     private readonly ratingsService: RatingsService,
+    private readonly settingsService: SettingsService,
 
   ) {}
 
@@ -90,11 +92,11 @@ export class BotService implements OnModuleInit {
 private getMainKeyboard() {
   return Markup.keyboard([
     ['👤 Профиль', '🎾 Играть'],
-    ['🏆 Турниры', '🎁 Кейсы'],
-    ['📝 Записать результат', '📱 Stories'],
-    ['🏃‍♂️ Тренировки', '🔗 Пригласить друга'],
-    ['🤖 AI-Coach', '📍 Найти корты']
-  ]).resize().persistent();
+    ['🏆 Турниры', '🏃‍♂️ Тренировки'],
+    ['📱 Stories', '🎁 Кейсы'],
+    ['🔗 Пригласить друга', '⚙️ Настройки'], // Добавляем кнопку настроек
+    ['🤖 AI-Coach', '📝 Записать результат']
+  ]).resize();
 }
 
   private getUserState(userId: string): UserState {
@@ -1225,6 +1227,125 @@ private async handleStatefulInput(ctx: Context, text: string, userId: string, us
       break;
   }
 }
+
+
+
+@Hears('⚙️ Настройки')
+async handleSettings(ctx: Context) {
+  this.logger.log('⚙️ НАСТРОЙКИ кнопка нажата');
+  
+  try {
+    if (!ctx.from) return;
+
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) {
+      await ctx.reply('❌ Пользователь не найден. Отправьте /start');
+      return;
+    }
+
+    const settings = await this.settingsService.getUserSettings(user.id);
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🧑 Профиль', 'settings_profile')],
+      [Markup.button.callback('🔔 Уведомления', 'settings_notifications')],
+      [Markup.button.callback('🎯 Предпочтения', 'settings_preferences')],
+      [Markup.button.callback('🌐 Язык', 'settings_language')],
+      [Markup.button.callback('🔒 Приватность', 'settings_privacy')],
+    ]);
+
+    const languageFlag = settings.language === 'ru' ? '🇷🇺' : '🇬🇧';
+    const notificationStatus = settings.notificationsEnabled ? '🔔' : '🔕';
+    const profileVisibility = settings.showProfilePublicly ? '👁️' : '🙈';
+
+    await ctx.reply(
+      `⚙️ **Настройки**\n\n` +
+      `🌐 **Язык:** ${languageFlag} ${settings.language.toUpperCase()}\n` +
+      `${notificationStatus} **Уведомления:** ${settings.notificationsEnabled ? 'Включены' : 'Отключены'}\n` +
+      `${profileVisibility} **Профиль:** ${settings.showProfilePublicly ? 'Публичный' : 'Приватный'}\n` +
+      `🏙️ **Город:** ${settings.city?.name || 'Не указан'}\n` +
+      `🎾 **Спорт:** ${settings.sport?.title || 'Не указан'}\n\n` + // Исправляем name на title
+      `Выберите раздел для настройки:`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: keyboard.reply_markup
+      }
+    );
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleSettings: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке настроек');
+  }
+}
+
+@Action('settings_language')
+async handleSettingsLanguage(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    if (!ctx.from) return;
+
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) return;
+
+    const settings = await this.settingsService.getUserSettings(user.id);
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🇷🇺 Русский', 'set_language_ru')],
+      [Markup.button.callback('🇬🇧 English', 'set_language_en')],
+      [Markup.button.callback('⬅️ Назад', 'back_to_settings')],
+    ]);
+
+    await ctx.editMessageText(
+      `🌐 **Выбор языка**\n\n` +
+      `Текущий язык: ${settings.language === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English'}\n\n` +
+      `Выберите язык интерфейса:`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: keyboard.reply_markup
+      }
+    );
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleSettingsLanguage: ${error}`);
+    await ctx.reply('❌ Ошибка при загрузке языковых настроек');
+  }
+}
+
+@Action(/^set_language_(.+)$/)
+async handleSetLanguage(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    if (!ctx.from || !ctx.callbackQuery || !('data' in ctx.callbackQuery)) return;
+
+    const user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    if (!user) return;
+
+    const language = ctx.callbackQuery.data.replace('set_language_', '');
+    
+    await this.settingsService.updateLanguage(user.id, language);
+
+    const languageText = language === 'ru' ? '🇷🇺 Русский' : '🇬🇧 English';
+    await ctx.reply(
+      `✅ Язык изменен на ${languageText}`,
+      { parse_mode: 'Markdown' }
+    );
+
+    await this.handleSettings(ctx);
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleSetLanguage: ${error}`);
+    await ctx.reply('❌ Ошибка при изменении языка');
+  }
+}
+
+@Action('back_to_settings')
+async handleBackToSettings(ctx: Context) {
+  await this.handleSettings(ctx);
+}
+
+
+
 
   // ==================== ОБРАБОТЧИКИ ЗАЯВОК ====================
 

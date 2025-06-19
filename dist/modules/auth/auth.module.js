@@ -15,7 +15,9 @@ const telegram_auth_service_1 = require("./infrastructure/telegram/telegram-auth
 const auth_controller_1 = require("./presentation/controllers/auth.controller");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const users_module_1 = require("../users/users.module");
-const achievements_module_1 = require("../achievements/achievements.module"); // Добавляем
+const achievements_module_1 = require("../achievements/achievements.module");
+const settings_module_1 = require("../settings/settings.module");
+const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем RatingsModule
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -23,6 +25,8 @@ AuthModule = __decorate([
         imports: [
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             (0, common_1.forwardRef)(() => achievements_module_1.AchievementsModule),
+            (0, common_1.forwardRef)(() => settings_module_1.SettingsModule),
+            (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule),
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],

@@ -14,8 +14,8 @@ export declare class LocationsRepository {
     }) | null>;
     searchCities(params: SearchCitiesParams): Promise<(import(".prisma/client").City & {
         country: {
-            code: string;
             name: string;
+            code: string;
             flagUrl: string | null;
         };
         _count: {
@@ -24,8 +24,8 @@ export declare class LocationsRepository {
     })[]>;
     getPopularCities(countryCode: string, limit: number): Promise<(import(".prisma/client").City & {
         country: {
-            code: string;
             name: string;
+            code: string;
             flagUrl: string | null;
         };
         _count: {
@@ -34,8 +34,8 @@ export declare class LocationsRepository {
     })[]>;
     findCityById(id: number): Promise<(import(".prisma/client").City & {
         country: {
-            code: string;
             name: string;
+            code: string;
             flagUrl: string | null;
         };
         _count: {

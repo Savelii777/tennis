@@ -15,6 +15,7 @@ import { SharedModule } from './shared/shared.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AchievementsModule } from './modules/achievements/achievements.module';
 import { RatingsModule } from './modules/ratings/ratings.module'; // Добавляем
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RatingsModule } from './modules/ratings/ratings.module'; // Добав�
     SharedModule, 
     AchievementsModule,
     RatingsModule, // Добавляем
+    SettingsModule,
     AuthModule,
     UsersModule,
     MatchesModule,
