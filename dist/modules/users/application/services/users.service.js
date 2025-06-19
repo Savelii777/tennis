@@ -14,10 +14,14 @@ const common_1 = require("@nestjs/common");
 const user_entity_1 = require("../../domain/entities/user.entity");
 const users_repository_1 = require("../../infrastructure/repositories/users.repository");
 const prisma_service_1 = require("../../../../prisma/prisma.service");
+const role_enum_1 = require("../../domain/enums/role.enum");
+const ratings_service_1 = require("../../../ratings/ratings.service"); // Добавляем импорт
 let UsersService = class UsersService {
-    constructor(usersRepository, prisma) {
+    constructor(usersRepository, prisma, ratingsService // Добавляем зависимость
+    ) {
         this.usersRepository = usersRepository;
         this.prisma = prisma;
+        this.ratingsService = ratingsService;
     }
     async findAll() {
         return this.usersRepository.findAll();
@@ -28,6 +32,12 @@ let UsersService = class UsersService {
             throw new common_1.NotFoundException(`User with ID ${id} not found`);
         }
         return user;
+    }
+    async updateTelegramChatId(userId, telegramChatId) {
+        await this.usersRepository.updateTelegramChatId(Number(userId), BigInt(telegramChatId));
+    }
+    async setReferrer(userId, referrerId) {
+        await this.usersRepository.setReferrer(Number(userId), Number(referrerId));
     }
     async findByTelegramId(telegramId) {
         const user = await this.prisma.user.findUnique({
@@ -45,19 +55,64 @@ let UsersService = class UsersService {
         entity.telegram_id = user.telegramId;
         entity.username = user.username;
         entity.first_name = user.firstName;
+        entity.last_name = user.lastName || undefined;
         entity.is_verified = user.isVerified;
         entity.role = user.role;
-        // Map profile if it exists
+        entity.telegramChatId = user.telegramChatId || undefined;
+        entity.referredBy = user.referredBy || undefined; // Добавляем поле
         // Map profile if it exists
         if (user.profile) {
             entity.profile = user.profile;
         }
         return entity;
     }
+    // Добавляем недостающий метод createFromTelegram
+    async createFromTelegram(telegramData) {
+        const userData = {
+            telegram_id: telegramData.id.toString(),
+            username: telegramData.username || `user_${telegramData.id}`,
+            first_name: telegramData.first_name,
+            last_name: telegramData.last_name || undefined,
+            is_verified: false,
+            role: role_enum_1.Role.USER,
+        };
+        const user = await this.create(userData);
+        // Создаем дефолтный рейтинг при регистрации
+        try {
+            await this.ratingsService.createDefaultRating(user.id);
+        }
+        catch (error) {
+            console.error(`Failed to create default rating for user ${user.id}:`, error);
+            // Не прерываем создание пользователя из-за ошибки рейтинга
+        }
+        return user;
+    }
+    // Добавляем недостающий метод updateLastLogin
+    async updateLastLogin(userId) {
+        await this.prisma.user.update({
+            where: { id: parseInt(userId) },
+            data: {
+                profile: {
+                    update: {
+                        lastActivity: new Date()
+                    }
+                }
+            }
+        });
+        return this.findById(userId);
+    }
     async create(createUserDto) {
         const user = new user_entity_1.UserEntity();
         Object.assign(user, createUserDto);
-        return this.usersRepository.create(user);
+        const createdUser = await this.usersRepository.create(user);
+        // Создаем дефолтный рейтинг при создании пользователя
+        try {
+            await this.ratingsService.createDefaultRating(createdUser.id);
+        }
+        catch (error) {
+            console.error(`Failed to create default rating for user ${createdUser.id}:`, error);
+        }
+        return createdUser;
     }
     async update(id, updateUserDto) {
         await this.findById(id);
@@ -161,7 +216,7 @@ let UsersService = class UsersService {
         switch (profileData.selfAssessedLevel) {
             case 'BEGINNER':
                 initialRating = 1000;
-                ntrpEstimate = 2.0;
+                ntrpEstimate = 2.5;
                 break;
             case 'AMATEUR':
                 initialRating = 1200;
@@ -179,6 +234,9 @@ let UsersService = class UsersService {
                 initialRating = 1800;
                 ntrpEstimate = 5.5;
                 break;
+            default:
+                initialRating = 1400;
+                ntrpEstimate = 4.0;
         }
         // Сохранить данные второго шага
         const updatedProfile = await this.prisma.userProfile.update({
@@ -197,6 +255,17 @@ let UsersService = class UsersService {
                 profileStepTwoCompleted: true
             }
         });
+        // Обновляем рейтинг игрока на основе самооценки
+        try {
+            await this.ratingsService.createDefaultRating(parseInt(userId), {
+                skillPoints: initialRating,
+                skillRating: ntrpEstimate,
+                pointsRating: 1000, // Стартовые очки активности
+            });
+        }
+        catch (error) {
+            console.error(`Failed to update rating for user ${userId}:`, error);
+        }
         return {
             status: 'success',
             message: 'Profile step 2 completed',
@@ -237,6 +306,8 @@ let UsersService = class UsersService {
 UsersService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_repository_1.UsersRepository,
-        prisma_service_1.PrismaService])
+        prisma_service_1.PrismaService,
+        ratings_service_1.RatingsService // Добавляем зависимость
+    ])
 ], UsersService);
 exports.UsersService = UsersService;

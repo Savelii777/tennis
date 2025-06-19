@@ -16,19 +16,21 @@ const media_controller_1 = require("./presentation/controllers/media.controller"
 const users_repository_1 = require("./infrastructure/repositories/users.repository");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const auth_module_1 = require("../auth/auth.module");
+const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем импорт
 let UsersModule = class UsersModule {
 };
 UsersModule = __decorate([
     (0, common_1.Module)({
         imports: [
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule),
             platform_express_1.MulterModule.register({
                 dest: './uploads',
             }),
         ],
         controllers: [users_controller_1.UsersController, media_controller_1.MediaController],
         providers: [users_service_1.UsersService, balls_service_1.BallsService, users_repository_1.UsersRepository, prisma_service_1.PrismaService],
-        exports: [users_service_1.UsersService, balls_service_1.BallsService], // ← Оставить в exports
+        exports: [users_service_1.UsersService, balls_service_1.BallsService],
     })
 ], UsersModule);
 exports.UsersModule = UsersModule;

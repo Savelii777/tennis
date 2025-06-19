@@ -14,8 +14,8 @@ const stories_service_1 = require("./application/services/stories.service");
 const stories_repository_1 = require("./infrastructure/repositories/stories.repository");
 const telegram_file_service_1 = require("./infrastructure/external/telegram-file.service");
 const prisma_service_1 = require("../../prisma/prisma.service");
-const telegram_module_1 = require("../telegram/telegram.module");
 const auth_module_1 = require("../auth/auth.module");
+const telegram_module_1 = require("../telegram/telegram.module");
 let StoriesModule = class StoriesModule {
 };
 StoriesModule = __decorate([

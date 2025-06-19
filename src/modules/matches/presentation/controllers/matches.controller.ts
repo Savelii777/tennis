@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MatchesService } from '../../application/services/matches.service';
 import { CreateMatchDto } from '../../application/dto/create-match.dto';
@@ -18,7 +8,10 @@ import { MatchEntity } from '../../domain/entities/match.entity';
 import { AuthGuard } from '../../../../common/guards/auth.guard';
 
 interface RequestWithUser extends Request {
-  user: { id: string };
+  user: {
+    id: string;
+    username: string;
+  };
 }
 
 @ApiTags('matches')
@@ -30,24 +23,24 @@ export class MatchesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all matches' })
-  @ApiResponse({ status: 200, description: 'Return all matches', type: [MatchEntity] })
+  @ApiResponse({ status: 200, description: 'List of matches', type: [MatchEntity] })
   async findAll(): Promise<MatchEntity[]> {
     return this.matchesService.findAll();
   }
 
+  @Get('my')
+  @ApiOperation({ summary: 'Get matches created by current user' })
+  @ApiResponse({ status: 200, description: 'List of user matches', type: [MatchEntity] })
+  async findByCreator(@Request() req: RequestWithUser): Promise<MatchEntity[]> {
+    return this.matchesService.findByCreator(req.user.id);
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Get a match by ID' })
-  @ApiResponse({ status: 200, description: 'Return the match', type: MatchEntity })
+  @ApiOperation({ summary: 'Get a match by id' })
+  @ApiResponse({ status: 200, description: 'The match', type: MatchEntity })
   @ApiResponse({ status: 404, description: 'Match not found' })
   async findOne(@Param('id') id: string): Promise<MatchEntity> {
     return this.matchesService.findById(id);
-  }
-
-  @Get('user/created')
-  @ApiOperation({ summary: 'Get all matches created by the logged-in user' })
-  @ApiResponse({ status: 200, description: 'Return all matches created by user', type: [MatchEntity] })
-  async findByCreator(@Request() req: RequestWithUser): Promise<MatchEntity[]> {
-    return this.matchesService.findByCreator(req.user.id);
   }
 
   @Post()
@@ -113,8 +106,7 @@ export class MatchesController {
   async delete(
     @Param('id') id: string,
     @Request() req: RequestWithUser,
-  ): Promise<{ message: string }> {
-    await this.matchesService.delete(id, req.user.id);
-    return { message: 'Match deleted successfully' };
+  ): Promise<void> {
+    return this.matchesService.delete(id, req.user.id);
   }
 }

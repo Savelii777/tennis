@@ -28,11 +28,11 @@ let MatchesController = class MatchesController {
     async findAll() {
         return this.matchesService.findAll();
     }
-    async findOne(id) {
-        return this.matchesService.findById(id);
-    }
     async findByCreator(req) {
         return this.matchesService.findByCreator(req.user.id);
+    }
+    async findOne(id) {
+        return this.matchesService.findById(id);
     }
     async create(req, createMatchDto) {
         return this.matchesService.create(req.user.id, createMatchDto);
@@ -50,37 +50,36 @@ let MatchesController = class MatchesController {
         return this.matchesService.cancelMatch(id, req.user.id);
     }
     async delete(id, req) {
-        await this.matchesService.delete(id, req.user.id);
-        return { message: 'Match deleted successfully' };
+        return this.matchesService.delete(id, req.user.id);
     }
 };
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all matches' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return all matches', type: [match_entity_1.MatchEntity] }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of matches', type: [match_entity_1.MatchEntity] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], MatchesController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('my'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get matches created by current user' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of user matches', type: [match_entity_1.MatchEntity] }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MatchesController.prototype, "findByCreator", null);
+__decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get a match by ID' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return the match', type: match_entity_1.MatchEntity }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a match by id' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'The match', type: match_entity_1.MatchEntity }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Match not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], MatchesController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Get)('user/created'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all matches created by the logged-in user' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Return all matches created by user', type: [match_entity_1.MatchEntity] }),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], MatchesController.prototype, "findByCreator", null);
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new match' }),

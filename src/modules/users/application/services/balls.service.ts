@@ -5,31 +5,38 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 export class BallsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async addBalls(userId: string, amount: number, reason: string) {
-    const userIdInt = parseInt(userId);
-    
-    // Обновляем баланс пользователя
-    const user = await this.prisma.user.update({
-      where: { id: userIdInt },
-      data: {
-        ballsBalance: {
-          increment: amount
-        }
-      }
+  async addBalls(
+    userId: string,
+    amount: number,
+    type: string,
+    reason?: string // Делаем параметр опциональным
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: Number(userId) },
     });
 
-    // Создаем запись в истории транзакций
+    if (!user) {
+      throw new Error('Пользователь не найден');
+    }
+
+    const newBalance = user.ballsBalance + amount;
+
+    // Обновляем баланс пользователя
+    await this.prisma.user.update({
+      where: { id: Number(userId) },
+      data: { ballsBalance: newBalance },
+    });
+
+    // Записываем транзакцию
     await this.prisma.ballTransaction.create({
       data: {
-        userId: userIdInt,
-        amount: amount,
-        type: 'EARNED',
-        reason: reason,
-        balanceAfter: user.ballsBalance
-      }
+        userId: Number(userId),
+        amount,
+        type: type as any,
+        reason: reason || 'Добавление мячей',
+        balanceAfter: newBalance,
+      },
     });
-
-    return user;
   }
 
   async deductBalls(userId: string, amount: number, reason: string) {

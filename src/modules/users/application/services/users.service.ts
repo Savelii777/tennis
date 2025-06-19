@@ -9,12 +9,14 @@ import { ProfileStepOneDto } from '../../presentation/dto/profile-step-one.dto';
 import { ProfileStepTwoDto } from '../../presentation/dto/profile-step-two.dto';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { Role } from '../../domain/enums/role.enum';
+import { RatingsService } from '../../../ratings/ratings.service'; // Добавляем импорт
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly ratingsService: RatingsService // Добавляем зависимость
   ) {}
 
   async findAll(): Promise<UserEntity[]> {
@@ -29,40 +31,98 @@ export class UsersService {
     return user;
   }
 
-  async findByTelegramId(telegramId: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { telegramId },
-      include: {
-        profile: true
-      }
-    });
-    
-    if (!user) {
-      return null;
-    }
-    
-    // Create entity directly without using repository method
-    const entity = new UserEntity();
-    entity.id = user.id;
-    entity.telegram_id = user.telegramId;
-    entity.username = user.username;
-    entity.first_name = user.firstName;
-    entity.is_verified = user.isVerified;
-    entity.role = user.role as Role;
-    
-    // Map profile if it exists
-    // Map profile if it exists
-    if (user.profile) {
-      entity.profile = user.profile as any;
-    }
-    
-    return entity;
+  async updateTelegramChatId(userId: string, telegramChatId: number): Promise<void> {
+    await this.usersRepository.updateTelegramChatId(Number(userId), BigInt(telegramChatId));
   }
 
+  async setReferrer(userId: string, referrerId: string): Promise<void> {
+    await this.usersRepository.setReferrer(Number(userId), Number(referrerId));
+  }
+  
+async findByTelegramId(telegramId: string): Promise<UserEntity | null> {
+  const user = await this.prisma.user.findUnique({
+    where: { telegramId },
+    include: {
+      profile: true
+    }
+  });
+  
+  if (!user) {
+    return null;
+  }
+  
+  // Create entity directly without using repository method
+  const entity = new UserEntity();
+  entity.id = user.id;
+  entity.telegram_id = user.telegramId;
+  entity.username = user.username;
+  entity.first_name = user.firstName;
+  entity.last_name = user.lastName || undefined;
+  entity.is_verified = user.isVerified;
+  entity.role = user.role as Role;
+  entity.telegramChatId = user.telegramChatId || undefined;
+  entity.referredBy = user.referredBy || undefined; // Добавляем поле
+
+  // Map profile if it exists
+  if (user.profile) {
+    entity.profile = user.profile as any;
+  }
+  
+  return entity;
+}
+// Добавляем недостающий метод createFromTelegram
+  async createFromTelegram(telegramData: any): Promise<UserEntity> {
+    const userData = {
+      telegram_id: telegramData.id.toString(),
+      username: telegramData.username || `user_${telegramData.id}`,
+      first_name: telegramData.first_name,
+      last_name: telegramData.last_name || undefined,
+      is_verified: false,
+      role: Role.USER,
+    };
+
+    const user = await this.create(userData);
+    
+    // Создаем дефолтный рейтинг при регистрации
+    try {
+      await this.ratingsService.createDefaultRating(user.id);
+    } catch (error) {
+      console.error(`Failed to create default rating for user ${user.id}:`, error);
+      // Не прерываем создание пользователя из-за ошибки рейтинга
+    }
+    
+    return user;
+  }
+
+    // Добавляем недостающий метод updateLastLogin
+  async updateLastLogin(userId: string): Promise<UserEntity> {
+    await this.prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: {
+        profile: {
+          update: {
+            lastActivity: new Date()
+          }
+        }
+      }
+    });
+
+    return this.findById(userId);
+  }
+  
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const user = new UserEntity();
     Object.assign(user, createUserDto);
-    return this.usersRepository.create(user);
+    const createdUser = await this.usersRepository.create(user);
+    
+    // Создаем дефолтный рейтинг при создании пользователя
+    try {
+      await this.ratingsService.createDefaultRating(createdUser.id);
+    } catch (error) {
+      console.error(`Failed to create default rating for user ${createdUser.id}:`, error);
+    }
+    
+    return createdUser;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
@@ -185,7 +245,7 @@ export class UsersService {
     switch(profileData.selfAssessedLevel) {
       case 'BEGINNER':
         initialRating = 1000;
-        ntrpEstimate = 2.0;
+        ntrpEstimate = 2.5;
         break;
       case 'AMATEUR':
         initialRating = 1200;
@@ -203,6 +263,9 @@ export class UsersService {
         initialRating = 1800;
         ntrpEstimate = 5.5;
         break;
+      default:
+        initialRating = 1400;
+        ntrpEstimate = 4.0;
     }
     
     // Сохранить данные второго шага
@@ -222,6 +285,17 @@ export class UsersService {
         profileStepTwoCompleted: true
       }
     });
+
+    // Обновляем рейтинг игрока на основе самооценки
+    try {
+      await this.ratingsService.createDefaultRating(parseInt(userId), {
+        skillPoints: initialRating,
+        skillRating: ntrpEstimate,
+        pointsRating: 1000, // Стартовые очки активности
+      });
+    } catch (error) {
+      console.error(`Failed to update rating for user ${userId}:`, error);
+    }
     
     return { 
       status: 'success',

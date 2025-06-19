@@ -8,18 +8,76 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const telegram_auth_service_1 = require("../../infrastructure/telegram/telegram-auth.service");
 const users_service_1 = require("../../../users/application/services/users.service");
-let AuthService = class AuthService {
-    constructor(jwtService, telegramAuthService, userService) {
+const achievements_service_1 = require("../../../achievements/application/services/achievements.service");
+let AuthService = AuthService_1 = class AuthService {
+    constructor(jwtService, telegramAuthService, userService, achievementsService) {
         this.jwtService = jwtService;
         this.telegramAuthService = telegramAuthService;
         this.userService = userService;
-        this.logger = new common_1.Logger('AuthService');
+        this.achievementsService = achievementsService;
+        this.logger = new common_1.Logger(AuthService_1.name);
+    }
+    async loginTelegram(telegramLoginDto) {
+        this.logger.log(`Telegram auth attempt for user: ${telegramLoginDto.username}`);
+        try {
+            let user = await this.userService.findByTelegramId(telegramLoginDto.id.toString());
+            let isNewUser = false;
+            if (!user) {
+                this.logger.log(`Creating new user for Telegram ID: ${telegramLoginDto.id}`);
+                user = await this.userService.createFromTelegram(telegramLoginDto);
+                isNewUser = true;
+            }
+            else {
+                this.logger.log(`Existing user found: ${user.id}`);
+                user = await this.userService.updateLastLogin(user.id.toString());
+            }
+            // Проверяем, что user не null после создания/обновления
+            if (!user) {
+                throw new common_1.BadRequestException('Failed to create or find user');
+            }
+            const tokens = await this.generateTokens(user.id.toString(), user.username);
+            // Безопасно проверяем достижения для нового пользователя
+            if (isNewUser) {
+                try {
+                    await this.achievementsService.checkAndAwardAchievements(user.id.toString(), 'registration_completed');
+                }
+                catch (achievementError) {
+                    // Логируем ошибку, но не прерываем процесс авторизации
+                    this.logger.error(`Failed to check achievements for new user ${user.id}:`, achievementError);
+                }
+            }
+            return {
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    telegramId: user.telegram_id,
+                    role: user.role,
+                    isVerified: user.is_verified,
+                    profile: user.profile,
+                },
+                tokens,
+                isNewUser,
+            };
+        }
+        catch (error) {
+            this.logger.error(`Login failed for Telegram user ${telegramLoginDto.username}:`, error);
+            throw new common_1.BadRequestException('Ошибка входа через Telegram');
+        }
+    }
+    async generateTokens(userId, username) {
+        const payload = { sub: userId, username };
+        return {
+            access_token: this.jwtService.sign(payload),
+        };
     }
     async validateTelegramUser(telegramLoginDto) {
         const { id, hash } = telegramLoginDto;
@@ -86,26 +144,12 @@ let AuthService = class AuthService {
         this.logger.log(`Выход пользователя: ${userId}`);
         return { success: true };
     }
-    async loginTelegram(telegramData) {
-        const user = await this.validateTelegramUser(telegramData);
-        const tokenData = await this.generateJwt(user);
-        return {
-            user: {
-                id: user.id,
-                telegram_id: user.telegram_id,
-                username: user.username,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                role: user.role,
-            },
-            ...tokenData,
-        };
-    }
 };
-AuthService = __decorate([
+AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         telegram_auth_service_1.TelegramAuthService,
-        users_service_1.UsersService])
+        users_service_1.UsersService,
+        achievements_service_1.AchievementsService])
 ], AuthService);
 exports.AuthService = AuthService;

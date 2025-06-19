@@ -13,18 +13,18 @@ export declare class CasesController {
     private readonly caseOpeningService;
     constructor(casesService: CasesService, caseOpeningService: CaseOpeningService);
     getCases(): Promise<(import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     })[]>;
     getCaseById(id: string): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     openCase(id: string, req: RequestWithUser): Promise<{
         opening: import(".prisma/client").CaseOpening;

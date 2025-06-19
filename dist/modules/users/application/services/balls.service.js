@@ -16,28 +16,30 @@ let BallsService = class BallsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async addBalls(userId, amount, reason) {
-        const userIdInt = parseInt(userId);
-        // Обновляем баланс пользователя
-        const user = await this.prisma.user.update({
-            where: { id: userIdInt },
-            data: {
-                ballsBalance: {
-                    increment: amount
-                }
-            }
+    async addBalls(userId, amount, type, reason // Делаем параметр опциональным
+    ) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: Number(userId) },
         });
-        // Создаем запись в истории транзакций
+        if (!user) {
+            throw new Error('Пользователь не найден');
+        }
+        const newBalance = user.ballsBalance + amount;
+        // Обновляем баланс пользователя
+        await this.prisma.user.update({
+            where: { id: Number(userId) },
+            data: { ballsBalance: newBalance },
+        });
+        // Записываем транзакцию
         await this.prisma.ballTransaction.create({
             data: {
-                userId: userIdInt,
-                amount: amount,
-                type: 'EARNED',
-                reason: reason,
-                balanceAfter: user.ballsBalance
-            }
+                userId: Number(userId),
+                amount,
+                type: type,
+                reason: reason || 'Добавление мячей',
+                balanceAfter: newBalance,
+            },
         });
-        return user;
     }
     async deductBalls(userId, amount, reason) {
         const userIdInt = parseInt(userId);

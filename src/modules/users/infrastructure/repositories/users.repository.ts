@@ -10,6 +10,20 @@ import { Role } from '../../domain/enums/role.enum';
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+    async updateTelegramChatId(userId: number, telegramChatId: bigint): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { telegramChatId },
+    });
+  }
+
+  async setReferrer(userId: number, referrerId: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { referredBy: referrerId },
+    });
+  }
+  
   async findAll(): Promise<UserEntity[]> {
     const users = await this.prisma.user.findMany({
       include: { profile: true }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BotService } from './bot.service';
@@ -11,6 +11,10 @@ import { MatchesModule } from '../matches/matches.module';
 import { TrainingsModule } from '../trainings/trainings.module';
 import { StoriesModule } from '../stories/stories.module';
 import { CasesModule } from '../cases/cases.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AchievementsModule } from '../achievements/achievements.module'; // Добавляем
+import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
 
 @Module({
   imports: [
@@ -32,19 +36,25 @@ import { CasesModule } from '../cases/cases.module';
         };
       },
     }),
-    UsersModule,
-    RequestsModule,
-    TournamentsModule,
-    MatchesModule,
-    TrainingsModule,
-    StoriesModule,
-    CasesModule,
+    ConfigModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => RequestsModule),
+    forwardRef(() => TournamentsModule),
+    forwardRef(() => MatchesModule),
+    forwardRef(() => TrainingsModule),
+    forwardRef(() => StoriesModule),
+    forwardRef(() => CasesModule),
+    forwardRef(() => NotificationsModule),
+    forwardRef(() => AchievementsModule), 
+    forwardRef(() => RatingsModule),
+
   ],
   controllers: [TelegramController],
   providers: [
     BotService,
     TelegramService,
+    PrismaService
   ],
-  exports: [TelegramService],
+  exports: [TelegramService, BotService], 
 })
 export class TelegramModule {}

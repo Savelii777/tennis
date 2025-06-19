@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { CasesController } from './presentation/controllers/cases.controller';
 import { AdminCasesController } from './presentation/controllers/admin-cases.controller';
 import { CasesService } from './application/services/cases.service';
@@ -11,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule,
     UsersModule, 
     AuthModule  
   ],

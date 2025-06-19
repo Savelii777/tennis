@@ -16,11 +16,14 @@ const requests_module_1 = require("./modules/requests/requests.module");
 const trainings_module_1 = require("./modules/trainings/trainings.module");
 const tournaments_module_1 = require("./modules/tournaments/tournaments.module");
 const telegram_module_1 = require("./modules/telegram/telegram.module");
-const prisma_service_1 = require("./prisma/prisma.service");
 const stories_module_1 = require("./modules/stories/stories.module");
 const locations_module_1 = require("./modules/locations/locations.module");
-const cases_module_1 = require("./modules/cases/cases.module"); // ← Добавить
-const referrals_module_1 = require("./modules/referrals/referrals.module"); // ← Добавить
+const cases_module_1 = require("./modules/cases/cases.module");
+const referrals_module_1 = require("./modules/referrals/referrals.module");
+const shared_module_1 = require("./shared/shared.module");
+const notifications_module_1 = require("./modules/notifications/notifications.module");
+const achievements_module_1 = require("./modules/achievements/achievements.module");
+const ratings_module_1 = require("./modules/ratings/ratings.module"); // Добавляем
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -29,19 +32,22 @@ AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),
+            shared_module_1.SharedModule,
+            achievements_module_1.AchievementsModule,
+            ratings_module_1.RatingsModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             matches_module_1.MatchesModule,
             requests_module_1.RequestsModule,
             trainings_module_1.TrainingsModule,
             tournaments_module_1.TournamentsModule,
-            telegram_module_1.TelegramModule,
             stories_module_1.StoriesModule,
             locations_module_1.LocationsModule,
             cases_module_1.CasesModule,
             referrals_module_1.ReferralsModule,
+            notifications_module_1.NotificationsModule,
+            telegram_module_1.TelegramModule,
         ],
-        providers: [prisma_service_1.PrismaService],
     })
 ], AppModule);
 exports.AppModule = AppModule;

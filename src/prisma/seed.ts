@@ -59,6 +59,12 @@ async function main() {
     logger.log('🔗 Создание рефералов...');
     await createReferrals(users);
     
+    logger.log('🏆 Создание достижений...');
+    await createAchievements(users);
+    
+    logger.log('📊 Создание рейтингов...');
+    await createRatings(users);
+    
     logger.log('✅ База данных успешно заполнена!');
     logger.log('');
     logger.log('📋 Тестовые аккаунты для входа через API:');
@@ -78,6 +84,12 @@ async function main() {
 
 async function cleanDatabase() {
   // Порядок важен из-за foreign key constraints
+  // Сначала удаляем все зависимые таблицы
+  await prisma.ratingHistory.deleteMany();
+  await prisma.playerRating.deleteMany();
+  await prisma.ratingSeason.deleteMany();
+  await prisma.userAchievement.deleteMany();
+  await prisma.userSettings.deleteMany();
   await prisma.referralActivity.deleteMany();
   await prisma.referralStats.deleteMany();
   await prisma.caseWinning.deleteMany();
@@ -96,10 +108,13 @@ async function cleanDatabase() {
   await prisma.invite.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.userProfile.deleteMany();
+  // Только теперь удаляем пользователей
   await prisma.user.deleteMany();
   await prisma.city.deleteMany();
   await prisma.country.deleteMany();
   await prisma.sport.deleteMany();
+
+  logger.log('✅ База данных очищена');
 }
 
 async function createUsers() {
@@ -320,6 +335,55 @@ async function createUsers() {
 
   return { admin, organizer, testUser, players, cities: { moscow, spb }, tennis };
 }
+
+
+// Добавь функцию для создания тестовых достижений
+
+async function createAchievements(users: any) {
+  const { testUser, players } = users;
+  const logger = new Logger('Seed:Achievements');
+  
+  logger.log('Создание достижений...');
+  
+  // Награждаем тестового пользователя несколькими достижениями
+  const testUserAchievements = [
+    'first_step',
+    'first_match',
+    'warmup',
+    'first_success',
+    'confidence_grows',
+  ];
+
+  for (const code of testUserAchievements) {
+    await prisma.userAchievement.create({
+      data: {
+        userId: testUser.id,
+        code: code,
+        awardedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  // Случайные достижения для других игроков
+  for (const player of players.slice(0, 10)) {
+    const randomAchievements = ['first_step', 'first_match'];
+    if (Math.random() > 0.5) randomAchievements.push('warmup');
+    if (Math.random() > 0.7) randomAchievements.push('first_success');
+
+    for (const code of randomAchievements) {
+      await prisma.userAchievement.create({
+        data: {
+          userId: player.id,
+          code: code,
+          awardedAt: new Date(Date.now() - Math.random() * 15 * 24 * 60 * 60 * 1000),
+        },
+      });
+    }
+  }
+
+  logger.log('✅ Достижения созданы');
+}
+
 
 async function createGameRequests(users: any) {
   const { admin, organizer, testUser, players } = users;
@@ -583,7 +647,6 @@ async function createTournaments(users: any) {
   return createdTournaments;
 }
 
-// ...existing code...
 
 
 
@@ -836,6 +899,63 @@ async function createReferrals(users: any) {
       }
     });
   }
+}
+
+async function createRatings(users: any) {
+  const { admin, organizer, testUser, players } = users;
+  const allUsers = [admin, organizer, testUser, ...players];
+  
+  logger.log('Создание рейтингов игроков...');
+
+  // Создаем текущий сезон
+  const currentSeason = await prisma.ratingSeason.create({
+    data: {
+      title: 'Весна 2025',
+      startDate: new Date('2025-03-01'),
+      endDate: new Date('2025-05-31'),
+      isCurrent: true,
+      description: 'Весенний сезон 2025 года'
+    }
+  });
+
+  // Создаем рейтинги для всех пользователей
+  for (const user of allUsers) {
+    // Случайные значения в зависимости от профиля
+    const skillPoints = user.profile?.ratingPoints || (1200 + Math.floor(Math.random() * 600));
+    const skillRating = 2.0 + ((skillPoints - 800) / 200); // Примерное соответствие
+    const pointsRating = 1000 + Math.floor(Math.random() * 500);
+    const wins = user.profile?.matchWins || Math.floor(Math.random() * 20);
+    const losses = user.profile?.matchLosses || Math.floor(Math.random() * 15);
+
+    await prisma.playerRating.create({
+      data: {
+        userId: user.id,
+        skillRating: Math.max(2.0, Math.min(7.0, Math.round(skillRating * 10) / 10)),
+        skillPoints: Math.max(800, skillPoints),
+        pointsRating,
+        wins,
+        losses,
+      }
+    });
+
+    // Создаем начальную запись в истории
+    await prisma.ratingHistory.create({
+      data: {
+        userId: user.id,
+        seasonId: currentSeason.id,
+        skillPointsBefore: 0,
+        skillPointsAfter: skillPoints,
+        pointsRatingBefore: 0,
+        pointsRatingAfter: pointsRating,
+        isWin: false,
+        pointsEarned: pointsRating,
+        reason: 'initial_rating'
+      }
+    });
+  }
+
+  logger.log(`✅ Создано рейтингов: ${allUsers.length}`);
+  logger.log(`✅ Создан сезон: ${currentSeason.title}`);
 }
 
 main()

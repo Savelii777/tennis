@@ -10,10 +10,16 @@ import { TrainingsService } from '../trainings/application/services/trainings.se
 import { StoriesService } from '../stories/application/services/stories.service';
 import { CasesService } from '../cases/application/services/cases.service';
 import { CaseOpeningService } from '../cases/application/services/case-opening.service';
+import { TelegramService } from './telegram.service';
+import { NotificationsService } from '../notifications/application/services/notifications.service';
 import { ProfileStep, UserState } from './interfaces/profile-state.enum'; 
 import { CreateRequestDto, RequestType, GameMode } from '../requests/application/dto/create-request.dto';
 import { TournamentType } from '../tournaments/domain/enums/tournament.enum';
 import { MatchType } from '../matches/domain/enums/match.enum';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AchievementsService } from '../achievements/application/services/achievements.service';
+import { RatingsService } from '../ratings/ratings.service';
+
 interface RequestEntity {
   id: number;
   creator: {
@@ -54,6 +60,12 @@ export class BotService implements OnModuleInit {
     private readonly storiesService: StoriesService,
     private readonly casesService: CasesService,
     private readonly caseOpeningService: CaseOpeningService,
+    private readonly telegramService: TelegramService,
+    private readonly notificationsService: NotificationsService, 
+    private readonly prisma: PrismaService, 
+    private readonly achievementsService: AchievementsService,
+    private readonly ratingsService: RatingsService,
+
   ) {}
 
   async onModuleInit() {
@@ -97,78 +109,238 @@ private getMainKeyboard() {
     this.userStates.delete(userId);
   }
 
-  @Start()
-  async handleStart(ctx: Context) {
-    this.logger.log(`🌟 START от пользователя: ${ctx.from?.id} (${ctx.from?.first_name})`);
+
+
+
+@Start()
+async handleStart(ctx: Context) {
+  this.logger.log(`🌟 START от пользователя: ${ctx.from?.id} (${ctx.from?.first_name})`);
+  
+  try {
+    if (!ctx.from) {
+      this.logger.warn('Нет from field');
+      return;
+    }
+
+    // Проверяем наличие реферального кода в deep link
+    const startPayload = ctx.message && 'text' in ctx.message 
+      ? ctx.message.text.split(' ')[1] 
+      : null;
+
+    const telegramChatId = ctx.chat?.id;
     
-    try {
-      if (!ctx.from) {
-        this.logger.warn('Нет from field');
-        return;
+    await ctx.reply('🎾 Запускаю Tennis Bot...');
+
+    let user = await this.usersService.findByTelegramId(ctx.from.id.toString());
+    
+    if (!user) {
+      this.logger.log('Создаем нового пользователя...');
+      
+      const userData = {
+        telegram_id: ctx.from.id.toString(),
+        username: ctx.from.username || `user_${ctx.from.id}`,
+        first_name: ctx.from.first_name,
+        last_name: ctx.from.last_name || undefined,
+        photo_url: ''
+      };
+
+      // Создаем пользователя
+      user = await this.usersService.create(userData);
+      this.logger.log('✅ Новый пользователь создан');
+
+      // Сохраняем chat_id для уведомлений
+      if (telegramChatId) {
+        await this.usersService.updateTelegramChatId(user.id.toString(), telegramChatId);
+        this.logger.log(`💬 Сохранен chat_id: ${telegramChatId}`);
       }
 
-      // Проверяем наличие реферального кода в deep link
-      const startPayload = ctx.message && 'text' in ctx.message 
-        ? ctx.message.text.split(' ')[1] 
-        : null;
-
-      await ctx.reply('🎾 Запускаю Tennis Bot...');
-
-      let user = await this.usersService.findByTelegramId(ctx.from.id.toString());
-      
-      if (!user) {
-        this.logger.log('Создаем нового пользователя...');
+      // Обработка реферального кода
+      if (startPayload && startPayload.startsWith('ref_')) {
+        const referralCode = startPayload.replace('ref_', '');
+        this.logger.log(`🔗 Обнаружен реферальный код: ${referralCode}`);
         
-        const userData = {
-          telegram_id: ctx.from.id.toString(),
-          username: ctx.from.username || `user_${ctx.from.id}`,
-          first_name: ctx.from.first_name,
-          last_name: ctx.from.last_name || undefined,
-          photo_url: ''
-        };
-
-        // Если есть реферальный код
-        if (startPayload && startPayload.startsWith('ref_')) {
-          const referralCode = startPayload.replace('ref_', '');
-          this.logger.log(`🔗 Обнаружен реферальный код: ${referralCode}`);
+        try {
+          // Находим пригласившего пользователя по коду
+          const referralUserId = parseInt(referralCode.replace(/^0+/, '')) || null;
           
-          try {
-            this.logger.log(`📝 Сохраняем информацию о реферальном коде для будущей обработки`);
+          if (referralUserId && referralUserId !== user.id) {
+            const referrer = await this.usersService.findById(referralUserId.toString());
             
-            await ctx.reply(
-              `🎉 Добро пожаловать, ${ctx.from.first_name}!\n\n` +
-              `Вы перешли по пригласительной ссылке!\n\n` +
-              `🎾 Теперь вы можете найти партнеров для игры в теннис!`,
-              this.getMainKeyboard()
-            );
-          } catch (error) {
-            this.logger.error(`Ошибка обработки реферального кода: ${error}`);
-          }
-        }
+            if (referrer) {
+              // Устанавливаем связь реферала
+              await this.usersService.setReferrer(user.id.toString(), referrer.id.toString());
+              
+              // Начисляем бонус пригласившему
+              const bonusAmount = 50; // 50 мячей за приглашение
+              await this.ballsService.addBalls(
+                referrer.id.toString(), 
+                bonusAmount, 
+                'BONUS', 
+                `Бонус за приглашение игрока ${user.first_name}` // Используем firstName вместо first_name
+              );
 
-        user = await this.usersService.create(userData);
-        this.logger.log('✅ Новый пользователь создан');
-        
-        if (!startPayload?.startsWith('ref_')) {
-          await ctx.reply(
-            `🎾 Добро пожаловать в Tennis Bot, ${ctx.from.first_name}!\n\nВы успешно зарегистрированы!`,
-            this.getMainKeyboard()
-          );
+              // Отправляем уведомление пригласившему
+              if (this.notificationsService) {
+                await this.notificationsService.sendReferralBonusNotification(
+                  referrer.id,
+                  {
+                    amount: bonusAmount,
+                    referredUserName: user.first_name,
+                    totalBalance: await this.ballsService.getUserBalance(referrer.id.toString())
+                  }
+                );
+              }
+
+              // Приветствуем нового пользователя с упоминанием реферала
+              await ctx.reply(
+                `🎉 **Добро пожаловать, ${ctx.from.first_name}!**\n\n` +
+                `🤝 Вы присоединились по приглашению игрока **${referrer.first_name}**!\n\n` +
+                `🎾 Теперь вы можете:\n` +
+                `• Найти партнеров для игры\n` +
+                `• Участвовать в турнирах\n` +
+                `• Зарабатывать мячи и открывать кейсы\n` +
+                `• Приглашать друзей и получать бонусы\n\n` +
+                `Удачной игры! 🏆`,
+                {
+                  parse_mode: 'Markdown',
+                  ...this.getMainKeyboard()
+                }
+              );
+
+              // Отправляем приветственное уведомление новому пользователю
+              if (this.notificationsService) {
+                await this.notificationsService.createNotification({
+                  userId: user.id,
+                  type: 'SYSTEM_MESSAGE',
+                  message: `🎾 Добро пожаловать в Tennis Bot! Вы получили стартовый бонус за регистрацию по приглашению.`,
+                  payload: {
+                    referrerId: referrer.id,
+                    referrerName: referrer.first_name,
+                    welcomeBonus: true
+                  },
+                  sendTelegram: false // не дублируем, так как уже отправили выше
+                });
+              }
+
+              this.logger.log(`✅ Реферальная связь установлена: ${user.id} <- ${referrer.id}`);
+            } else {
+              this.logger.warn(`Реферер с ID ${referralUserId} не найден`);
+            }
+          }
+        } catch (error) {
+          this.logger.error(`Ошибка обработки реферального кода: ${error}`);
         }
       } else {
-        this.logger.log('Пользователь уже существует');
-        
+        // Обычная регистрация без реферала
         await ctx.reply(
-          `👋 С возвращением, ${user.first_name}!\n\nВыберите действие:`,
-          this.getMainKeyboard()
+          `🎾 **Добро пожаловать в Tennis Bot, ${ctx.from.first_name}!**\n\n` +
+          `✅ Вы успешно зарегистрированы!\n\n` +
+          `🎾 Что вы можете делать:\n` +
+          `• Искать партнеров для игры\n` +
+          `• Участвовать в турнирах\n` +
+          `• Записывать результаты матчей\n` +
+          `• Зарабатывать мячи и открывать кейсы\n` +
+          `• Приглашать друзей\n\n` +
+          `Начните с настройки профиля! 👤`,
+          {
+            parse_mode: 'Markdown',
+            ...this.getMainKeyboard()
+          }
         );
+
+        // Отправляем приветственное уведомление
+        if (this.notificationsService) {
+          await this.notificationsService.createNotification({
+            userId: user.id,
+            type: 'SYSTEM_MESSAGE',
+            message: `🎾 Добро пожаловать в Tennis Bot! Заполните профиль и начните искать партнеров для игры.`,
+            payload: {
+              isNewUser: true,
+              registrationDate: new Date().toISOString()
+            },
+            sendTelegram: false
+          });
+        }
+
+        // Начисляем стартовый бонус новому пользователю
+      const startBonus = 100;
+      await this.ballsService.addBalls(
+        user.id.toString(),
+        startBonus,
+        'BONUS',
+        'Стартовый бонус за регистрацию'
+      );
+
       }
 
-    } catch (error) {
-      this.logger.error(`Ошибка в handleStart: ${error instanceof Error ? error.message : String(error)}`);
-      await ctx.reply('❌ Произошла ошибка. Попробуйте позже.');
+    } else {
+      this.logger.log('Пользователь уже существует');
+      
+      // Обновляем chat_id если он изменился
+      if (telegramChatId && user.telegramChatId !== BigInt(telegramChatId)) {
+        await this.usersService.updateTelegramChatId(user.id.toString(), telegramChatId);
+        this.logger.log(`💬 Обновлен chat_id для пользователя ${user.id}: ${telegramChatId}`);
+      }
+
+      // Включаем уведомления, если пользователь снова запустил бота
+      if (this.telegramService) {
+        await this.telegramService.toggleNotifications(user.id, true);
+      }
+      
+      // Получаем статистику для приветствия
+      const ballsBalance = await this.ballsService.getUserBalance(user.id.toString());
+      const unreadNotifications = this.notificationsService 
+        ? await this.notificationsService.getUnreadCount(user.id)
+        : 0;
+
+      let welcomeMessage = `👋 **С возвращением, ${user.first_name}!**\n\n`;
+      
+      // Добавляем информацию о балансе
+      if (ballsBalance > 0) {
+        welcomeMessage += `🎾 **Баланс:** ${ballsBalance} мячей\n`;
+      }
+      
+      // Добавляем информацию о непрочитанных уведомлениях
+      if (unreadNotifications > 0) {
+        welcomeMessage += `🔔 **Новых уведомлений:** ${unreadNotifications}\n`;
+      }
+      
+      welcomeMessage += `\nВыберите действие:`;
+
+      await ctx.reply(
+        welcomeMessage,
+        {
+          parse_mode: 'Markdown',
+          ...this.getMainKeyboard()
+        }
+      );
+
+      // Если есть непрочитанные уведомления, предлагаем их посмотреть
+      if (unreadNotifications > 0) {
+        const notificationsKeyboard = Markup.inlineKeyboard([
+          [Markup.button.callback(`📬 Посмотреть уведомления (${unreadNotifications})`, 'view_notifications')]
+        ]);
+
+        await ctx.reply(
+          `🔔 У вас есть непрочитанные уведомления!`,
+          {
+            reply_markup: notificationsKeyboard.reply_markup
+          }
+        );
+      }
     }
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleStart: ${error instanceof Error ? error.message : String(error)}`);
+    await ctx.reply(
+      `❌ Произошла ошибка при запуске.\n\n` +
+      `Попробуйте позже или обратитесь к администратору.`
+    );
   }
+}
+
+
+
 
   // ==================== ПРОФИЛЬ ====================
 
@@ -405,6 +577,171 @@ async handleFindGame(ctx: Context) {
     });
   }
 
+
+
+
+
+// Добавляем команду для показа рейтинга
+@Command('rating')
+async handleRatingCommand(ctx: Context) {
+  try {
+    const user = await this.usersService.findByTelegramId(ctx.from!.id.toString());
+    if (!user) {
+      await ctx.reply('❌ Пользователь не найден');
+      return;
+    }
+
+    const stats = await this.ratingsService.getPlayerStats(user.id);
+    
+    if (!stats) {
+      await ctx.reply('📊 Рейтинг не найден. Сыграйте первый матч!');
+      return;
+    }
+
+    const levelText = this.getSkillLevelText(stats.skillRating);
+    
+    let message = `🎾 **Ваш рейтинг**\n\n`;
+    message += `🎯 **Уровень силы:** ${stats.skillRating} (${levelText})\n`;
+    message += `📊 **Очки силы:** ${stats.skillPoints}\n`;
+    message += `📈 **Очки активности:** ${stats.pointsRating}\n\n`;
+    message += `🏆 **Статистика:**\n`;
+    message += `📊 Побед: ${stats.wins} | Поражений: ${stats.losses}\n`;
+    message += `📈 Процент побед: ${stats.winRate}%\n`;
+    message += `🎾 Всего матчей: ${stats.totalMatches}\n\n`;
+    
+    if (stats.lastMatch) {
+      const resultIcon = stats.lastMatch.result === 'win' ? '🏆' : '😔';
+      message += `🆚 **Последний матч:** ${resultIcon}\n`;
+      message += `👤 Соперник: ${stats.lastMatch.opponent} (${stats.lastMatch.opponentRating})\n`;
+      message += `🏆 Счет: ${stats.lastMatch.score}\n`;
+      message += `📅 ${stats.lastMatch.date.toLocaleDateString('ru-RU')}\n\n`;
+    }
+
+    message += `📈 Используйте /leaderboard для просмотра рейтинга`;
+
+    await ctx.reply(message, { parse_mode: 'Markdown' });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleRatingCommand: ${error instanceof Error ? error.message : String(error)}`);
+    await ctx.reply('❌ Ошибка при загрузке рейтинга');
+  }
+}
+
+@Command('leaderboard')
+async handleLeaderboardCommand(ctx: Context) {
+  try {
+    const [skillTop, pointsTop] = await Promise.all([
+      this.ratingsService.getTopPlayersBySkill(10),
+      this.ratingsService.getTopPlayersByPoints(10)
+    ]);
+
+    const buttons = [
+      [
+        Markup.button.callback('🎯 По силе', 'leaderboard_skill'),
+        Markup.button.callback('📈 По активности', 'leaderboard_points')
+      ]
+    ];
+
+    let message = `🏆 **Рейтинг игроков**\n\n`;
+    message += `**Топ по уровню силы:**\n`;
+    
+    skillTop.forEach((player, index) => {
+      const name = `${player.user.firstName} ${player.user.lastName || ''}`.trim(); // Исправлено
+      message += `${index + 1}. ${name} - ${player.skillRating} (${player.skillPoints})\n`;
+    });
+
+    await ctx.reply(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleLeaderboardCommand: ${error instanceof Error ? error.message : String(error)}`);
+    await ctx.reply('❌ Ошибка при загрузке рейтинга');
+  }
+}
+
+@Action('leaderboard_skill')
+async handleSkillLeaderboard(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    const skillTop = await this.ratingsService.getTopPlayersBySkill(10);
+    
+    let message = `🎯 **Топ по уровню силы:**\n\n`;
+    
+    skillTop.forEach((player, index) => {
+      const name = `${player.user.firstName} ${player.user.lastName || ''}`.trim(); // Исправлено
+      const levelText = this.getSkillLevelText(player.skillRating);
+      message += `${index + 1}. **${name}**\n`;
+      message += `   🎯 ${player.skillRating} (${levelText})\n`;
+      message += `   📊 ${player.skillPoints} очков\n`;
+      message += `   🏆 ${player.wins}W/${player.losses}L\n\n`;
+    });
+
+    const buttons = [
+      [Markup.button.callback('📈 По активности', 'leaderboard_points')],
+      [Markup.button.callback('🔄 Обновить', 'leaderboard_skill')]
+    ];
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleSkillLeaderboard: ${error instanceof Error ? error.message : String(error)}`);
+    await ctx.reply('❌ Ошибка при загрузке рейтинга');
+  }
+}
+
+@Action('leaderboard_points')
+async handlePointsLeaderboard(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    const pointsTop = await this.ratingsService.getTopPlayersByPoints(10);
+    
+    let message = `📈 **Топ по очкам активности:**\n\n`;
+    
+    pointsTop.forEach((player, index) => {
+      const name = `${player.user.firstName} ${player.user.lastName || ''}`.trim(); // Исправлено
+      message += `${index + 1}. **${name}**\n`;
+      message += `   📈 ${player.pointsRating} очков\n`;
+      message += `   🎯 Уровень: ${player.skillRating}\n`;
+      message += `   🏆 ${player.wins}W/${player.losses}L\n\n`;
+    });
+
+    const buttons = [
+      [Markup.button.callback('🎯 По силе', 'leaderboard_skill')],
+      [Markup.button.callback('🔄 Обновить', 'leaderboard_points')]
+    ];
+
+    await ctx.editMessageText(message, {
+      parse_mode: 'Markdown',
+      reply_markup: Markup.inlineKeyboard(buttons).reply_markup
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handlePointsLeaderboard: ${error instanceof Error ? error.message : String(error)}`);
+    await ctx.reply('❌ Ошибка при загрузке рейтинга');
+  }
+}
+
+
+
+
+private getSkillLevelText(rating: number): string {
+  if (rating < 2.5) return 'Новичок';
+  if (rating < 3.0) return 'Начинающий';
+  if (rating < 3.5) return 'Любитель';
+  if (rating < 4.0) return 'Продвинутый любитель';
+  if (rating < 4.5) return 'Средний продвинутый';
+  if (rating < 5.0) return 'Сильный продвинутый';
+  if (rating < 5.5) return 'Турнирный игрок';
+  if (rating < 6.0) return 'Высокий турнирный';
+  return 'Профессиональный';
+}
   // ==================== ТУРНИРЫ ====================
 
   @Hears('🏆 Турниры')
@@ -1964,18 +2301,73 @@ async handleOpenCaseAction(ctx: Context) {
     );
   }
 
-  @Action('achievements')
-  async handleAchievements(ctx: Context) {
-    await ctx.answerCbQuery();
-    
-    await ctx.editMessageText(
-      `🏅 **Достижения**\n\n` +
-      `Функция в разработке.\n\n` +
-      `Здесь будут отображаться ваши достижения и награды.`,
-      { parse_mode: 'Markdown' }
-    );
-  }
 
+@Action('achievements')
+async handleAchievements(ctx: Context) {
+  await ctx.answerCbQuery();
+  
+  try {
+    const user = await this.usersService.findByTelegramId(ctx.from!.id.toString());
+    if (!user) return;
+
+    const achievements = await this.achievementsService.getUserAchievements(user.id.toString());
+    
+    if (achievements.length === 0) {
+      await ctx.editMessageText(
+        `🏅 **Ваши достижения**\n\n` +
+        `У вас пока нет достижений.\n\n` +
+        `Играйте в матчи, участвуйте в турнирах и приглашайте друзей, чтобы получить первые награды!`,
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+
+    let message = `🏅 **Ваши достижения** (${achievements.length}):\n\n`;
+    
+    achievements.slice(0, 10).forEach((achievement, index) => {
+      const def = achievement.definition;
+      message += `${def.icon} **${def.name}**\n`;
+      message += `${def.description}\n`;
+      message += `📅 ${achievement.awardedAt.toLocaleDateString('ru-RU')}\n\n`;
+    });
+
+    if (achievements.length > 10) {
+      message += `...и еще ${achievements.length - 10} достижений\n\n`;
+    }
+
+    message += `Продолжайте играть, чтобы получить больше наград! 🎯`;
+
+    await ctx.editMessageText(message, { parse_mode: 'Markdown' });
+
+  } catch (error) {
+    this.logger.error(`Ошибка в handleAchievements: ${error instanceof Error ? error.message : String(error)}`);
+    await ctx.reply('❌ Ошибка при загрузке достижений');
+  }
+}
+
+async notifyNewAchievement(userId: string, achievementCode: string) {
+  try {
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.telegram_id) return;
+
+    const definitions = await this.achievementsService.getAllDefinitions();
+    const achievement = definitions.find((def: any) => def.code === achievementCode);
+    
+    if (!achievement) return;
+
+    const message = `🏆 **Поздравляем!**\n\n` +
+      `Вы получили достижение:\n` +
+      `${achievement.icon} **${achievement.name}**\n\n` +
+      `${achievement.description}`;
+
+    await this.bot.telegram.sendMessage(user.telegram_id, message, {
+        parse_mode: 'Markdown',
+    });
+
+  } catch (error) {
+    this.logger.error(`Ошибка отправки уведомления о достижении: ${error}`);
+  }
+}
   // ==================== ОБРАБОТЧИКИ МАТЧЕЙ ====================
 
   @Action('match_type_singles')

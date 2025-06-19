@@ -5,6 +5,8 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class UsersRepository {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    updateTelegramChatId(userId: number, telegramChatId: bigint): Promise<void>;
+    setReferrer(userId: number, referrerId: number): Promise<void>;
     findAll(): Promise<UserEntity[]>;
     findById(id: string): Promise<UserEntity>;
     findByTelegramId(telegramId: string): Promise<UserEntity>;

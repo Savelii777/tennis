@@ -20,6 +20,10 @@ const matches_module_1 = require("../matches/matches.module");
 const trainings_module_1 = require("../trainings/trainings.module");
 const stories_module_1 = require("../stories/stories.module");
 const cases_module_1 = require("../cases/cases.module");
+const notifications_module_1 = require("../notifications/notifications.module");
+const prisma_service_1 = require("../../prisma/prisma.service");
+const achievements_module_1 = require("../achievements/achievements.module"); // Добавляем
+const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем
 let TelegramModule = class TelegramModule {
 };
 TelegramModule = __decorate([
@@ -40,20 +44,25 @@ TelegramModule = __decorate([
                     };
                 },
             }),
-            users_module_1.UsersModule,
-            requests_module_1.RequestsModule,
-            tournaments_module_1.TournamentsModule,
-            matches_module_1.MatchesModule,
-            trainings_module_1.TrainingsModule,
-            stories_module_1.StoriesModule,
-            cases_module_1.CasesModule,
+            config_1.ConfigModule,
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule),
+            (0, common_1.forwardRef)(() => requests_module_1.RequestsModule),
+            (0, common_1.forwardRef)(() => tournaments_module_1.TournamentsModule),
+            (0, common_1.forwardRef)(() => matches_module_1.MatchesModule),
+            (0, common_1.forwardRef)(() => trainings_module_1.TrainingsModule),
+            (0, common_1.forwardRef)(() => stories_module_1.StoriesModule),
+            (0, common_1.forwardRef)(() => cases_module_1.CasesModule),
+            (0, common_1.forwardRef)(() => notifications_module_1.NotificationsModule),
+            (0, common_1.forwardRef)(() => achievements_module_1.AchievementsModule),
+            (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule),
         ],
         controllers: [telegram_controller_1.TelegramController],
         providers: [
             bot_service_1.BotService,
             telegram_service_1.TelegramService,
+            prisma_service_1.PrismaService
         ],
-        exports: [telegram_service_1.TelegramService],
+        exports: [telegram_service_1.TelegramService, bot_service_1.BotService],
     })
 ], TelegramModule);
 exports.TelegramModule = TelegramModule;

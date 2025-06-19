@@ -9,6 +9,11 @@ import { TrainingsService } from '../trainings/application/services/trainings.se
 import { StoriesService } from '../stories/application/services/stories.service';
 import { CasesService } from '../cases/application/services/cases.service';
 import { CaseOpeningService } from '../cases/application/services/case-opening.service';
+import { TelegramService } from './telegram.service';
+import { NotificationsService } from '../notifications/application/services/notifications.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AchievementsService } from '../achievements/application/services/achievements.service';
+import { RatingsService } from '../ratings/ratings.service';
 export declare class BotService implements OnModuleInit {
     private readonly bot;
     private readonly usersService;
@@ -20,9 +25,14 @@ export declare class BotService implements OnModuleInit {
     private readonly storiesService;
     private readonly casesService;
     private readonly caseOpeningService;
+    private readonly telegramService;
+    private readonly notificationsService;
+    private readonly prisma;
+    private readonly achievementsService;
+    private readonly ratingsService;
     private readonly logger;
     private userStates;
-    constructor(bot: Telegraf<Context>, usersService: UsersService, ballsService: BallsService, requestsService: RequestsService, tournamentsService: TournamentsService, matchesService: MatchesService, trainingsService: TrainingsService, storiesService: StoriesService, casesService: CasesService, caseOpeningService: CaseOpeningService);
+    constructor(bot: Telegraf<Context>, usersService: UsersService, ballsService: BallsService, requestsService: RequestsService, tournamentsService: TournamentsService, matchesService: MatchesService, trainingsService: TrainingsService, storiesService: StoriesService, casesService: CasesService, caseOpeningService: CaseOpeningService, telegramService: TelegramService, notificationsService: NotificationsService, prisma: PrismaService, achievementsService: AchievementsService, ratingsService: RatingsService);
     onModuleInit(): Promise<void>;
     private getMainKeyboard;
     private getUserState;
@@ -33,6 +43,11 @@ export declare class BotService implements OnModuleInit {
     handlePlay(ctx: Context): Promise<void>;
     handleFindGame(ctx: Context): Promise<void>;
     handleCreateRequest(ctx: Context): Promise<void>;
+    handleRatingCommand(ctx: Context): Promise<void>;
+    handleLeaderboardCommand(ctx: Context): Promise<void>;
+    handleSkillLeaderboard(ctx: Context): Promise<void>;
+    handlePointsLeaderboard(ctx: Context): Promise<void>;
+    private getSkillLevelText;
     handleTournaments(ctx: Context): Promise<void>;
     handleActiveTournaments(ctx: Context): Promise<void>;
     handleCases(ctx: Context): Promise<void>;
@@ -93,6 +108,7 @@ export declare class BotService implements OnModuleInit {
     handleDetailedStats(ctx: Context): Promise<void>;
     handleMatchHistoryAction(ctx: Context): Promise<void>;
     handleAchievements(ctx: Context): Promise<void>;
+    notifyNewAchievement(userId: string, achievementCode: string): Promise<void>;
     handleMatchTypeSingles(ctx: Context): Promise<void>;
     handleMatchTypeDoubles(ctx: Context): Promise<void>;
     handlePhoto(ctx: Context): Promise<void>;

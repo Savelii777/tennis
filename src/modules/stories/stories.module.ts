@@ -5,14 +5,14 @@ import { StoriesService } from './application/services/stories.service';
 import { StoriesRepository } from './infrastructure/repositories/stories.repository';
 import { TelegramFileService } from './infrastructure/external/telegram-file.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { AuthModule } from '../auth/auth.module';
 import { TelegramModule } from '../telegram/telegram.module';
-import { AuthModule } from '../auth/auth.module'; 
 
 @Module({
   imports: [
     ConfigModule,
-    AuthModule, 
-    forwardRef(() => TelegramModule), 
+    AuthModule, // Важно: AuthModule должен быть первым или без forwardRef
+    forwardRef(() => TelegramModule),
   ],
   controllers: [StoriesController],
   providers: [

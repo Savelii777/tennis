@@ -19,6 +19,18 @@ let UsersRepository = class UsersRepository {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async updateTelegramChatId(userId, telegramChatId) {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { telegramChatId },
+        });
+    }
+    async setReferrer(userId, referrerId) {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { referredBy: referrerId },
+        });
+    }
     async findAll() {
         const users = await this.prisma.user.findMany({
             include: { profile: true }

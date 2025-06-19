@@ -28,7 +28,12 @@ export class UserEntity {
   @OneToOne(() => UserProfileEntity, (profile: UserProfileEntity) => profile.user)
   profile: UserProfileEntity;
 
-  ballsBalance?: number; // ← Добавить если отсутствует
+  ballsBalance?: number;
+
+  telegramChatId?: BigInt; 
+  
+  referredBy?: number;
+
 
 }
 

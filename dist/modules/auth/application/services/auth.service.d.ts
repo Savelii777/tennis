@@ -3,12 +3,16 @@ import { TelegramAuthService } from '../../infrastructure/telegram/telegram-auth
 import { UsersService } from '../../../users/application/services/users.service';
 import { TelegramLoginDto } from '../../presentation/dto/telegram-login.dto';
 import { UserEntity } from '../../../users/domain/entities/user.entity';
+import { AchievementsService } from '../../../achievements/application/services/achievements.service';
 export declare class AuthService {
     private jwtService;
     private telegramAuthService;
     private userService;
+    private readonly achievementsService;
     private readonly logger;
-    constructor(jwtService: JwtService, telegramAuthService: TelegramAuthService, userService: UsersService);
+    constructor(jwtService: JwtService, telegramAuthService: TelegramAuthService, userService: UsersService, achievementsService: AchievementsService);
+    loginTelegram(telegramLoginDto: TelegramLoginDto): Promise<any>;
+    private generateTokens;
     validateTelegramUser(telegramLoginDto: TelegramLoginDto): Promise<UserEntity>;
     generateJwt(user: UserEntity): Promise<{
         access_token: string;
@@ -19,5 +23,4 @@ export declare class AuthService {
     createUserFromTelegram(telegramData: any): Promise<UserEntity>;
     refreshToken(userId: string): Promise<any>;
     logout(userId: string): Promise<any>;
-    loginTelegram(telegramData: TelegramLoginDto): Promise<any>;
 }

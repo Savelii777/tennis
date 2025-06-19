@@ -104,7 +104,6 @@ model User {
   createdTournaments Tournament[] @relation("TournamentOrganizer")
   sentInvites Invite[] @relation("InviteSender")
   receivedInvites Invite[] @relation("InviteReceiver") 
-  notifications Notification[]
   tournaments    Tournament[]
   createdRequests     GameRequest[]      @relation()
   requestParticipations GameRequest[]  @relation("RequestParticipants")
@@ -130,7 +129,114 @@ model User {
   referralStats     ReferralStats?
   referrerActivities  ReferralActivity[] @relation("ReferrerActivity")
   invitedActivities   ReferralActivity[] @relation("InvitedActivity")
+
+  notifications Notification[]
+  userSettings  UserSettings?
+  achievements UserAchievement[] @relation("UserAchievements")
+
+  rating        PlayerRating?
+  ratingHistory RatingHistory[]
+  opponentHistory RatingHistory[] @relation("OpponentHistory")
 }
+
+
+// Заменяем модели PlayerRating и RatingHistory на правильные версии
+
+model PlayerRating {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id])
+  
+  // S-Rating (Skill Rating)
+  skillRating   Float    @default(4.0)  // NTRP рейтинг (2.0 - 7.0)
+  skillPoints   Int      @default(1400) // Эло-подобные очки
+  
+  // P-Rating (Points Rating)
+  pointsRating  Int      @default(1000) // Очки активности
+  
+  // Статистика
+  wins          Int      @default(0)
+  losses        Int      @default(0)
+  
+  lastUpdated   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([skillPoints])
+  @@index([pointsRating])
+}
+
+model RatingHistory {
+  id                   Int      @id @default(autoincrement())
+  userId               Int
+  user                 User     @relation(fields: [userId], references: [id])
+  
+  matchId              Int?
+  match                Match?   @relation(fields: [matchId], references: [id])
+  
+  seasonId             Int?
+  season               RatingSeason? @relation(fields: [seasonId], references: [id])
+  
+  // Рейтинг до и после
+  skillPointsBefore    Int
+  skillPointsAfter     Int
+  pointsRatingBefore   Int
+  pointsRatingAfter    Int
+  
+  // Детали матча
+  isWin                Boolean
+  opponentId           Int?
+  opponent             User?    @relation("OpponentHistory", fields: [opponentId], references: [id])
+  opponentSkillPoints  Int?
+  
+  // Начисленные очки
+  pointsEarned         Int
+  reason               String   // "match_win", "tournament_participation", etc.
+  
+  createdAt            DateTime @default(now())
+  
+  @@index([userId])
+  @@index([matchId])
+  @@index([seasonId])
+}
+
+model RatingSeason {
+  id          Int      @id @default(autoincrement())
+  title       String
+  startDate   DateTime
+  endDate     DateTime
+  isCurrent   Boolean  @default(false)
+  description String?
+  
+  // История рейтингов в этом сезоне
+  history     RatingHistory[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([isCurrent])
+  @@index([startDate, endDate])
+}
+
+
+model UserAchievement {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation("UserAchievements", fields: [userId], references: [id])
+  code        String   // "first_win", "10_matches", etc.
+  awardedAt   DateTime @default(now())
+  
+  // Дополнительные данные достижения
+  metadata    Json?    // Дополнительная информация о достижении
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, code]) // Пользователь не может получить одно достижение дважды
+  @@index([userId])
+  @@index([code])
+  @@index([awardedAt])
+}
+
 model ReferralStats {
   id                Int      @id @default(autoincrement())
   userId            Int      @unique
@@ -286,6 +392,8 @@ model Match {
   invites       Invite[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  ratingHistory RatingHistory[]
+
 }
 
 model Training {
@@ -358,14 +466,49 @@ model Invite {
   createdAt     DateTime @default(now())
 }
 
-model Notification {
-  id            Int      @id @default(autoincrement())
-  user          User     @relation(fields: [userId], references: [id])
-  userId        Int
-  message       String
-  createdAt     DateTime @default(now())
+model UserSettings {
+  id                   Int     @id @default(autoincrement())
+  userId               Int     @unique
+  user                 User    @relation(fields: [userId], references: [id])
+  telegramChatId       String?
+  notificationsEnabled Boolean @default(true)
+  emailNotifications   Boolean @default(true)
+  pushNotifications    Boolean @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([userId])
 }
-
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      NotificationType
+  message   String
+  payload   Json?    // Дополнительные данные для фронтенда
+  isRead    Boolean  @default(false)
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+}
+enum NotificationType {
+  MATCH_SCHEDULED
+  MATCH_REMINDER
+  MATCH_CANCELLED
+  TOURNAMENT_RESULT
+  NEW_INVITE
+  INVITE_ACCEPTED
+  INVITE_DECLINED
+  TRAINING_REMINDER
+  SYSTEM_MESSAGE
+  REFERRAL_BONUS
+  CASE_OPENED
+}
 model UserProfile {
   id              Int      @id @default(autoincrement())
   user            User     @relation(fields: [userId], references: [id])

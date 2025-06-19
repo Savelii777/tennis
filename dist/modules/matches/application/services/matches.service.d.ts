@@ -1,11 +1,18 @@
 import { MatchesRepository } from '../../infrastructure/repositories/matches.repository';
+import { UsersService } from '../../../users/application/services/users.service';
 import { CreateMatchDto } from '../dto/create-match.dto';
-import { UpdateMatchDto } from '../dto/update-match.dto';
 import { RecordScoreDto } from '../dto/record-score.dto';
+import { UpdateMatchDto } from '../dto/update-match.dto';
 import { MatchEntity } from '../../domain/entities/match.entity';
+import { AchievementsService } from '../../../achievements/application/services/achievements.service';
+import { RatingsService } from '../../../ratings/ratings.service';
 export declare class MatchesService {
     private readonly matchesRepository;
-    constructor(matchesRepository: MatchesRepository);
+    private readonly usersService;
+    private readonly achievementsService;
+    private readonly ratingsService;
+    private readonly logger;
+    constructor(matchesRepository: MatchesRepository, usersService: UsersService, achievementsService: AchievementsService, ratingsService: RatingsService);
     findAll(): Promise<MatchEntity[]>;
     findById(id: string): Promise<MatchEntity>;
     findByCreator(creatorId: string): Promise<MatchEntity[]>;
@@ -13,6 +20,9 @@ export declare class MatchesService {
     update(id: string, userId: string, updateMatchDto: UpdateMatchDto): Promise<MatchEntity>;
     confirmMatch(id: string, userId: string): Promise<MatchEntity>;
     cancelMatch(id: string, userId: string): Promise<MatchEntity>;
-    recordScore(id: string, userId: string, recordScoreDto: RecordScoreDto): Promise<MatchEntity>;
+    recordScore(matchId: string, userId: string, recordScoreDto: RecordScoreDto): Promise<MatchEntity>;
+    private determineWinner;
+    private determineLoser;
+    private updatePlayerStats;
     delete(id: string, userId: string): Promise<void>;
 }

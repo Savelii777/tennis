@@ -10,5 +10,7 @@ export declare class UserEntity {
     role: Role;
     profile: UserProfileEntity;
     ballsBalance?: number;
+    telegramChatId?: BigInt;
+    referredBy?: number;
 }
 export { UserEntity as User };

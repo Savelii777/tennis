@@ -8,13 +8,19 @@ import { ProfileStatisticsDto } from '../../presentation/dto/profile-statistics.
 import { ProfileStepOneDto } from '../../presentation/dto/profile-step-one.dto';
 import { ProfileStepTwoDto } from '../../presentation/dto/profile-step-two.dto';
 import { PrismaService } from '../../../../prisma/prisma.service';
+import { RatingsService } from '../../../ratings/ratings.service';
 export declare class UsersService {
     private readonly usersRepository;
     private readonly prisma;
-    constructor(usersRepository: UsersRepository, prisma: PrismaService);
+    private readonly ratingsService;
+    constructor(usersRepository: UsersRepository, prisma: PrismaService, ratingsService: RatingsService);
     findAll(): Promise<UserEntity[]>;
     findById(id: string): Promise<UserEntity>;
+    updateTelegramChatId(userId: string, telegramChatId: number): Promise<void>;
+    setReferrer(userId: string, referrerId: string): Promise<void>;
     findByTelegramId(telegramId: string): Promise<UserEntity | null>;
+    createFromTelegram(telegramData: any): Promise<UserEntity>;
+    updateLastLogin(userId: string): Promise<UserEntity>;
     create(createUserDto: CreateUserDto): Promise<UserEntity>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity>;
     updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<UserEntity>;

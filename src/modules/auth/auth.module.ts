@@ -6,10 +6,13 @@ import { TelegramAuthService } from './infrastructure/telegram/telegram-auth.ser
 import { AuthController } from './presentation/controllers/auth.controller';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersModule } from '../users/users.module';
+import { AchievementsModule } from '../achievements/achievements.module'; // Добавляем
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
+    forwardRef(() => AchievementsModule),
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
