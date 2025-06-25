@@ -6,9 +6,9 @@ export declare class ReferralsRepository {
         referralStats: import(".prisma/client").ReferralStats | null;
     }) | null>;
     findUserByReferralCode(referralCode: string): Promise<{
-        lastName: string | null;
         username: string;
         firstName: string;
+        lastName: string | null;
         referralCode: string | null;
         id: number;
     } | null>;
@@ -30,18 +30,18 @@ export declare class ReferralsRepository {
     updateReferralStats(userId: number, data: any): Promise<import(".prisma/client").ReferralStats>;
     getUserReferrals(userId: number): Promise<(import(".prisma/client").ReferralActivity & {
         invitedUser: {
-            lastName: string | null;
             username: string;
             firstName: string;
+            lastName: string | null;
             id: number;
         };
     })[]>;
     getReferralActivity(userId: number): Promise<import(".prisma/client").ReferralActivity[]>;
     getTopReferrers(limit: number): Promise<(import(".prisma/client").ReferralStats & {
         user: {
-            lastName: string | null;
             username: string;
             firstName: string;
+            lastName: string | null;
             id: number;
         };
     })[]>;

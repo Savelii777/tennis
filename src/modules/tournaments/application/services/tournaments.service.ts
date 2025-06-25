@@ -7,6 +7,7 @@ import { UpdateTournamentDto } from '../dto/update-tournament.dto';
 import { RecordTournamentMatchDto } from '../dto/record-tournament-match.dto';
 import { TournamentStatus, TournamentType, MatchStatus } from '../../domain/enums/tournament.enum';
 import { UsersService } from '../../../users/application/services/users.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 @Injectable()
 export class TournamentsService {
@@ -15,6 +16,8 @@ export class TournamentsService {
   constructor(
     private readonly tournamentsRepository: TournamentsRepository,
     private readonly usersService: UsersService,
+    private readonly prisma: PrismaService, // Добавляем prisma сервис
+
   ) {}
 
 async findAll(filters?: any): Promise<TournamentEntity[]> {
@@ -1059,4 +1062,66 @@ async findAll(filters?: any): Promise<TournamentEntity[]> {
     }
     return result;
   }
+  // Добавить следующий метод в класс TournamentsService
+
+/**
+ * Получить турниры пользователя с фильтрацией
+ */
+async getUserTournaments(userId: string, options: { status?: string } = {}): Promise<any[]> {
+  const userIdInt = parseInt(userId);
+  const { status } = options;
+  
+  // Построение фильтра состояния
+  let statusFilter: any = {};
+  if (status) {
+    switch(status.toUpperCase()) {
+      case 'UPCOMING':
+        statusFilter = { status: TournamentStatus.DRAFT };
+        break;
+      case 'ACTIVE':
+        statusFilter = { status: TournamentStatus.ACTIVE };
+        break;
+      case 'FINISHED':
+        statusFilter = { status: TournamentStatus.COMPLETED };
+        break;
+      default:
+        // По умолчанию не фильтруем
+    }
+  }
+  
+  // Найти все турниры, где участвует пользователь
+  const tournaments = await this.prisma.tournament.findMany({
+    where: {
+      players: { // Используем правильное имя связи из схемы
+        some: {
+          id: userIdInt // Ищем по id пользователя
+        }
+      },
+      ...statusFilter
+    },
+    orderBy: [
+      { status: 'asc' },  // Сначала активные и предстоящие
+      { startDate: 'desc' } // Затем по дате (новые в начале)
+    ],
+    include: {
+      players: true,
+      creator: { // Изменено с organizer на creator
+        select: { id: true, firstName: true, lastName: true }
+      }
+    }
+  });
+  
+  return tournaments.map((tournament: any) => ({
+    id: tournament.id,
+    title: tournament.title,
+    status: tournament.status,
+    type: tournament.type,
+    startDate: tournament.startDate,
+    endDate: tournament.endDate,
+    location: tournament.locationName,
+    participantsCount: tournament.players.length,
+    organizerName: `${tournament.creator.firstName} ${tournament.creator.lastName || ''}`.trim(), // Изменено с organizer на creator
+    isRanked: tournament.isRanked
+  }));
+}
 }

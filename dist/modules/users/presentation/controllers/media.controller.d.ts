@@ -9,6 +9,6 @@ interface RequestWithUser extends Request {
 export declare class MediaController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    uploadAvatar(req: RequestWithUser, file: Express.Multer.File): Promise<import("../../domain/entities/user.entity").UserEntity>;
+    uploadAvatar(req: RequestWithUser, file: Express.Multer.File): Promise<any>;
 }
 export {};

@@ -1,7 +1,9 @@
 import { ReferralsRepository } from '../../infrastructure/repositories/referrals.repository';
+import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class ReferralsService {
     private readonly referralsRepository;
-    constructor(referralsRepository: ReferralsRepository);
+    private readonly prisma;
+    constructor(referralsRepository: ReferralsRepository, prisma: PrismaService);
     /**
      * Генерирует персональную реферальную ссылку для пользователя
      */
@@ -26,6 +28,17 @@ export declare class ReferralsService {
      * Валидировать реферальный код
      */
     validateReferralCode(referralCode: string): Promise<boolean>;
+    /**
+     * Поиск пользователя по реферальному коду
+     */
+    findUserByReferralCode(code: string): Promise<import(".prisma/client").User | null>;
+    /**
+     * Создание реферальной связи между пользователями
+     */
+    createReferral(data: {
+        referrerId: any;
+        referredId: any;
+    }): Promise<import(".prisma/client").ReferralActivity>;
     private generateReferralCode;
     private updateReferrerStats;
     private checkAchievements;

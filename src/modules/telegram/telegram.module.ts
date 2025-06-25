@@ -4,6 +4,23 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BotService } from './bot.service';
 import { TelegramService } from './telegram.service';
 import { TelegramController } from './telegram.controller';
+
+// Хендлеры
+import { ProfileHandler } from './handlers/profile.handler';
+import { MatchesHandler } from './handlers/matches.handler';
+import { RequestsHandler } from './handlers/requests.handler';
+import { TournamentsHandler } from './handlers/tournaments.handler';
+import { TrainingsHandler } from './handlers/trainings.handler';
+import { StoriesHandler } from './handlers/stories.handler';
+import { CasesHandler } from './handlers/cases.handler';
+import { AiCoachHandler } from './handlers/ai-coach.handler';
+import { CommonHandler } from './handlers/common.handler';
+
+// Вспомогательные сервисы
+import { StateService } from './services/state.service';
+import { KeyboardService } from './services/keyboard.service';
+
+// Модули
 import { UsersModule } from '../users/users.module';
 import { RequestsModule } from '../requests/requests.module';
 import { TournamentsModule } from '../tournaments/tournaments.module';
@@ -13,11 +30,11 @@ import { StoriesModule } from '../stories/stories.module';
 import { CasesModule } from '../cases/cases.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AchievementsModule } from '../achievements/achievements.module'; // Добавляем
-import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
+import { AchievementsModule } from '../achievements/achievements.module';
+import { RatingsModule } from '../ratings/ratings.module';
 import { SettingsModule } from '../settings/settings.module';
 import { LocationsModule } from '../locations/locations.module';
-import { ReferralsModule } from '../referrals/referrals.module'; // Добавляем импорт
+import { ReferralsModule } from '../referrals/referrals.module';
 
 @Module({
   imports: [
@@ -53,14 +70,31 @@ import { ReferralsModule } from '../referrals/referrals.module'; // Добавл
     forwardRef(() => SettingsModule),
     forwardRef(() => LocationsModule), 
     forwardRef(() => ReferralsModule),
-
   ],
   controllers: [TelegramController],
   providers: [
+    // Основные сервисы
     BotService,
     TelegramService,
+    
+    // Вспомогательные сервисы
+    StateService,
+    KeyboardService,
+    
+    // Хендлеры
+    ProfileHandler,
+    MatchesHandler,
+    RequestsHandler,
+    TournamentsHandler,
+    TrainingsHandler,
+    StoriesHandler,
+    CasesHandler,
+    AiCoachHandler,
+    CommonHandler,
+    
+    // Сервис Prisma
     PrismaService
   ],
-  exports: [TelegramService, BotService], 
+  exports: [TelegramService, BotService],
 })
 export class TelegramModule {}

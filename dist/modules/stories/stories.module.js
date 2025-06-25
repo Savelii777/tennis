@@ -22,7 +22,7 @@ StoriesModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule,
-            auth_module_1.AuthModule,
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
             (0, common_1.forwardRef)(() => telegram_module_1.TelegramModule),
         ],
         controllers: [stories_controller_1.StoriesController],

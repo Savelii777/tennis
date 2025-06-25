@@ -9,40 +9,40 @@ export declare class AdminCasesController {
     private readonly caseOpeningService;
     constructor(casesService: CasesService, caseItemsService: CaseItemsService, caseOpeningService: CaseOpeningService);
     createCase(createCaseDto: CreateCaseDto): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     getAllCases(includeInactive?: string): Promise<(import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     })[]>;
     getCaseById(id: string): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     updateCase(id: string, updateCaseDto: UpdateCaseDto): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     deleteCase(id: string): Promise<import(".prisma/client").Case>;
     toggleCaseStatus(id: string): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     createCaseItem(caseId: string, createItemDto: CreateCaseItemDto): Promise<import(".prisma/client").CaseItem>;
     getCaseItems(caseId: string, includeInactive?: string): Promise<import(".prisma/client").CaseItem[]>;

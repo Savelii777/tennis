@@ -21,7 +21,7 @@ let MatchesModule = class MatchesModule {
 MatchesModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            auth_module_1.AuthModule,
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             (0, common_1.forwardRef)(() => achievements_module_1.AchievementsModule),
             (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule), // Добавляем

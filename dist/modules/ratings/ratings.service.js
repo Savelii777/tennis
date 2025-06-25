@@ -22,8 +22,8 @@ let RatingsService = RatingsService_1 = class RatingsService {
         this.NTRP_SCALE = 50; // Очков на 0.1 NTRP
     }
     /**
-     * Создает дефолтный рейтинг при регистрации игрока
-     */
+   * Создает дефолтный рейтинг при регистрации игрока или обновляет существующий
+   */
     async createDefaultRating(userId, options) {
         const defaultRating = {
             skillPoints: options?.skillPoints || 1400,
@@ -31,40 +31,70 @@ let RatingsService = RatingsService_1 = class RatingsService {
             pointsRating: options?.pointsRating || 1000,
         };
         try {
-            const rating = await this.prisma.playerRating.create({
-                data: {
-                    userId,
-                    skillPoints: defaultRating.skillPoints,
-                    skillRating: defaultRating.skillRating,
-                    pointsRating: defaultRating.pointsRating,
-                },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            username: true,
-                            firstName: true,
-                            lastName: true, // Исправлено
+            // Проверяем, существует ли уже рейтинг для этого пользователя
+            const existingRating = await this.prisma.playerRating.findUnique({
+                where: { userId },
+            });
+            let rating;
+            if (existingRating) {
+                // Если рейтинг уже существует, обновляем его
+                rating = await this.prisma.playerRating.update({
+                    where: { userId },
+                    data: {
+                        skillPoints: defaultRating.skillPoints,
+                        skillRating: defaultRating.skillRating,
+                        pointsRating: defaultRating.pointsRating,
+                    },
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                username: true,
+                                firstName: true,
+                                lastName: true,
+                            }
                         }
                     }
-                }
-            });
-            // Записываем в историю
-            await this.createRatingHistoryEntry({
-                userId,
-                skillPointsBefore: 0,
-                skillPointsAfter: defaultRating.skillPoints,
-                pointsRatingBefore: 0,
-                pointsRatingAfter: defaultRating.pointsRating,
-                isWin: false,
-                pointsEarned: defaultRating.pointsRating,
-                reason: 'registration',
-            });
-            this.logger.log(`Created default rating for user ${userId}: ${JSON.stringify(defaultRating)}`);
+                });
+                this.logger.log(`Updated rating for user ${userId}: ${JSON.stringify(defaultRating)}`);
+            }
+            else {
+                // Если рейтинга нет, создаем новый
+                rating = await this.prisma.playerRating.create({
+                    data: {
+                        userId,
+                        skillPoints: defaultRating.skillPoints,
+                        skillRating: defaultRating.skillRating,
+                        pointsRating: defaultRating.pointsRating,
+                    },
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                username: true,
+                                firstName: true,
+                                lastName: true,
+                            }
+                        }
+                    }
+                });
+                // Записываем в историю только для новых рейтингов
+                await this.createRatingHistoryEntry({
+                    userId,
+                    skillPointsBefore: 0,
+                    skillPointsAfter: defaultRating.skillPoints,
+                    pointsRatingBefore: 0,
+                    pointsRatingAfter: defaultRating.pointsRating,
+                    isWin: false,
+                    pointsEarned: defaultRating.pointsRating,
+                    reason: 'registration',
+                });
+                this.logger.log(`Created default rating for user ${userId}: ${JSON.stringify(defaultRating)}`);
+            }
             return rating;
         }
         catch (error) {
-            this.logger.error(`Failed to create default rating for user ${userId}:`, error);
+            this.logger.error(`Failed to create/update rating for user ${userId}:`, error);
             throw error;
         }
     }

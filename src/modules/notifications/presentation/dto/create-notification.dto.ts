@@ -23,4 +23,7 @@ export class CreateNotificationDto {
   @IsOptional()
   @IsBoolean()
   sendTelegram?: boolean;
+
+  data?: any;
+
 }

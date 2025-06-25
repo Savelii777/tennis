@@ -12,15 +12,19 @@ const requests_controller_1 = require("./presentation/controllers/requests.contr
 const requests_service_1 = require("./application/services/requests.service");
 const requests_repository_1 = require("./infrastructure/repositories/requests.repository");
 const prisma_service_1 = require("../../prisma/prisma.service");
-const auth_module_1 = require("../auth/auth.module"); // Add this import
+const auth_module_1 = require("../auth/auth.module");
+const users_module_1 = require("../users/users.module"); // Добавьте, если используется
 let RequestsModule = class RequestsModule {
 };
 RequestsModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
+        imports: [
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Если этот модуль используется
+        ],
         controllers: [requests_controller_1.RequestsController],
         providers: [requests_service_1.RequestsService, requests_repository_1.RequestsRepository, prisma_service_1.PrismaService],
-        exports: [requests_service_1.RequestsService]
+        exports: [requests_service_1.RequestsService],
     })
 ], RequestsModule);
 exports.RequestsModule = RequestsModule;

@@ -17,14 +17,15 @@ let NotificationsRepository = class NotificationsRepository {
         this.prisma = prisma;
     }
     async create(data) {
-        return this.prisma.notification.create({
+        const notification = await this.prisma.notification.create({
             data: {
                 userId: data.userId,
                 type: data.type,
                 message: data.message,
-                payload: data.payload,
+                data: data.payload || {}, // Если данные есть в payload, используем их
             },
         });
+        return this.mapToEntity(notification);
     }
     async findByUserId(userId, filters, pagination) {
         const { page, limit } = pagination;
@@ -85,6 +86,20 @@ let NotificationsRepository = class NotificationsRepository {
             where: { id: notificationId },
             data: { sentAt: new Date() },
         });
+    }
+    // Добавляем метод mapToEntity для преобразования Prisma объекта в NotificationInterface
+    mapToEntity(notification) {
+        return {
+            id: notification.id,
+            userId: notification.userId,
+            type: notification.type,
+            message: notification.message,
+            payload: notification.data,
+            isRead: notification.isRead,
+            sentAt: notification.sentAt,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+        };
     }
 };
 NotificationsRepository = __decorate([

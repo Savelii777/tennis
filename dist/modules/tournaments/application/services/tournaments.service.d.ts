@@ -5,11 +5,13 @@ import { CreateTournamentDto } from '../dto/create-tournament.dto';
 import { UpdateTournamentDto } from '../dto/update-tournament.dto';
 import { RecordTournamentMatchDto } from '../dto/record-tournament-match.dto';
 import { UsersService } from '../../../users/application/services/users.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class TournamentsService {
     private readonly tournamentsRepository;
     private readonly usersService;
+    private readonly prisma;
     private readonly logger;
-    constructor(tournamentsRepository: TournamentsRepository, usersService: UsersService);
+    constructor(tournamentsRepository: TournamentsRepository, usersService: UsersService, prisma: PrismaService);
     findAll(filters?: any): Promise<TournamentEntity[]>;
     findById(id: string): Promise<TournamentEntity>;
     findByCreator(creatorId: string): Promise<TournamentEntity[]>;
@@ -49,4 +51,10 @@ export declare class TournamentsService {
     private shuffleArray;
     private nextPowerOfTwo;
     private rotateArray;
+    /**
+     * Получить турниры пользователя с фильтрацией
+     */
+    getUserTournaments(userId: string, options?: {
+        status?: string;
+    }): Promise<any[]>;
 }

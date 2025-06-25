@@ -11,7 +11,10 @@ export declare class StoriesService {
     constructor(storiesRepository: StoriesRepository, telegramFileService: TelegramFileService, telegramService: TelegramService);
     createStory(userId: number, createStoryDto: CreateStoryDto): Promise<StoryResponseDto>;
     getPublicStories(): Promise<StoryResponseDto[]>;
-    getUserStories(userId: number): Promise<StoryResponseDto[]>;
+    /**
+     * Получить истории пользователя
+     */
+    getUserStories(userId: string | number): Promise<any[]>;
     getStoryById(id: number): Promise<StoryResponseDto>;
     getFileUrl(storyId: number): Promise<{
         url: string;

@@ -1,4 +1,3 @@
-/// <reference types="multer" />
 import { UserEntity } from '../../domain/entities/user.entity';
 import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { UpdateUserDto } from '../../presentation/dto/update-user.dto';
@@ -13,6 +12,7 @@ export declare class UsersService {
     private readonly usersRepository;
     private readonly prisma;
     private readonly ratingsService;
+    private readonly logger;
     constructor(usersRepository: UsersRepository, prisma: PrismaService, ratingsService: RatingsService);
     findAll(): Promise<UserEntity[]>;
     findById(id: string): Promise<UserEntity>;
@@ -31,14 +31,54 @@ export declare class UsersService {
     updateTournamentStats(userId: string, isWin: boolean): Promise<UserEntity>;
     addAchievement(userId: string, achievementKey: string, achievementData: any): Promise<UserEntity>;
     getRecentMatches(userId: string, limit?: number): Promise<any[]>;
-    updateAvatar(userId: string, file: Express.Multer.File): Promise<UserEntity>;
     completeProfileStepOne(userId: string, profileData: ProfileStepOneDto): Promise<any>;
     completeProfileStepTwo(userId: string, profileData: ProfileStepTwoDto): Promise<any>;
-    getProfileCompletionStatus(userId: string): Promise<any>;
+    getProfileCompletionStatus(userId: string): Promise<{
+        percentage: number;
+        stepOneCompleted: boolean;
+        stepTwoCompleted: boolean;
+    }>;
     updateUserLocation(userId: string, locationData: {
         countryCode?: string;
         cityId?: number;
         sportId?: number;
     }): Promise<UserEntity>;
     getUserWithLocation(userId: string): Promise<UserEntity | null>;
+    /**
+     * Получение матчей пользователя
+     */
+    getUserMatches(userId: string): Promise<any[]>;
+    /**
+     * Получить полный профиль пользователя со всеми связями
+     */
+    getUserFullProfile(userId: string): Promise<any>;
+    /**
+     * Получить публичный профиль с учетом настроек приватности
+     */
+    getPublicUserProfile(targetUserId: string, requesterId?: string): Promise<any>;
+    /**
+     * Обновить аватар пользователя
+     */
+    updateAvatar(userId: string, filename: string): Promise<any>;
+    /**
+     * Сгенерировать ссылку для шаринга профиля
+     */
+    generateProfileShareUrl(userId: string): Promise<string>;
+    /**
+     * Отправить прямое сообщение пользователю
+     */
+    sendDirectMessage(senderId: string, recipientId: string, message: string): Promise<any>;
+    /**
+     * Вспомогательный метод для визуального отображения NTRP рейтинга
+     * Возвращает объект с данными для отображения NTRP рейтинга и бейджа
+     */
+    private getNtrpVisualRating;
+    /**
+     * Вспомогательный метод для расчета процента побед
+     */
+    private calculateWinRate;
+    /**
+     * Получить публичные матчи пользователя для отображения в профиле
+     */
+    private getPublicUserMatches;
 }

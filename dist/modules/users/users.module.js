@@ -16,7 +16,10 @@ const media_controller_1 = require("./presentation/controllers/media.controller"
 const users_repository_1 = require("./infrastructure/repositories/users.repository");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const auth_module_1 = require("../auth/auth.module");
-const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем импорт
+const ratings_module_1 = require("../ratings/ratings.module");
+const matches_module_1 = require("../matches/matches.module");
+const tournaments_module_1 = require("../tournaments/tournaments.module");
+const stories_module_1 = require("../stories/stories.module");
 let UsersModule = class UsersModule {
 };
 UsersModule = __decorate([
@@ -24,6 +27,9 @@ UsersModule = __decorate([
         imports: [
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
             (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule),
+            (0, common_1.forwardRef)(() => matches_module_1.MatchesModule),
+            (0, common_1.forwardRef)(() => tournaments_module_1.TournamentsModule),
+            (0, common_1.forwardRef)(() => stories_module_1.StoriesModule),
             platform_express_1.MulterModule.register({
                 dest: './uploads',
             }),

@@ -17,12 +17,15 @@ const users_service_1 = require("../../../users/application/services/users.servi
 const match_enum_1 = require("../../domain/enums/match.enum");
 const achievements_service_1 = require("../../../achievements/application/services/achievements.service");
 const ratings_service_1 = require("../../../ratings/ratings.service"); // Добавляем импорт
+const prisma_service_1 = require("../../../../prisma/prisma.service");
 let MatchesService = MatchesService_1 = class MatchesService {
-    constructor(matchesRepository, usersService, achievementsService, ratingsService) {
+    constructor(matchesRepository, usersService, achievementsService, ratingsService, // Добавляем зависимость
+    prisma) {
         this.matchesRepository = matchesRepository;
         this.usersService = usersService;
         this.achievementsService = achievementsService;
         this.ratingsService = ratingsService;
+        this.prisma = prisma;
         this.logger = new common_1.Logger(MatchesService_1.name);
     }
     async findAll() {
@@ -212,12 +215,138 @@ let MatchesService = MatchesService_1 = class MatchesService {
         }
         return this.matchesRepository.delete(id);
     }
+    // Добавить следующие методы в класс MatchesService
+    /**
+     * Получить последние матчи пользователя
+     */
+    async getUserRecentMatches(userId, limit = 5) {
+        const userIdInt = parseInt(userId);
+        const matches = await this.prisma.match.findMany({
+            where: {
+                OR: [
+                    { creatorId: userIdInt },
+                    { player1Id: userIdInt },
+                    { player2Id: userIdInt }
+                ],
+                state: match_enum_1.MatchState.FINISHED
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+            include: {
+                creator: {
+                    select: { id: true, firstName: true, lastName: true, username: true }
+                }
+            }
+        });
+        return matches.map((match) => {
+            return {
+                id: match.id,
+                date: match.matchDate || match.createdAt,
+                score: match.score,
+                result: match.winnerId === userIdInt ? 'WIN' : 'LOSS',
+                opponentName: this.getOpponentName(match, userIdInt)
+            };
+        });
+    }
+    /**
+     * Получить все матчи пользователя с фильтрацией и пагинацией
+     */
+    async getUserMatches(userId, options = {}) {
+        const userIdInt = parseInt(userId);
+        const { status, limit = 20, offset = 0 } = options;
+        // Построение фильтра состояния
+        let stateFilter = {};
+        if (status) {
+            stateFilter = { state: status };
+        }
+        const matches = await this.prisma.match.findMany({
+            where: {
+                OR: [
+                    { creatorId: userIdInt },
+                    { player1Id: userIdInt },
+                    { player2Id: userIdInt }
+                ],
+                ...stateFilter
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limit,
+            include: {
+                creator: {
+                    select: { id: true, firstName: true, lastName: true, username: true }
+                }
+            }
+        });
+        return matches.map((match) => {
+            return {
+                id: match.id,
+                date: match.matchDate || match.createdAt,
+                score: match.score,
+                state: match.state,
+                result: match.winnerId === userIdInt ? 'WIN' : match.state === match_enum_1.MatchState.FINISHED ? 'LOSS' : 'PENDING',
+                opponentName: this.getOpponentName(match, userIdInt)
+            };
+        });
+    }
+    /**
+     * Пригласить пользователя на матч
+     */
+    async inviteToMatch(creatorId, targetId, inviteData) {
+        const creator = await this.usersService.findById(creatorId);
+        if (!creator) {
+            throw new common_1.NotFoundException('Создатель матча не найден');
+        }
+        const target = await this.usersService.findById(targetId);
+        if (!target) {
+            throw new common_1.NotFoundException('Приглашаемый игрок не найден');
+        }
+        // Создаём новый матч с приглашением
+        const match = await this.matchesRepository.create(creatorId, {
+            type: match_enum_1.MatchType.ONE_ON_ONE,
+            player1Id: parseInt(creatorId),
+            player2Id: parseInt(targetId),
+            location: inviteData.location,
+            matchDate: inviteData.dateTime,
+            description: inviteData.comment || 'Приглашение на матч',
+            state: match_enum_1.MatchState.PENDING
+        });
+        // Отправляем уведомление пользователю (можно добавить)
+        return match;
+    }
+    /**
+     * Вспомогательный метод для получения имени оппонента
+     */
+    getOpponentName(match, userId) {
+        let opponentId = null;
+        if (match.creatorId === userId && match.player1Id) {
+            opponentId = match.player1Id;
+        }
+        else if (match.creatorId === userId && match.player2Id) {
+            opponentId = match.player2Id;
+        }
+        else if (match.player1Id === userId && match.player2Id) {
+            opponentId = match.player2Id;
+        }
+        else if (match.player2Id === userId && match.player1Id) {
+            opponentId = match.player1Id;
+        }
+        else if (match.player1Id === userId || match.player2Id === userId) {
+            opponentId = match.creatorId;
+        }
+        // Находим имя оппонента (если есть)
+        if (opponentId && opponentId === match.creatorId && match.creator) {
+            return `${match.creator.firstName} ${match.creator.lastName || ''}`.trim();
+        }
+        // Для случаев, где данных недостаточно
+        return 'Неизвестный игрок';
+    }
 };
 MatchesService = MatchesService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [matches_repository_1.MatchesRepository,
         users_service_1.UsersService,
         achievements_service_1.AchievementsService,
-        ratings_service_1.RatingsService])
+        ratings_service_1.RatingsService,
+        prisma_service_1.PrismaService])
 ], MatchesService);
 exports.MatchesService = MatchesService;

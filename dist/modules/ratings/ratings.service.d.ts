@@ -20,8 +20,8 @@ export declare class RatingsService {
     private readonly NTRP_SCALE;
     constructor(prisma: PrismaService);
     /**
-     * Создает дефолтный рейтинг при регистрации игрока
-     */
+   * Создает дефолтный рейтинг при регистрации игрока или обновляет существующий
+   */
     createDefaultRating(userId: number, options?: {
         skillPoints?: number;
         skillRating?: number;

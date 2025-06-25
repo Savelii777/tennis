@@ -4,40 +4,40 @@ export declare class CasesService {
     private readonly casesRepository;
     constructor(casesRepository: CasesRepository);
     createCase(createCaseDto: CreateCaseDto): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     getAllCases(includeInactive?: boolean): Promise<(import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     })[]>;
     getCaseById(id: number): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     updateCase(id: number, updateCaseDto: UpdateCaseDto): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     deleteCase(id: number): Promise<import(".prisma/client").Case>;
     toggleCaseStatus(id: number): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     getCaseStatistics(id: number): Promise<{
         totalOpenings: number;

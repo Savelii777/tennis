@@ -64,6 +64,5 @@ export class MediaController {
     )
     file: Express.Multer.File,
   ) {
-    return this.usersService.updateAvatar(req.user.id.toString(), file);
-  }
+return this.usersService.updateAvatar(req.user.id.toString(), file.filename);  }
 }

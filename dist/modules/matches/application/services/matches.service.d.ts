@@ -6,13 +6,16 @@ import { UpdateMatchDto } from '../dto/update-match.dto';
 import { MatchEntity } from '../../domain/entities/match.entity';
 import { AchievementsService } from '../../../achievements/application/services/achievements.service';
 import { RatingsService } from '../../../ratings/ratings.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class MatchesService {
     private readonly matchesRepository;
     private readonly usersService;
     private readonly achievementsService;
     private readonly ratingsService;
+    private readonly prisma;
     private readonly logger;
-    constructor(matchesRepository: MatchesRepository, usersService: UsersService, achievementsService: AchievementsService, ratingsService: RatingsService);
+    constructor(matchesRepository: MatchesRepository, usersService: UsersService, achievementsService: AchievementsService, ratingsService: RatingsService, // Добавляем зависимость
+    prisma: PrismaService);
     findAll(): Promise<MatchEntity[]>;
     findById(id: string): Promise<MatchEntity>;
     findByCreator(creatorId: string): Promise<MatchEntity[]>;
@@ -25,4 +28,24 @@ export declare class MatchesService {
     private determineLoser;
     private updatePlayerStats;
     delete(id: string, userId: string): Promise<void>;
+    /**
+     * Получить последние матчи пользователя
+     */
+    getUserRecentMatches(userId: string, limit?: number): Promise<any[]>;
+    /**
+     * Получить все матчи пользователя с фильтрацией и пагинацией
+     */
+    getUserMatches(userId: string, options?: {
+        status?: string;
+        limit?: number;
+        offset?: number;
+    }): Promise<any[]>;
+    /**
+     * Пригласить пользователя на матч
+     */
+    inviteToMatch(creatorId: string, targetId: string, inviteData: any): Promise<any>;
+    /**
+     * Вспомогательный метод для получения имени оппонента
+     */
+    private getOpponentName;
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common'; // Добавляем импорт forwardRef
 import { ConfigModule } from '@nestjs/config';
 import { CasesController } from './presentation/controllers/cases.controller';
 import { AdminCasesController } from './presentation/controllers/admin-cases.controller';
@@ -13,8 +13,8 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     ConfigModule,
-    UsersModule, 
-    AuthModule  
+    forwardRef(() => UsersModule), // Оборачиваем в forwardRef
+    forwardRef(() => AuthModule)   // Оборачиваем в forwardRef
   ],
   controllers: [CasesController, AdminCasesController],
   providers: [

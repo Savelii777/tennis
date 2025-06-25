@@ -47,4 +47,22 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateMatchDto.prototype, "optionalId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String, description: 'Location of the match' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateMatchDto.prototype, "location", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: Date, description: 'Date of the match' }),
+    (0, class_validator_1.IsDate)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Date)
+], CreateMatchDto.prototype, "matchDate", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: String, description: 'Description of the match' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateMatchDto.prototype, "description", void 0);
 exports.CreateMatchDto = CreateMatchDto;

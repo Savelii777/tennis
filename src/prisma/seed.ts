@@ -151,12 +151,34 @@ async function createUsers() {
   });
 
   // Создаем вид спорта
-  const tennis = await prisma.sport.create({
-    data: {
+  const tennis = await prisma.sport.upsert({
+    where: { slug: 'tennis' },
+    update: {
+      title: 'Теннис',
+      emoji: '🎾',
+      icon: 'tennis',  // Имя файла иконки или иной идентификатор
+    },
+    create: {
       title: 'Теннис',
       slug: 'tennis',
-      emoji: '🎾'
-    }
+      emoji: '🎾',
+      icon: 'tennis',
+    },
+  });
+
+  const padel = await prisma.sport.upsert({
+    where: { slug: 'padel' },
+    update: {
+      title: 'Падел',
+      emoji: '🏓',
+      icon: 'padel',
+    },
+    create: {
+      title: 'Падел',
+      slug: 'padel',
+      emoji: '🏓',
+      icon: 'padel',
+    },
   });
 
   logger.log('Создание администратора...');

@@ -29,7 +29,8 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
                 userId: data.userId,
                 type: data.type,
                 message: data.message,
-                payload: data.payload,
+                // Если в интерфейсе есть data, можно передать его так:
+                payload: data.data
             });
             this.logger.log(`Создано уведомление ${notification.id} для пользователя ${data.userId}`);
             // Отправляем через Telegram если требуется

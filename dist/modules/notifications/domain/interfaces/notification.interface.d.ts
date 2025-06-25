@@ -15,6 +15,7 @@ export interface CreateNotificationData {
     message: string;
     payload?: any;
     sendTelegram?: boolean;
+    data?: any;
 }
 export interface NotificationFilters {
     isRead?: boolean;

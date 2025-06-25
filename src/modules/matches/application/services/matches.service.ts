@@ -5,9 +5,10 @@ import { CreateMatchDto } from '../dto/create-match.dto';
 import { RecordScoreDto } from '../dto/record-score.dto';
 import { UpdateMatchDto } from '../dto/update-match.dto';
 import { MatchEntity } from '../../domain/entities/match.entity';
-import { MatchState } from '../../domain/enums/match.enum';
+import { MatchState, MatchType } from '../../domain/enums/match.enum';
 import { AchievementsService } from '../../../achievements/application/services/achievements.service';
 import { RatingsService } from '../../../ratings/ratings.service'; // Добавляем импорт
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 
 @Injectable()
@@ -19,6 +20,7 @@ export class MatchesService {
     private readonly usersService: UsersService,
     private readonly achievementsService: AchievementsService,
     private readonly ratingsService: RatingsService, // Добавляем зависимость
+    private readonly prisma: PrismaService, // Добавляем prisma сервис
   ) {}
 
   async findAll(): Promise<MatchEntity[]> {
@@ -256,4 +258,148 @@ export class MatchesService {
     
     return this.matchesRepository.delete(id);
   }
+  // Добавить следующие методы в класс MatchesService
+
+/**
+ * Получить последние матчи пользователя
+ */
+async getUserRecentMatches(userId: string, limit: number = 5): Promise<any[]> {
+  const userIdInt = parseInt(userId);
+  
+  const matches = await this.prisma.match.findMany({
+    where: {
+      OR: [
+        { creatorId: userIdInt },
+        { player1Id: userIdInt },
+        { player2Id: userIdInt }
+      ],
+      state: MatchState.FINISHED
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    include: {
+      creator: {
+        select: { id: true, firstName: true, lastName: true, username: true }
+      }
+    }
+  });
+  
+return matches.map((match: any) => {
+  return {
+    id: match.id,
+    date: match.matchDate || match.createdAt,
+    score: match.score,
+    result: match.winnerId === userIdInt ? 'WIN' : 'LOSS',
+    opponentName: this.getOpponentName(match, userIdInt)
+  };
+});
+}
+
+/**
+ * Получить все матчи пользователя с фильтрацией и пагинацией
+ */
+async getUserMatches(
+  userId: string, 
+  options: { status?: string, limit?: number, offset?: number } = {}
+): Promise<any[]> {
+  const userIdInt = parseInt(userId);
+  const { status, limit = 20, offset = 0 } = options;
+  
+  // Построение фильтра состояния
+  let stateFilter: any = {};
+  if (status) {
+    stateFilter = { state: status };
+  }
+  
+  const matches = await this.prisma.match.findMany({
+    where: {
+      OR: [
+        { creatorId: userIdInt },
+        { player1Id: userIdInt },
+        { player2Id: userIdInt }
+      ],
+      ...stateFilter
+    },
+    orderBy: { createdAt: 'desc' },
+    skip: offset,
+    take: limit,
+    include: {
+      creator: {
+        select: { id: true, firstName: true, lastName: true, username: true }
+      }
+    }
+  });
+  
+return matches.map((match: any) => {
+  return {
+    id: match.id,
+    date: match.matchDate || match.createdAt,
+    score: match.score,
+    state: match.state,
+    result: match.winnerId === userIdInt ? 'WIN' : match.state === MatchState.FINISHED ? 'LOSS' : 'PENDING',
+    opponentName: this.getOpponentName(match, userIdInt)
+  };
+});
+}
+
+/**
+ * Пригласить пользователя на матч
+ */
+async inviteToMatch(
+  creatorId: string,
+  targetId: string,
+  inviteData: any
+): Promise<any> {
+  const creator = await this.usersService.findById(creatorId);
+  if (!creator) {
+    throw new NotFoundException('Создатель матча не найден');
+  }
+  
+  const target = await this.usersService.findById(targetId);
+  if (!target) {
+    throw new NotFoundException('Приглашаемый игрок не найден');
+  }
+  
+  // Создаём новый матч с приглашением
+  const match = await this.matchesRepository.create(creatorId, {
+    type: MatchType.ONE_ON_ONE, // Добавляем обязательное поле type
+    player1Id: parseInt(creatorId),
+    player2Id: parseInt(targetId),
+    location: inviteData.location,
+    matchDate: inviteData.dateTime,
+    description: inviteData.comment || 'Приглашение на матч',
+    state: MatchState.PENDING
+  });
+  
+  // Отправляем уведомление пользователю (можно добавить)
+  
+  return match;
+}
+
+/**
+ * Вспомогательный метод для получения имени оппонента
+ */
+private getOpponentName(match: any, userId: number): string {
+  let opponentId: number | null = null;
+  
+  if (match.creatorId === userId && match.player1Id) {
+    opponentId = match.player1Id;
+  } else if (match.creatorId === userId && match.player2Id) {
+    opponentId = match.player2Id;
+  } else if (match.player1Id === userId && match.player2Id) {
+    opponentId = match.player2Id;
+  } else if (match.player2Id === userId && match.player1Id) {
+    opponentId = match.player1Id;
+  } else if (match.player1Id === userId || match.player2Id === userId) {
+    opponentId = match.creatorId;
+  }
+  
+  // Находим имя оппонента (если есть)
+  if (opponentId && opponentId === match.creatorId && match.creator) {
+    return `${match.creator.firstName} ${match.creator.lastName || ''}`.trim();
+  }
+  
+  // Для случаев, где данных недостаточно
+  return 'Неизвестный игрок';
+}
 }

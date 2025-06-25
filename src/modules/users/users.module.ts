@@ -7,12 +7,18 @@ import { MediaController } from './presentation/controllers/media.controller';
 import { UsersRepository } from './infrastructure/repositories/users.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthModule } from '../auth/auth.module';
-import { RatingsModule } from '../ratings/ratings.module'; // Добавляем импорт
+import { RatingsModule } from '../ratings/ratings.module';
+import { MatchesModule } from '../matches/matches.module';
+import { TournamentsModule } from '../tournaments/tournaments.module';
+import { StoriesModule } from '../stories/stories.module';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
-    forwardRef(() => RatingsModule), // Добавляем циклический импорт
+    forwardRef(() => RatingsModule),
+    forwardRef(() => MatchesModule),
+    forwardRef(() => TournamentsModule),
+    forwardRef(() => StoriesModule),
     MulterModule.register({
       dest: './uploads',
     }),

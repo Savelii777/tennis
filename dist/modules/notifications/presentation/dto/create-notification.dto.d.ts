@@ -4,4 +4,5 @@ export declare class CreateNotificationDto {
     message: string;
     payload?: any;
     sendTelegram?: boolean;
+    data?: any;
 }

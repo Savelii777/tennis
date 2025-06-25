@@ -202,19 +202,29 @@ let AchievementsService = AchievementsService_1 = class AchievementsService {
             where: { id: parseInt(userId) },
             include: {
                 profile: true,
+                // Используем правильные отношения из схемы
+                player1Matches: {
+                    where: { state: 'FINISHED' },
+                    orderBy: { createdAt: 'desc' },
+                },
+                player2Matches: {
+                    where: { state: 'FINISHED' },
+                    orderBy: { createdAt: 'desc' },
+                },
                 createdMatches: {
                     where: { state: 'FINISHED' },
                     orderBy: { createdAt: 'desc' },
-                },
-                matches: {
-                    where: { state: 'FINISHED' },
-                    orderBy: { createdAt: 'desc' },
-                },
+                }
             },
         });
         if (!user)
             return null;
-        const allMatches = [...(user.createdMatches || []), ...(user.matches || [])];
+        // Объединяем все матчи с правильными полями
+        const allMatches = [
+            ...(user.createdMatches || []),
+            ...(user.player1Matches || []),
+            ...(user.player2Matches || [])
+        ];
         return {
             matchesPlayed: allMatches.length,
             matchWins: user.profile?.matchWins || 0,

@@ -12,6 +12,7 @@ var ProfileStep;
     ProfileStep["AWAITING_FREQUENCY"] = "awaiting_frequency";
     ProfileStep["AWAITING_TOURNAMENTS"] = "awaiting_tournaments";
     ProfileStep["AWAITING_LEVEL"] = "awaiting_level";
+    ProfileStep["COMPLETE"] = "complete";
     ProfileStep["CREATING_REQUEST"] = "creating_request";
     ProfileStep["AWAITING_REQUEST_DATETIME"] = "awaiting_request_datetime";
     ProfileStep["AWAITING_REQUEST_LOCATION"] = "awaiting_request_location";

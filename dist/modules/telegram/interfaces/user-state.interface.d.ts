@@ -1,5 +1,5 @@
 import { ProfileStep } from './profile-state.enum';
-export interface UserState {
+interface UserState {
     step: ProfileStep;
     data: {
         firstName?: string;
@@ -12,4 +12,4 @@ export interface UserState {
         selfAssessedLevel?: 'BEGINNER' | 'AMATEUR' | 'CONFIDENT' | 'TOURNAMENT' | 'SEMI_PRO';
     };
 }
-export { ProfileStep };
+export { ProfileStep, UserState };

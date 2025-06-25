@@ -5,32 +5,32 @@ export declare class CasesRepository {
     private readonly prisma;
     constructor(prisma: PrismaService);
     create(data: CreateCaseDto): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     findAll(includeInactive?: boolean): Promise<(import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     })[]>;
     findById(id: number): Promise<(import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }) | null>;
     update(id: number, data: UpdateCaseDto): Promise<import(".prisma/client").Case & {
-        items: import(".prisma/client").CaseItem[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: import(".prisma/client").CaseItem[];
     }>;
     delete(id: number): Promise<import(".prisma/client").Case>;
     createItem(caseId: number, data: CreateCaseItemDto): Promise<import(".prisma/client").CaseItem>;

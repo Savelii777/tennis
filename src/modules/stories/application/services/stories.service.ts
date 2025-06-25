@@ -47,8 +47,12 @@ export class StoriesService {
     return stories.map(story => this.mapToResponseDto(story));
   }
 
-  async getUserStories(userId: number): Promise<StoryResponseDto[]> {
-    const stories = await this.storiesRepository.findByUserId(userId);
+  /**
+   * Получить истории пользователя
+   */
+  async getUserStories(userId: string | number): Promise<any[]> {
+    const userIdInt = typeof userId === 'string' ? parseInt(userId) : userId;
+    const stories = await this.storiesRepository.findByUserId(userIdInt);
     return stories.map(story => this.mapToResponseDto(story));
   }
 

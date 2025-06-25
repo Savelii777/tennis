@@ -7,18 +7,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferralsModule = void 0;
-const common_1 = require("@nestjs/common");
+const common_1 = require("@nestjs/common"); // Добавляем импорт forwardRef
 const referrals_controller_1 = require("./presentation/controllers/referrals.controller");
 const referrals_service_1 = require("./application/services/referrals.service");
 const referral_stats_service_1 = require("./application/services/referral-stats.service");
 const referrals_repository_1 = require("./infrastructure/repositories/referrals.repository");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const auth_module_1 = require("../auth/auth.module");
+const users_module_1 = require("../users/users.module"); // Добавляем при необходимости
 let ReferralsModule = class ReferralsModule {
 };
 ReferralsModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
+        imports: [
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Добавляем при необходимости
+        ],
         controllers: [referrals_controller_1.ReferralsController],
         providers: [
             referrals_service_1.ReferralsService,

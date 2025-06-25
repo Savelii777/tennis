@@ -14,4 +14,5 @@ export declare class NotificationsRepository {
     markAllAsRead(userId: number): Promise<void>;
     getUnreadCount(userId: number): Promise<number>;
     updateSentStatus(notificationId: number): Promise<void>;
+    private mapToEntity;
 }

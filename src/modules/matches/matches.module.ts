@@ -10,7 +10,7 @@ import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
 
 @Module({
   imports: [
-    AuthModule,
+    forwardRef(() => AuthModule), // Добавляем forwardRef
     forwardRef(() => UsersModule),
     forwardRef(() => AchievementsModule),
     forwardRef(() => RatingsModule), // Добавляем

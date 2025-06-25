@@ -11,7 +11,7 @@ import { TelegramModule } from '../telegram/telegram.module';
 @Module({
   imports: [
     ConfigModule,
-    AuthModule, // Важно: AuthModule должен быть первым или без forwardRef
+    forwardRef(() => AuthModule), // Добавлен forwardRef для AuthModule
     forwardRef(() => TelegramModule),
   ],
   controllers: [StoriesController],

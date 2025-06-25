@@ -296,24 +296,45 @@ let TelegramService = TelegramService_1 = class TelegramService {
      */
     async updateUserChatId(userId, chatId) {
         try {
+            // Сначала находим пользователя по telegramId
+            const user = await this.prisma.user.findUnique({
+                where: { telegramId: userId.toString() }
+            });
+            if (!user) {
+                this.logger.warn(`Пользователь с Telegram ID ${userId} не найден`);
+                return;
+            }
+            const internalUserId = user.id;
+            // Обновляем telegramChatId в таблице User
             await this.prisma.user.update({
-                where: { id: Number(userId) },
+                where: { id: internalUserId },
                 data: { telegramChatId: BigInt(chatId) }
             });
-            // Также обновляем в userSettings если есть
-            await this.prisma.userSettings.upsert({
-                where: { userId: Number(userId) },
-                update: {
-                    telegramChatId: chatId.toString(),
-                    notificationsEnabled: true // включаем уведомления при обновлении chat_id
-                },
-                create: {
-                    userId: Number(userId),
-                    telegramChatId: chatId.toString(),
-                    notificationsEnabled: true
-                }
+            // Проверяем существование записи в userSettings перед upsert
+            const existingSettings = await this.prisma.userSettings.findUnique({
+                where: { userId: internalUserId }
             });
-            this.logger.log(`✅ Обновлен chat_id для пользователя ${userId}: ${chatId}`);
+            if (existingSettings) {
+                // Если запись уже существует - используем update
+                await this.prisma.userSettings.update({
+                    where: { userId: internalUserId },
+                    data: {
+                        telegramChatId: chatId.toString(),
+                        notificationsEnabled: true
+                    }
+                });
+            }
+            else {
+                // Если записи нет - используем create
+                await this.prisma.userSettings.create({
+                    data: {
+                        userId: internalUserId,
+                        telegramChatId: chatId.toString(),
+                        notificationsEnabled: true
+                    }
+                });
+            }
+            this.logger.log(`✅ Обновлен chat_id для пользователя ${internalUserId}: ${chatId}`);
         }
         catch (error) {
             this.logger.error(`Ошибка обновления chat_id для пользователя ${userId}: ${error}`);

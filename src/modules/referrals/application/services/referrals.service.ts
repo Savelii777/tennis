@@ -1,11 +1,14 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ReferralsRepository } from '../../infrastructure/repositories/referrals.repository';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { randomBytes } from 'crypto';
 
 @Injectable()
 export class ReferralsService {
-  constructor(private readonly referralsRepository: ReferralsRepository) {}
-
+  constructor(
+    private readonly referralsRepository: ReferralsRepository,
+    private readonly prisma: PrismaService // Добавляем инъекцию PrismaService
+  ) {}
   /**
    * Генерирует персональную реферальную ссылку для пользователя
    */
@@ -142,6 +145,31 @@ export class ReferralsService {
   async validateReferralCode(referralCode: string): Promise<boolean> {
     const user = await this.referralsRepository.findUserByReferralCode(referralCode);
     return !!user;
+  }
+
+  /**
+   * Поиск пользователя по реферальному коду
+   */
+  async findUserByReferralCode(code: string) {
+    return this.prisma.user.findFirst({
+      where: { referralCode: code }
+    });
+  }
+
+  /**
+   * Создание реферальной связи между пользователями
+   */
+  async createReferral(data: { referrerId: any; referredId: any }) {
+    // Создаем активность реферала вместо реферала напрямую
+    // (так как модель referral не существует, но есть ReferralActivity)
+    return this.prisma.referralActivity.create({
+      data: {
+        referrerId: data.referrerId,
+        invitedUserId: data.referredId,
+        registeredAt: new Date(),
+        isActive: false
+      }
+    });
   }
 
   private generateReferralCode(): string {

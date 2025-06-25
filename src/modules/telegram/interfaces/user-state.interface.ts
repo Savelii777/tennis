@@ -1,6 +1,6 @@
 import { ProfileStep } from './profile-state.enum';
 
-export interface UserState {
+interface UserState {
   step: ProfileStep;
   data: {
     firstName?: string;
@@ -14,4 +14,4 @@ export interface UserState {
   };
 }
 
-export { ProfileStep };
+export { ProfileStep, UserState };

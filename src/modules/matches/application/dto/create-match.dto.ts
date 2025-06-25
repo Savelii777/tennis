@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchType, MatchState } from '../../domain/enums/match.enum';
 
@@ -26,4 +26,19 @@ export class CreateMatchDto {
   @IsNumber()
   @IsOptional()
   optionalId?: number;
+
+  @ApiPropertyOptional({ type: String, description: 'Location of the match' })
+  @IsString()
+  @IsOptional()
+  location?: string;
+
+  @ApiPropertyOptional({ type: Date, description: 'Date of the match' })
+  @IsDate()
+  @IsOptional()
+  matchDate?: Date;
+
+  @ApiPropertyOptional({ type: String, description: 'Description of the match' })
+  @IsString()
+  @IsOptional()
+  description?: string;
 }

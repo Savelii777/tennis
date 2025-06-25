@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferralsService = void 0;
 const common_1 = require("@nestjs/common");
 const referrals_repository_1 = require("../../infrastructure/repositories/referrals.repository");
+const prisma_service_1 = require("../../../../prisma/prisma.service");
 const crypto_1 = require("crypto");
 let ReferralsService = class ReferralsService {
-    constructor(referralsRepository) {
+    constructor(referralsRepository, prisma // Добавляем инъекцию PrismaService
+    ) {
         this.referralsRepository = referralsRepository;
+        this.prisma = prisma;
     }
     /**
      * Генерирует персональную реферальную ссылку для пользователя
@@ -134,6 +137,29 @@ let ReferralsService = class ReferralsService {
         const user = await this.referralsRepository.findUserByReferralCode(referralCode);
         return !!user;
     }
+    /**
+     * Поиск пользователя по реферальному коду
+     */
+    async findUserByReferralCode(code) {
+        return this.prisma.user.findFirst({
+            where: { referralCode: code }
+        });
+    }
+    /**
+     * Создание реферальной связи между пользователями
+     */
+    async createReferral(data) {
+        // Создаем активность реферала вместо реферала напрямую
+        // (так как модель referral не существует, но есть ReferralActivity)
+        return this.prisma.referralActivity.create({
+            data: {
+                referrerId: data.referrerId,
+                invitedUserId: data.referredId,
+                registeredAt: new Date(),
+                isActive: false
+            }
+        });
+    }
     generateReferralCode() {
         // Генерируем уникальный 8-символьный код
         return (0, crypto_1.randomBytes)(4).toString('hex').toUpperCase();
@@ -179,6 +205,8 @@ let ReferralsService = class ReferralsService {
 };
 ReferralsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [referrals_repository_1.ReferralsRepository])
+    __metadata("design:paramtypes", [referrals_repository_1.ReferralsRepository,
+        prisma_service_1.PrismaService // Добавляем инъекцию PrismaService
+    ])
 ], ReferralsService);
 exports.ReferralsService = ReferralsService;

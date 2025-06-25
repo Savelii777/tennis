@@ -26,7 +26,7 @@ let MediaController = class MediaController {
         this.usersService = usersService;
     }
     async uploadAvatar(req, file) {
-        return this.usersService.updateAvatar(req.user.id.toString(), file);
+        return this.usersService.updateAvatar(req.user.id.toString(), file.filename);
     }
 };
 __decorate([

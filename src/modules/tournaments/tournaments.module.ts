@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common'; // Добавить импорт forwardRef
 import { TournamentsController } from './presentation/controllers/tournaments.controller';
 import { TournamentsService } from './application/services/tournaments.service';
 import { TournamentsRepository } from './infrastructure/repositories/tournaments.repository';
@@ -8,8 +8,8 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    UsersModule,
-    AuthModule,
+    forwardRef(() => UsersModule), // Использовать forwardRef
+    forwardRef(() => AuthModule),  // Также для AuthModule
   ],
   controllers: [TournamentsController],
   providers: [TournamentsService, TournamentsRepository, PrismaService],

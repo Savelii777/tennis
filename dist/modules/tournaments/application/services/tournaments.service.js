@@ -15,10 +15,12 @@ const common_1 = require("@nestjs/common");
 const tournaments_repository_1 = require("../../infrastructure/repositories/tournaments.repository");
 const tournament_enum_1 = require("../../domain/enums/tournament.enum");
 const users_service_1 = require("../../../users/application/services/users.service");
+const prisma_service_1 = require("../../../../prisma/prisma.service");
 let TournamentsService = TournamentsService_1 = class TournamentsService {
-    constructor(tournamentsRepository, usersService) {
+    constructor(tournamentsRepository, usersService, prisma) {
         this.tournamentsRepository = tournamentsRepository;
         this.usersService = usersService;
+        this.prisma = prisma;
         this.logger = new common_1.Logger(TournamentsService_1.name);
     }
     async findAll(filters) {
@@ -876,10 +878,69 @@ let TournamentsService = TournamentsService_1 = class TournamentsService {
         }
         return result;
     }
+    // Добавить следующий метод в класс TournamentsService
+    /**
+     * Получить турниры пользователя с фильтрацией
+     */
+    async getUserTournaments(userId, options = {}) {
+        const userIdInt = parseInt(userId);
+        const { status } = options;
+        // Построение фильтра состояния
+        let statusFilter = {};
+        if (status) {
+            switch (status.toUpperCase()) {
+                case 'UPCOMING':
+                    statusFilter = { status: tournament_enum_1.TournamentStatus.DRAFT };
+                    break;
+                case 'ACTIVE':
+                    statusFilter = { status: tournament_enum_1.TournamentStatus.ACTIVE };
+                    break;
+                case 'FINISHED':
+                    statusFilter = { status: tournament_enum_1.TournamentStatus.COMPLETED };
+                    break;
+                default:
+                // По умолчанию не фильтруем
+            }
+        }
+        // Найти все турниры, где участвует пользователь
+        const tournaments = await this.prisma.tournament.findMany({
+            where: {
+                players: {
+                    some: {
+                        id: userIdInt // Ищем по id пользователя
+                    }
+                },
+                ...statusFilter
+            },
+            orderBy: [
+                { status: 'asc' },
+                { startDate: 'desc' } // Затем по дате (новые в начале)
+            ],
+            include: {
+                players: true,
+                creator: {
+                    select: { id: true, firstName: true, lastName: true }
+                }
+            }
+        });
+        return tournaments.map((tournament) => ({
+            id: tournament.id,
+            title: tournament.title,
+            status: tournament.status,
+            type: tournament.type,
+            startDate: tournament.startDate,
+            endDate: tournament.endDate,
+            location: tournament.locationName,
+            participantsCount: tournament.players.length,
+            organizerName: `${tournament.creator.firstName} ${tournament.creator.lastName || ''}`.trim(),
+            isRanked: tournament.isRanked
+        }));
+    }
 };
 TournamentsService = TournamentsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [tournaments_repository_1.TournamentsRepository,
-        users_service_1.UsersService])
+        users_service_1.UsersService,
+        prisma_service_1.PrismaService])
 ], TournamentsService);
 exports.TournamentsService = TournamentsService;

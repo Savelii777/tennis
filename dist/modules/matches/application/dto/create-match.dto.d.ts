@@ -5,4 +5,7 @@ export declare class CreateMatchDto {
     player1Id?: number;
     player2Id?: number;
     optionalId?: number;
+    location?: string;
+    matchDate?: Date;
+    description?: string;
 }

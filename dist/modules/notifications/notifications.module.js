@@ -9,25 +9,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsModule = void 0;
 const common_1 = require("@nestjs/common");
 const notifications_service_1 = require("./application/services/notifications.service");
-const notifications_controller_1 = require("./presentation/controllers/notifications.controller");
 const notifications_repository_1 = require("./infrastructure/repositories/notifications.repository");
-const telegram_module_1 = require("../telegram/telegram.module");
+const prisma_service_1 = require("../../prisma/prisma.service");
 const users_module_1 = require("../users/users.module");
-const auth_module_1 = require("../auth/auth.module"); // Добавляем импорт AuthModule
+const telegram_module_1 = require("../telegram/telegram.module");
+const auth_module_1 = require("../auth/auth.module");
 let NotificationsModule = class NotificationsModule {
 };
 NotificationsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            auth_module_1.AuthModule,
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             (0, common_1.forwardRef)(() => telegram_module_1.TelegramModule),
-            (0, common_1.forwardRef)(() => users_module_1.UsersModule)
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
         ],
-        controllers: [notifications_controller_1.NotificationsController],
-        providers: [
-            notifications_service_1.NotificationsService,
-            notifications_repository_1.NotificationsRepository,
-        ],
+        providers: [notifications_service_1.NotificationsService, notifications_repository_1.NotificationsRepository, prisma_service_1.PrismaService],
         exports: [notifications_service_1.NotificationsService],
     })
 ], NotificationsModule);

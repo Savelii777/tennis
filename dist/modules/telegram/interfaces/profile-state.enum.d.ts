@@ -8,6 +8,7 @@ export declare enum ProfileStep {
     AWAITING_FREQUENCY = "awaiting_frequency",
     AWAITING_TOURNAMENTS = "awaiting_tournaments",
     AWAITING_LEVEL = "awaiting_level",
+    COMPLETE = "complete",
     CREATING_REQUEST = "creating_request",
     AWAITING_REQUEST_DATETIME = "awaiting_request_datetime",
     AWAITING_REQUEST_LOCATION = "awaiting_request_location",

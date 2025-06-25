@@ -46,8 +46,12 @@ let StoriesService = StoriesService_1 = class StoriesService {
         const stories = await this.storiesRepository.findPublic();
         return stories.map(story => this.mapToResponseDto(story));
     }
+    /**
+     * Получить истории пользователя
+     */
     async getUserStories(userId) {
-        const stories = await this.storiesRepository.findByUserId(userId);
+        const userIdInt = typeof userId === 'string' ? parseInt(userId) : userId;
+        const stories = await this.storiesRepository.findByUserId(userIdInt);
         return stories.map(story => this.mapToResponseDto(story));
     }
     async getStoryById(id) {

@@ -12,14 +12,16 @@ export class NotificationsRepository {
     message: string;
     payload?: any;
   }): Promise<NotificationInterface> {
-    return this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         userId: data.userId,
         type: data.type as any,
         message: data.message,
-        payload: data.payload,
+        data: data.payload || {}, // Если данные есть в payload, используем их
       },
-    }) as any;
+    });
+    
+    return this.mapToEntity(notification);
   }
 
   async findByUserId(
@@ -90,5 +92,20 @@ export class NotificationsRepository {
       where: { id: notificationId },
       data: { sentAt: new Date() },
     });
+  }
+
+  // Добавляем метод mapToEntity для преобразования Prisma объекта в NotificationInterface
+  private mapToEntity(notification: any): NotificationInterface {
+    return {
+      id: notification.id,
+      userId: notification.userId,
+      type: notification.type,
+      message: notification.message,
+      payload: notification.data, // в схеме Prisma поле называется 'data', но в интерфейсе - 'payload'
+      isRead: notification.isRead,
+      sentAt: notification.sentAt,
+      createdAt: notification.createdAt,
+      updatedAt: notification.updatedAt,
+    };
   }
 }
