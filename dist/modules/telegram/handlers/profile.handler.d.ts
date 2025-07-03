@@ -106,4 +106,28 @@ export declare class ProfileHandler {
      * Обновленный обработчик выбора уровня для Шага 2
      */
     handleLevelSelectionStepTwo(level: string, ctx: Context): Promise<void>;
+    /**
+     * Просмотр чужого профиля (публичная версия)
+     */
+    handlePublicProfile(ctx: Context, targetUserId: string): Promise<void>;
+    /**
+     * Форматирование сообщения для публичного профиля
+     */
+    private formatPublicProfileMessage;
+    /**
+     * Обработчик для кнопки "Сыграть с игроком"
+     */
+    handlePlayWithPlayer(ctx: Context, targetUserId: string): Promise<void>;
+    /**
+     * Обработчик для кнопки "Написать"
+     */
+    handleMessagePlayer(ctx: Context, targetUserId: string): Promise<void>;
+    /**
+     * Обработчик для кнопки "Пожаловаться"
+     */
+    handleReportPlayer(ctx: Context, targetUserId: string): Promise<void>;
+    /**
+     * Обработчик отправки сообщения другому пользователю
+     */
+    handleSendDirectMessage(ctx: Context, messageText: string): Promise<void>;
 }

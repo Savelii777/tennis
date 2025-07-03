@@ -21,10 +21,10 @@ export declare class LocationsRepository {
             id: number;
             countryCode: string;
             createdAt: Date;
+            timezone: string | null;
             population: number;
             lat: number;
             lng: number;
-            timezone: string | null;
         }[];
     } & {
         name: string;
@@ -47,10 +47,10 @@ export declare class LocationsRepository {
         id: number;
         countryCode: string;
         createdAt: Date;
+        timezone: string | null;
         population: number;
         lat: number;
         lng: number;
-        timezone: string | null;
     })[]>;
     getPopularCities(countryCode: string, limit: number): Promise<({
         country: {
@@ -66,10 +66,10 @@ export declare class LocationsRepository {
         id: number;
         countryCode: string;
         createdAt: Date;
+        timezone: string | null;
         population: number;
         lat: number;
         lng: number;
-        timezone: string | null;
     })[]>;
     findCityById(id: number): Promise<({
         country: {
@@ -85,10 +85,10 @@ export declare class LocationsRepository {
         id: number;
         countryCode: string;
         createdAt: Date;
+        timezone: string | null;
         population: number;
         lat: number;
         lng: number;
-        timezone: string | null;
     }) | null>;
     findAllSports(): Promise<({
         _count: {
@@ -96,10 +96,10 @@ export declare class LocationsRepository {
         };
     } & {
         title: string;
+        emoji: string | null;
         id: number;
         createdAt: Date;
         slug: string;
-        emoji: string | null;
         icon: string | null;
     })[]>;
 }

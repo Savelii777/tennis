@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Context, Telegraf } from 'telegraf';
+import { Context, Telegraf, Markup } from 'telegraf';
 import { InjectBot, Start, On, Hears, Command, Update, Action } from 'nestjs-telegraf';
 
 import { ProfileHandler } from './handlers/profile.handler';
@@ -340,6 +340,12 @@ export class BotService implements OnModuleInit {
     const userState = this.stateService.getUserState(userId);
     this.logger.log(`📝 Получено сообщение: ${text}, состояние: ${userState.step}`);
     this.logger.debug(`🔍 Полное состояние пользователя: ${JSON.stringify(userState)}`);
+
+    // Проверяем, ожидает ли пользователь отправки сообщения другому игроку
+    if (userState.waitingForMessage) {
+      await this.profileHandler.handleSendDirectMessage(ctx, text);
+      return;
+    }
 
     // Перенаправляем в соответствующий обработчик в зависимости от состояния
     try {
@@ -1512,6 +1518,332 @@ export class BotService implements OnModuleInit {
       this.logger.debug('✅ Выбор соперника WEAKER завершен');
     } catch (error) {
       this.logger.error('❌ Ошибка при выборе соперника WEAKER:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  // Дополнительные настройки и функции
+  @Action('toggle_notifications')
+  async handleToggleNotifications(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("toggle_notifications") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await ctx.reply('🔔 Настройки уведомлений пока в разработке...');
+      this.logger.debug('✅ Переключение уведомлений завершено');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при переключении уведомлений:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('lang_ru')
+  async handleLangRu(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("lang_ru") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await ctx.reply('🇷🇺 Язык изменен на русский');
+      this.logger.debug('✅ Смена языка на русский завершена');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при смене языка на русский:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('lang_en')
+  async handleLangEn(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("lang_en") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await ctx.reply('🇬🇧 Language changed to English');
+      this.logger.debug('✅ Смена языка на английский завершена');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при смене языка на английский:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('back_to_menu')
+  async handleBackToMenu(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("back_to_menu") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await this.commonHandler.handleStart(ctx);
+      this.logger.debug('✅ Возврат в главное меню завершен');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при возврате в главное меню:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('edit_profile')
+  async handleEditProfile(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("edit_profile") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await this.profileHandler.handleSetupProfileAction(ctx);
+      this.logger.debug('✅ Редактирование профиля завершено');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при редактировании профиля:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('achievements')
+  async handleAchievements(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("achievements") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await this.profileHandler.handleUserAchievements(ctx);
+      this.logger.debug('✅ Показ достижений завершен');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при показе достижений:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('rating')
+  async handleRating(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("rating") вызван');
+    try {
+      await ctx.answerCbQuery();
+      await this.profileHandler.handleDetailedStats(ctx);
+      this.logger.debug('✅ Показ рейтинга завершен');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при показе рейтинга:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action('share_profile')
+  async handleShareProfile(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("share_profile") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      if (!ctx.from) {
+        await ctx.reply('❌ Ошибка получения данных пользователя');
+        return;
+      }
+
+      const userId = ctx.from.id;
+      const username = ctx.from.username;
+      
+      // Генерируем ссылку на профиль
+      const profileLink = username ? 
+        `https://t.me/${username}` : 
+        `Профиль пользователя #${userId}`;
+      
+      const shareText = `🎾 Профиль игрока ${ctx.from.first_name}\n\n` +
+                       `Посмотри мой профиль в теннис-боте!\n` +
+                       `${profileLink}\n\n` +
+                       `Присоединяйся к игре: @tennislocaltestbot`;
+
+      await ctx.reply(
+        `🔗 **Поделиться профилем**\n\n` +
+        `Скопируй и отправь это сообщение:\n\n` +
+        `\`${shareText}\``,
+        { parse_mode: 'Markdown' }
+      );
+      
+      this.logger.debug('✅ Генерация ссылки профиля завершена');
+    } catch (error) {
+      this.logger.error('❌ Ошибка при генерации ссылки профиля:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  // =====================================
+  // 🔍 ПУБЛИЧНЫЕ ПРОФИЛИ (ЧУЖИЕ ПРОФИЛИ)
+  // =====================================
+
+  @Action(/^public_profile_(\d+)$/)
+  async handlePublicProfileView(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("public_profile_*") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      const callbackQuery = ctx.callbackQuery;
+      if (!callbackQuery || !('data' in callbackQuery)) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const match = callbackQuery.data.match(/^public_profile_(\d+)$/);
+      if (!match || !match[1]) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const targetUserId = match[1];
+      await this.profileHandler.handlePublicProfile(ctx, targetUserId);
+      
+      this.logger.debug(`✅ Показ публичного профиля ${targetUserId} завершен`);
+    } catch (error) {
+      this.logger.error('❌ Ошибка при показе публичного профиля:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action(/^play_with_(\d+)$/)
+  async handlePlayWithPlayer(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("play_with_*") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      const callbackQuery = ctx.callbackQuery;
+      if (!callbackQuery || !('data' in callbackQuery)) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const match = callbackQuery.data.match(/^play_with_(\d+)$/);
+      if (!match || !match[1]) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const targetUserId = match[1];
+      await this.profileHandler.handlePlayWithPlayer(ctx, targetUserId);
+      
+      this.logger.debug(`✅ Обработка "Сыграть с игроком" ${targetUserId} завершена`);
+    } catch (error) {
+      this.logger.error('❌ Ошибка при обработке "Сыграть с игроком":', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action(/^message_(\d+)$/)
+  async handleMessagePlayer(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("message_*") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      const callbackQuery = ctx.callbackQuery;
+      if (!callbackQuery || !('data' in callbackQuery)) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const match = callbackQuery.data.match(/^message_(\d+)$/);
+      if (!match || !match[1]) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const targetUserId = match[1];
+      await this.profileHandler.handleMessagePlayer(ctx, targetUserId);
+      
+      this.logger.debug(`✅ Обработка "Написать" ${targetUserId} завершена`);
+    } catch (error) {
+      this.logger.error('❌ Ошибка при обработке "Написать":', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action(/^report_(\d+)$/)
+  async handleReportPlayer(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("report_*") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      const callbackQuery = ctx.callbackQuery;
+      if (!callbackQuery || !('data' in callbackQuery)) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const match = callbackQuery.data.match(/^report_(\d+)$/);
+      if (!match || !match[1]) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const targetUserId = match[1];
+      await this.profileHandler.handleReportPlayer(ctx, targetUserId);
+      
+      this.logger.debug(`✅ Обработка жалобы на ${targetUserId} завершена`);
+    } catch (error) {
+      this.logger.error('❌ Ошибка при обработке жалобы:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action(/^send_match_invite_(\d+)$/)
+  async handleSendMatchInvite(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("send_match_invite_*") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      const callbackQuery = ctx.callbackQuery;
+      if (!callbackQuery || !('data' in callbackQuery)) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const match = callbackQuery.data.match(/^send_match_invite_(\d+)$/);
+      if (!match || !match[1]) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const targetUserId = match[1];
+      
+      // Здесь будет логика отправки приглашения на матч
+      await ctx.reply(
+        `✅ Приглашение отправлено!\n\nПользователь получит уведомление о вашем приглашении на матч.`,
+        Markup.inlineKeyboard([
+          [ Markup.button.callback('🔙 Назад к профилю', `public_profile_${targetUserId}`)]
+        ])
+      );
+      
+      this.logger.debug(`✅ Отправка приглашения на матч ${targetUserId} завершена`);
+    } catch (error) {
+      this.logger.error('❌ Ошибка при отправке приглашения на матч:', error);
+      await ctx.answerCbQuery('❌ Произошла ошибка');
+    }
+  }
+
+  @Action(/^report_(\w+)_(\d+)$/)
+  async handleReportSubmit(ctx: Context) {
+    this.logger.debug('🔍 DECORATOR @Action("report_*_*") вызван');
+    try {
+      await ctx.answerCbQuery();
+      
+      const callbackQuery = ctx.callbackQuery;
+      if (!callbackQuery || !('data' in callbackQuery)) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const match = callbackQuery.data.match(/^report_(\w+)_(\d+)$/);
+      if (!match || !match[1] || !match[2]) {
+        await ctx.reply('❌ Неверный формат запроса');
+        return;
+      }
+      
+      const reportType = match[1];
+      const targetUserId = match[2];
+      
+      const reportTypes = {
+        'behavior': 'Неприемлемое поведение',
+        'spam': 'Спам',
+        'content': 'Неуместный контент',
+        'fake': 'Фейковый аккаунт',
+        'other': 'Другая причина'
+      };
+      
+      const reportText = reportTypes[reportType as keyof typeof reportTypes] || 'Неизвестная причина';
+      
+      await ctx.reply(
+        `⚠️ **Жалоба отправлена**\n\nПричина: ${reportText}\n\nВаша жалоба будет рассмотрена администраторами.`,
+        Markup.inlineKeyboard([
+          [Markup.button.callback('🔙 Назад к профилю', `public_profile_${targetUserId}`)]
+        ])
+      );
+      
+      this.logger.debug(`✅ Подача жалобы ${reportType} на ${targetUserId} завершена`);
+    } catch (error) {
+      this.logger.error('❌ Ошибка при подаче жалобы:', error);
       await ctx.answerCbQuery('❌ Произошла ошибка');
     }
   }

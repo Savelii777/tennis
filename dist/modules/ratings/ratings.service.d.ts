@@ -91,4 +91,12 @@ export declare class RatingsService {
      * Получает детальную статистику игрока
      */
     getPlayerStats(userId: number): Promise<any>;
+    /**
+     * Рассчитать очки силы (для публичных профилей)
+     */
+    calculatePowerPoints(userId: number): Promise<number>;
+    /**
+     * Рассчитать очки активности (для публичных профилей)
+     */
+    calculateActivityPoints(userId: number): Promise<number>;
 }

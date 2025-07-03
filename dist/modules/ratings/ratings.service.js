@@ -430,6 +430,20 @@ let RatingsService = RatingsService_1 = class RatingsService {
             } : null,
         };
     }
+    /**
+     * Рассчитать очки силы (для публичных профилей)
+     */
+    async calculatePowerPoints(userId) {
+        const rating = await this.getRatingForUser(userId);
+        return rating.skillPoints || 1400;
+    }
+    /**
+     * Рассчитать очки активности (для публичных профилей)
+     */
+    async calculateActivityPoints(userId) {
+        const rating = await this.getRatingForUser(userId);
+        return rating.pointsRating || 1000;
+    }
 };
 exports.RatingsService = RatingsService;
 exports.RatingsService = RatingsService = RatingsService_1 = __decorate([

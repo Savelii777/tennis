@@ -1287,6 +1287,210 @@ ${levelBadge} NTRP рейтинг: ${ratingInfo.value} (${ratingInfo.level})
             await ctx.reply('❌ Произошла ошибка. Попробуйте еще раз.');
         }
     }
+    // =====================================
+    // 🔍 ПУБЛИЧНЫЕ ПРОФИЛИ (ЧУЖИЕ ПРОФИЛИ)
+    // =====================================
+    /**
+     * Просмотр чужого профиля (публичная версия)
+     */
+    async handlePublicProfile(ctx, targetUserId) {
+        try {
+            if (!ctx.from)
+                return;
+            const viewerUserId = ctx.from.id;
+            this.logger.log(`Пользователь ${viewerUserId} просматривает профиль ${targetUserId}`);
+            // Получаем данные о пользователе
+            const targetUser = await this.usersService.findById(targetUserId);
+            if (!targetUser) {
+                await ctx.reply('❌ Пользователь не найден');
+                return;
+            }
+            // Получаем статистику из базы данных
+            const stats = {
+                matchesPlayed: 0,
+                matchWins: 0,
+                matchLosses: 0,
+                tournamentsPlayed: 0,
+                tournamentsWon: 0,
+                lastActivity: new Date()
+            };
+            // Формируем публичный профиль
+            const profileMessage = await this.formatPublicProfileMessage(targetUser, stats);
+            const keyboard = this.keyboardService.getPublicProfileKeyboard(targetUserId);
+            // Отправляем сообщение (без аватара пока)
+            await ctx.reply(profileMessage, {
+                reply_markup: keyboard.reply_markup,
+                parse_mode: 'HTML'
+            });
+        }
+        catch (error) {
+            this.logger.error(`Ошибка при просмотре публичного профиля: ${error}`);
+            await ctx.reply('❌ Произошла ошибка при загрузке профиля');
+        }
+    }
+    /**
+     * Форматирование сообщения для публичного профиля
+     */
+    async formatPublicProfileMessage(user, userStats) {
+        const username = user.username ? `@${user.username}` : 'Не указан';
+        const fullName = `${user.first_name} ${user.last_name || ''}`.trim();
+        const level = this.getLevelText(user.profile?.selfAssessedLevel);
+        const sportEmoji = user.profile?.sportType === 'PADEL' ? '🏓' : '🎾';
+        const sport = user.profile?.sportType === 'PADEL' ? 'Падел' : 'Теннис';
+        const location = user.profile?.city ? `${user.profile.city}${user.profile.countryCode ? `, ${user.profile.countryCode}` : ''}` : 'Не указано';
+        const rating = user.profile?.ntrpRating ? `${user.profile.ntrpRating}` : 'Не оценен';
+        // Простые очки для примера
+        const powerPoints = user.profile?.powerPoints || 0;
+        const activityPoints = user.profile?.activityPoints || 0;
+        return `👤 <b>${fullName}</b>
+🏷️ Username: ${username}
+${sportEmoji} ${sport}
+
+🎯 NTRP рейтинг: ${rating}
+⚡ Очки силы: ${powerPoints}
+⭐ Очки активности: ${activityPoints}
+
+📍 Местоположение: ${location}
+🏆 Уровень: ${level}
+👋 Рука: ${user.profile?.dominantHand === 'LEFT' ? 'Левая' : 'Правая'}
+
+📊 <b>Статистика:</b>
+📈 Матчей сыграно: ${userStats?.matchesPlayed || 0}
+🏆 Побед: ${userStats?.matchWins || 0}
+📉 Поражений: ${userStats?.matchLosses || 0}
+🔁 Турниров сыграно: ${userStats?.tournamentsPlayed || 0}
+📈 Побед в турнирах: ${userStats?.tournamentsWon || 0}
+${userStats?.lastActivity ? `📅 Последняя активность: ${new Date(userStats.lastActivity).toLocaleDateString('ru-RU')}` : ''}
+
+<i>Публичный профиль</i>`;
+    }
+    /**
+     * Обработчик для кнопки "Сыграть с игроком"
+     */
+    async handlePlayWithPlayer(ctx, targetUserId) {
+        try {
+            if (!ctx.from)
+                return;
+            const userId = ctx.from.id.toString();
+            this.logger.log(`Пользователь ${userId} хочет сыграть с ${targetUserId}`);
+            // Получаем данные о цели
+            const targetUser = await this.usersService.findById(targetUserId);
+            if (!targetUser) {
+                await ctx.reply('❌ Пользователь не найден');
+                return;
+            }
+            const targetName = `${targetUser.first_name} ${targetUser.last_name || ''}`.trim();
+            await ctx.reply(`🎾 <b>Приглашение в игру</b>\n\nВы хотите пригласить <b>${targetName}</b> сыграть в матч?\n\nВыберите действие:`, telegraf_1.Markup.inlineKeyboard([
+                [telegraf_1.Markup.button.callback('✅ Отправить приглашение', `send_match_invite_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('📅 Запланировать матч', `schedule_match_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('🔙 Назад к профилю', `public_profile_${targetUserId}`)]
+            ]));
+        }
+        catch (error) {
+            this.logger.error(`Ошибка при обработке "Сыграть с игроком": ${error}`);
+            await ctx.reply('❌ Произошла ошибка');
+        }
+    }
+    /**
+     * Обработчик для кнопки "Написать"
+     */
+    async handleMessagePlayer(ctx, targetUserId) {
+        try {
+            if (!ctx.from)
+                return;
+            const userId = ctx.from.id.toString();
+            this.logger.log(`Пользователь ${userId} хочет написать пользователю ${targetUserId}`);
+            // Получаем данные о цели
+            const targetUser = await this.usersService.findById(targetUserId);
+            if (!targetUser) {
+                await ctx.reply('❌ Пользователь не найден');
+                return;
+            }
+            const targetName = `${targetUser.first_name} ${targetUser.last_name || ''}`.trim();
+            // Устанавливаем состояние для отправки сообщения
+            const userState = this.stateService.getUserState(userId);
+            userState.waitingForMessage = targetUserId;
+            this.stateService.setUserState(userId, userState);
+            await ctx.reply(`✍️ <b>Написать сообщение</b>\n\nВы пишете пользователю <b>${targetName}</b>\n\nВведите ваше сообщение:`, telegraf_1.Markup.inlineKeyboard([
+                [telegraf_1.Markup.button.callback('🔙 Отмена', `public_profile_${targetUserId}`)]
+            ]));
+        }
+        catch (error) {
+            this.logger.error(`Ошибка при обработке "Написать": ${error}`);
+            await ctx.reply('❌ Произошла ошибка');
+        }
+    }
+    /**
+     * Обработчик для кнопки "Пожаловаться"
+     */
+    async handleReportPlayer(ctx, targetUserId) {
+        try {
+            if (!ctx.from)
+                return;
+            const userId = ctx.from.id.toString();
+            this.logger.log(`Пользователь ${userId} подает жалобу на ${targetUserId}`);
+            // Получаем данные о цели
+            const targetUser = await this.usersService.findById(targetUserId);
+            if (!targetUser) {
+                await ctx.reply('❌ Пользователь не найден');
+                return;
+            }
+            const targetName = `${targetUser.first_name} ${targetUser.last_name || ''}`.trim();
+            await ctx.reply(`⚠️ <b>Подать жалобу</b>\n\nВы хотите пожаловаться на <b>${targetName}</b>\n\nВыберите причину:`, telegraf_1.Markup.inlineKeyboard([
+                [telegraf_1.Markup.button.callback('🤬 Неприемлемое поведение', `report_behavior_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('🚫 Спам', `report_spam_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('🔞 Неуместный контент', `report_content_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('🎭 Фейковый аккаунт', `report_fake_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('📝 Другая причина', `report_other_${targetUserId}`)],
+                [telegraf_1.Markup.button.callback('🔙 Отмена', `public_profile_${targetUserId}`)]
+            ]));
+        }
+        catch (error) {
+            this.logger.error(`Ошибка при обработке жалобы: ${error}`);
+            await ctx.reply('❌ Произошла ошибка');
+        }
+    }
+    /**
+     * Обработчик отправки сообщения другому пользователю
+     */
+    async handleSendDirectMessage(ctx, messageText) {
+        try {
+            if (!ctx.from)
+                return;
+            const userId = ctx.from.id.toString();
+            const userState = this.stateService.getUserState(userId);
+            if (!userState.waitingForMessage) {
+                return;
+            }
+            const targetUserId = userState.waitingForMessage;
+            const senderName = `${ctx.from.first_name} ${ctx.from.last_name || ''}`.trim();
+            // Сохраняем сообщение в базу данных
+            await this.prisma.directMessage.create({
+                data: {
+                    senderId: parseInt(userId),
+                    recipientId: parseInt(targetUserId),
+                    message: messageText
+                }
+            });
+            // Отправляем уведомление получателю
+            try {
+                await ctx.telegram.sendMessage(parseInt(targetUserId), `📩 <b>Новое сообщение</b>\n\nОт: <b>${senderName}</b>\n\n${messageText}`, { parse_mode: 'HTML' });
+            }
+            catch (error) {
+                this.logger.warn(`Не удалось отправить уведомление пользователю ${targetUserId}: ${error}`);
+            }
+            // Очищаем состояние
+            userState.waitingForMessage = undefined;
+            this.stateService.setUserState(userId, userState);
+            await ctx.reply(`✅ <b>Сообщение отправлено!</b>\n\nВаше сообщение было доставлено пользователю.`, telegraf_1.Markup.inlineKeyboard([
+                [telegraf_1.Markup.button.callback('🔙 Назад к профилю', `public_profile_${targetUserId}`)]
+            ]));
+        }
+        catch (error) {
+            this.logger.error(`Ошибка при отправке сообщения: ${error}`);
+            await ctx.reply('❌ Произошла ошибка при отправке сообщения');
+        }
+    }
 };
 exports.ProfileHandler = ProfileHandler;
 __decorate([

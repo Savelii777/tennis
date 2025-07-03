@@ -17,17 +17,17 @@ export declare class ReferralsRepository {
             bonusPointsEarned: number;
         } | null;
     } & {
-        firstName: string;
-        lastName: string | null;
-        sportType: string | null;
         id: number;
         telegramId: string;
         username: string;
+        firstName: string;
+        lastName: string | null;
         isVerified: boolean;
         role: import(".prisma/client").$Enums.Role;
         countryCode: string | null;
         cityId: number | null;
         sportId: number | null;
+        sportType: string | null;
         updatedAt: Date;
         createdAt: Date;
         authSource: import(".prisma/client").$Enums.AuthSource;
@@ -39,10 +39,10 @@ export declare class ReferralsRepository {
         referredBy: number | null;
     }) | null>;
     findUserByReferralCode(referralCode: string): Promise<{
-        firstName: string;
-        lastName: string | null;
         id: number;
         username: string;
+        firstName: string;
+        lastName: string | null;
         referralCode: string | null;
     } | null>;
     updateUserReferralCode(userId: number, referralCode: string): Promise<{
@@ -60,17 +60,17 @@ export declare class ReferralsRepository {
             bonusPointsEarned: number;
         } | null;
     } & {
-        firstName: string;
-        lastName: string | null;
-        sportType: string | null;
         id: number;
         telegramId: string;
         username: string;
+        firstName: string;
+        lastName: string | null;
         isVerified: boolean;
         role: import(".prisma/client").$Enums.Role;
         countryCode: string | null;
         cityId: number | null;
         sportId: number | null;
+        sportType: string | null;
         updatedAt: Date;
         createdAt: Date;
         authSource: import(".prisma/client").$Enums.AuthSource;
@@ -83,16 +83,12 @@ export declare class ReferralsRepository {
     }>;
     createUserWithReferrer(userData: any): Promise<{
         profile: {
-            city: string | null;
-            preferredCourt: string | null;
-            dominantHand: string | null;
-            preferredPlayTime: string[];
-            playsInTournaments: boolean;
-            weeklyPlayFrequency: string | null;
             id: number;
             countryCode: string | null;
+            sportType: string | null;
             updatedAt: Date;
             createdAt: Date;
+            city: string | null;
             achievements: import("@prisma/client/runtime/library").JsonValue | null;
             userId: number;
             avatarUrl: string | null;
@@ -105,6 +101,11 @@ export declare class ReferralsRepository {
             tournamentsWon: number;
             lastActivity: Date | null;
             isPublicProfile: boolean;
+            preferredCourt: string | null;
+            dominantHand: string | null;
+            preferredPlayTime: string[];
+            playsInTournaments: boolean;
+            weeklyPlayFrequency: string | null;
             backhandType: string | null;
             preferredSurface: string | null;
             playingStyle: string | null;
@@ -117,22 +118,22 @@ export declare class ReferralsRepository {
             profileStepTwoCompleted: boolean;
         } | null;
         referrer: {
-            firstName: string;
             id: number;
             username: string;
+            firstName: string;
         } | null;
     } & {
-        firstName: string;
-        lastName: string | null;
-        sportType: string | null;
         id: number;
         telegramId: string;
         username: string;
+        firstName: string;
+        lastName: string | null;
         isVerified: boolean;
         role: import(".prisma/client").$Enums.Role;
         countryCode: string | null;
         cityId: number | null;
         sportId: number | null;
+        sportType: string | null;
         updatedAt: Date;
         createdAt: Date;
         authSource: import(".prisma/client").$Enums.AuthSource;
@@ -147,11 +148,11 @@ export declare class ReferralsRepository {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        isActive: boolean;
         referrerId: number;
         invitedUserId: number;
         registeredAt: Date;
         firstMatchAt: Date | null;
+        isActive: boolean;
         inviteSource: string | null;
         ipAddress: string | null;
     }>;
@@ -159,11 +160,11 @@ export declare class ReferralsRepository {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        isActive: boolean;
         referrerId: number;
         invitedUserId: number;
         registeredAt: Date;
         firstMatchAt: Date | null;
+        isActive: boolean;
         inviteSource: string | null;
         ipAddress: string | null;
     }>;
@@ -171,11 +172,11 @@ export declare class ReferralsRepository {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        isActive: boolean;
         referrerId: number;
         invitedUserId: number;
         registeredAt: Date;
         firstMatchAt: Date | null;
+        isActive: boolean;
         inviteSource: string | null;
         ipAddress: string | null;
     } | null>;
@@ -207,20 +208,20 @@ export declare class ReferralsRepository {
     }>;
     getUserReferrals(userId: number): Promise<({
         invitedUser: {
-            firstName: string;
-            lastName: string | null;
             id: number;
             username: string;
+            firstName: string;
+            lastName: string | null;
         };
     } & {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        isActive: boolean;
         referrerId: number;
         invitedUserId: number;
         registeredAt: Date;
         firstMatchAt: Date | null;
+        isActive: boolean;
         inviteSource: string | null;
         ipAddress: string | null;
     })[]>;
@@ -228,20 +229,20 @@ export declare class ReferralsRepository {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        isActive: boolean;
         referrerId: number;
         invitedUserId: number;
         registeredAt: Date;
         firstMatchAt: Date | null;
+        isActive: boolean;
         inviteSource: string | null;
         ipAddress: string | null;
     }[]>;
     getTopReferrers(limit: number): Promise<({
         user: {
-            firstName: string;
-            lastName: string | null;
             id: number;
             username: string;
+            firstName: string;
+            lastName: string | null;
         };
     } & {
         id: number;

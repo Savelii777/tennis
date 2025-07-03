@@ -42,8 +42,32 @@ let KeyboardService = class KeyboardService {
                 telegraf_1.Markup.button.callback('🔄 Обновить профиль', 'setup_profile')
             ],
             [
+                telegraf_1.Markup.button.callback('📜 История матчей', 'match_history'),
+                telegraf_1.Markup.button.callback('🏆 Мои турниры', 'my_tournaments')
+            ],
+            [
                 telegraf_1.Markup.button.callback('🎯 Цели', 'user_goals'),
-                telegraf_1.Markup.button.callback('📜 История', 'match_history')
+                telegraf_1.Markup.button.callback('🔗 Поделиться', 'share_profile')
+            ],
+        ]);
+    }
+    /**
+     * Клавиатура для публичного профиля (чужой профиль)
+     */
+    getPublicProfileKeyboard(targetUserId) {
+        return telegraf_1.Markup.inlineKeyboard([
+            [telegraf_1.Markup.button.callback('📊 Подробная статистика', `public_stats_${targetUserId}`)],
+            [
+                telegraf_1.Markup.button.callback('🎾 Сыграть с игроком', `play_with_${targetUserId}`),
+                telegraf_1.Markup.button.callback('✍️ Написать', `message_${targetUserId}`)
+            ],
+            [
+                telegraf_1.Markup.button.callback('📜 История матчей', `public_matches_${targetUserId}`),
+                telegraf_1.Markup.button.callback('🏆 Достижения', `public_achievements_${targetUserId}`)
+            ],
+            [
+                telegraf_1.Markup.button.callback('⚠️ Пожаловаться', `report_${targetUserId}`),
+                telegraf_1.Markup.button.callback('🔙 Назад', 'back_to_profiles')
             ],
         ]);
     }

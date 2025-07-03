@@ -51,6 +51,7 @@ declare enum ProfileStep {
 interface UserState {
     step: ProfileStep;
     page?: string;
+    waitingForMessage?: string;
     data: {
         firstName?: string;
         lastName?: string;

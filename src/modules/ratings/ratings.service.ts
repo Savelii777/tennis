@@ -540,4 +540,20 @@ async createDefaultRating(userId: number, options?: {
       } : null,
     };
   }
+
+  /**
+   * Рассчитать очки силы (для публичных профилей)
+   */
+  async calculatePowerPoints(userId: number): Promise<number> {
+    const rating = await this.getRatingForUser(userId);
+    return rating.skillPoints || 1400;
+  }
+
+  /**
+   * Рассчитать очки активности (для публичных профилей)
+   */
+  async calculateActivityPoints(userId: number): Promise<number> {
+    const rating = await this.getRatingForUser(userId);
+    return rating.pointsRating || 1000;
+  }
 }

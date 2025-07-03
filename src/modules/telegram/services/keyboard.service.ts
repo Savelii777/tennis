@@ -37,8 +37,33 @@ export class KeyboardService {
         Markup.button.callback('🔄 Обновить профиль', 'setup_profile')
       ],
       [
+        Markup.button.callback('📜 История матчей', 'match_history'),
+        Markup.button.callback('🏆 Мои турниры', 'my_tournaments')
+      ],
+      [
         Markup.button.callback('🎯 Цели', 'user_goals'),
-        Markup.button.callback('📜 История', 'match_history')
+        Markup.button.callback('🔗 Поделиться', 'share_profile')
+      ],
+    ]);
+  }
+  
+  /**
+   * Клавиатура для публичного профиля (чужой профиль)
+   */
+  getPublicProfileKeyboard(targetUserId: string) {
+    return Markup.inlineKeyboard([
+      [Markup.button.callback('📊 Подробная статистика', `public_stats_${targetUserId}`)],
+      [
+        Markup.button.callback('🎾 Сыграть с игроком', `play_with_${targetUserId}`),
+        Markup.button.callback('✍️ Написать', `message_${targetUserId}`)
+      ],
+      [
+        Markup.button.callback('📜 История матчей', `public_matches_${targetUserId}`),
+        Markup.button.callback('🏆 Достижения', `public_achievements_${targetUserId}`)
+      ],
+      [
+        Markup.button.callback('⚠️ Пожаловаться', `report_${targetUserId}`),
+        Markup.button.callback('🔙 Назад', 'back_to_profiles')
       ],
     ]);
   }

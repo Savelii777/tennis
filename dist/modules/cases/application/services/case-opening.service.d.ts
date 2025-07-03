@@ -15,14 +15,14 @@ export declare class CaseOpeningService {
         winning: {
             item: any;
             case: {
-                name: string;
                 description: string;
+                name: string;
                 id: number;
                 updatedAt: Date;
                 createdAt: Date;
+                isActive: boolean;
                 image: string | null;
                 priceBalls: number;
-                isActive: boolean;
             };
             id: number;
             updatedAt: Date;
@@ -38,27 +38,27 @@ export declare class CaseOpeningService {
     }>;
     getUserOpeningHistory(userId: string, page?: number, limit?: number): Promise<({
         case: {
-            name: string;
             description: string;
+            name: string;
             id: number;
             updatedAt: Date;
             createdAt: Date;
+            isActive: boolean;
             image: string | null;
             priceBalls: number;
-            isActive: boolean;
         };
         winning: ({
             item: {
-                name: string;
+                payload: import("@prisma/client/runtime/library").JsonValue;
                 type: import(".prisma/client").$Enums.CaseItemType;
+                name: string;
                 id: number;
                 updatedAt: Date;
                 createdAt: Date;
-                payload: import("@prisma/client/runtime/library").JsonValue;
                 isActive: boolean;
                 dropChance: number;
-                caseId: number;
                 imageUrl: string | null;
+                caseId: number;
             };
         } & {
             id: number;
@@ -81,17 +81,17 @@ export declare class CaseOpeningService {
     })[]>;
     getWinningById(winningId: number): Promise<({
         user: {
-            firstName: string;
-            lastName: string | null;
-            sportType: string | null;
             id: number;
             telegramId: string;
             username: string;
+            firstName: string;
+            lastName: string | null;
             isVerified: boolean;
             role: import(".prisma/client").$Enums.Role;
             countryCode: string | null;
             cityId: number | null;
             sportId: number | null;
+            sportType: string | null;
             updatedAt: Date;
             createdAt: Date;
             authSource: import(".prisma/client").$Enums.AuthSource;
@@ -103,26 +103,26 @@ export declare class CaseOpeningService {
             referredBy: number | null;
         };
         case: {
-            name: string;
             description: string;
+            name: string;
             id: number;
             updatedAt: Date;
             createdAt: Date;
+            isActive: boolean;
             image: string | null;
             priceBalls: number;
-            isActive: boolean;
         };
         item: {
-            name: string;
+            payload: import("@prisma/client/runtime/library").JsonValue;
             type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
             id: number;
             updatedAt: Date;
             createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
             isActive: boolean;
             dropChance: number;
-            caseId: number;
             imageUrl: string | null;
+            caseId: number;
         };
     } & {
         id: number;

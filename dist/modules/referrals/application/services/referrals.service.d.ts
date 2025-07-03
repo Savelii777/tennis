@@ -32,17 +32,17 @@ export declare class ReferralsService {
      * Поиск пользователя по реферальному коду
      */
     findUserByReferralCode(code: string): Promise<{
-        firstName: string;
-        lastName: string | null;
-        sportType: string | null;
         id: number;
         telegramId: string;
         username: string;
+        firstName: string;
+        lastName: string | null;
         isVerified: boolean;
         role: import(".prisma/client").$Enums.Role;
         countryCode: string | null;
         cityId: number | null;
         sportId: number | null;
+        sportType: string | null;
         updatedAt: Date;
         createdAt: Date;
         authSource: import(".prisma/client").$Enums.AuthSource;
@@ -63,11 +63,11 @@ export declare class ReferralsService {
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        isActive: boolean;
         referrerId: number;
         invitedUserId: number;
         registeredAt: Date;
         firstMatchAt: Date | null;
+        isActive: boolean;
         inviteSource: string | null;
         ipAddress: string | null;
     }>;

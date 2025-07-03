@@ -83,4 +83,16 @@ export declare class UsersService {
      * Получить публичные матчи пользователя для отображения в профиле
      */
     private getPublicUserMatches;
+    /**
+     * Получить пользователя по ID (для публичных профилей)
+     */
+    getUserById(id: string): Promise<UserEntity | null>;
+    /**
+     * Получить профиль пользователя (для публичных профилей)
+     */
+    getUserProfile(userId: string): Promise<any | null>;
+    /**
+     * Получить статистику пользователя (для публичных профилей)
+     */
+    getUserStatistics(userId: string): Promise<any>;
 }

@@ -807,4 +807,25 @@ private getNtrpVisualRating(ntrpRating?: number | null): { value: string, badge:
     })));
   }
 
+  /**
+   * Получить пользователя по ID (для публичных профилей)
+   */
+  async getUserById(id: string): Promise<UserEntity | null> {
+    return this.findById(id);
+  }
+
+  /**
+   * Получить профиль пользователя (для публичных профилей)
+   */
+  async getUserProfile(userId: string): Promise<any | null> {
+    return this.getUserFullProfile(userId);
+  }
+
+  /**
+   * Получить статистику пользователя (для публичных профилей)
+   */
+  async getUserStatistics(userId: string): Promise<any> {
+    return this.getProfileStatistics(userId);
+  }
+
 }

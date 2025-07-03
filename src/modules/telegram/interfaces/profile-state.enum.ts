@@ -75,6 +75,7 @@ enum ProfileStep {
 interface UserState {
   step: ProfileStep;
   page?: string;
+  waitingForMessage?: string;  // Добавляем поле для ожидания сообщения
   data: {
     // ШАГ 1: Основные данные профиля
     firstName?: string;

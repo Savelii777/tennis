@@ -120,4 +120,18 @@ export declare class BotService implements OnModuleInit {
     handleOpponentSameLevel(ctx: Context): Promise<void>;
     handleOpponentStronger(ctx: Context): Promise<void>;
     handleOpponentWeaker(ctx: Context): Promise<void>;
+    handleToggleNotifications(ctx: Context): Promise<void>;
+    handleLangRu(ctx: Context): Promise<void>;
+    handleLangEn(ctx: Context): Promise<void>;
+    handleBackToMenu(ctx: Context): Promise<void>;
+    handleEditProfile(ctx: Context): Promise<void>;
+    handleAchievements(ctx: Context): Promise<void>;
+    handleRating(ctx: Context): Promise<void>;
+    handleShareProfile(ctx: Context): Promise<void>;
+    handlePublicProfileView(ctx: Context): Promise<void>;
+    handlePlayWithPlayer(ctx: Context): Promise<void>;
+    handleMessagePlayer(ctx: Context): Promise<void>;
+    handleReportPlayer(ctx: Context): Promise<void>;
+    handleSendMatchInvite(ctx: Context): Promise<void>;
+    handleReportSubmit(ctx: Context): Promise<void>;
 }

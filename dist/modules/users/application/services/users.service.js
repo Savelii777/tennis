@@ -727,6 +727,24 @@ let UsersService = UsersService_1 = class UsersService {
             // Дополнительные данные...
         })));
     }
+    /**
+     * Получить пользователя по ID (для публичных профилей)
+     */
+    async getUserById(id) {
+        return this.findById(id);
+    }
+    /**
+     * Получить профиль пользователя (для публичных профилей)
+     */
+    async getUserProfile(userId) {
+        return this.getUserFullProfile(userId);
+    }
+    /**
+     * Получить статистику пользователя (для публичных профилей)
+     */
+    async getUserStatistics(userId) {
+        return this.getProfileStatistics(userId);
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = UsersService_1 = __decorate([

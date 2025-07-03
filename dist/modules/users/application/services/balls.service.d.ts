@@ -4,17 +4,17 @@ export declare class BallsService {
     constructor(prisma: PrismaService);
     addBalls(userId: string, amount: number, type: string, reason?: string): Promise<void>;
     deductBalls(userId: string, amount: number, reason: string): Promise<{
-        firstName: string;
-        lastName: string | null;
-        sportType: string | null;
         id: number;
         telegramId: string;
         username: string;
+        firstName: string;
+        lastName: string | null;
         isVerified: boolean;
         role: import(".prisma/client").$Enums.Role;
         countryCode: string | null;
         cityId: number | null;
         sportId: number | null;
+        sportType: string | null;
         updatedAt: Date;
         createdAt: Date;
         authSource: import(".prisma/client").$Enums.AuthSource;

@@ -28,10 +28,10 @@ export declare class LocationsController {
         id: number;
         countryCode: string;
         createdAt: Date;
+        timezone: string | null;
         population: number;
         lat: number;
         lng: number;
-        timezone: string | null;
     })[]>;
     getPopularCities(countryCode: string): Promise<({
         country: {
@@ -47,10 +47,10 @@ export declare class LocationsController {
         id: number;
         countryCode: string;
         createdAt: Date;
+        timezone: string | null;
         population: number;
         lat: number;
         lng: number;
-        timezone: string | null;
     })[]>;
     getSports(): Promise<({
         _count: {
@@ -58,10 +58,10 @@ export declare class LocationsController {
         };
     } & {
         title: string;
+        emoji: string | null;
         id: number;
         createdAt: Date;
         slug: string;
-        emoji: string | null;
         icon: string | null;
     })[]>;
     getCityById(id: string): Promise<{
@@ -78,9 +78,9 @@ export declare class LocationsController {
         id: number;
         countryCode: string;
         createdAt: Date;
+        timezone: string | null;
         population: number;
         lat: number;
         lng: number;
-        timezone: string | null;
     }>;
 }

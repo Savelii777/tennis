@@ -9,225 +9,225 @@ export declare class AdminCasesController {
     private readonly caseOpeningService;
     constructor(casesService: CasesService, caseItemsService: CaseItemsService, caseOpeningService: CaseOpeningService);
     createCase(createCaseDto: CreateCaseDto): Promise<{
-        items: {
-            name: string;
-            type: import(".prisma/client").$Enums.CaseItemType;
-            id: number;
-            updatedAt: Date;
-            createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
-            isActive: boolean;
-            dropChance: number;
-            caseId: number;
-            imageUrl: string | null;
-        }[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: {
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
+            id: number;
+            updatedAt: Date;
+            createdAt: Date;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
     } & {
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     }>;
     getAllCases(includeInactive?: string): Promise<({
-        items: {
-            name: string;
-            type: import(".prisma/client").$Enums.CaseItemType;
-            id: number;
-            updatedAt: Date;
-            createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
-            isActive: boolean;
-            dropChance: number;
-            caseId: number;
-            imageUrl: string | null;
-        }[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: {
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
+            id: number;
+            updatedAt: Date;
+            createdAt: Date;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
     } & {
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     })[]>;
     getCaseById(id: string): Promise<{
-        items: {
-            name: string;
-            type: import(".prisma/client").$Enums.CaseItemType;
-            id: number;
-            updatedAt: Date;
-            createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
-            isActive: boolean;
-            dropChance: number;
-            caseId: number;
-            imageUrl: string | null;
-        }[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: {
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
+            id: number;
+            updatedAt: Date;
+            createdAt: Date;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
     } & {
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     }>;
     updateCase(id: string, updateCaseDto: UpdateCaseDto): Promise<{
-        items: {
-            name: string;
-            type: import(".prisma/client").$Enums.CaseItemType;
-            id: number;
-            updatedAt: Date;
-            createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
-            isActive: boolean;
-            dropChance: number;
-            caseId: number;
-            imageUrl: string | null;
-        }[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: {
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
+            id: number;
+            updatedAt: Date;
+            createdAt: Date;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
     } & {
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     }>;
     deleteCase(id: string): Promise<{
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     }>;
     toggleCaseStatus(id: string): Promise<{
-        items: {
-            name: string;
-            type: import(".prisma/client").$Enums.CaseItemType;
-            id: number;
-            updatedAt: Date;
-            createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
-            isActive: boolean;
-            dropChance: number;
-            caseId: number;
-            imageUrl: string | null;
-        }[];
         _count: {
             openings: number;
             winnings: number;
         };
+        items: {
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
+            id: number;
+            updatedAt: Date;
+            createdAt: Date;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
     } & {
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     }>;
     createCaseItem(caseId: string, createItemDto: CreateCaseItemDto): Promise<{
-        name: string;
+        payload: import("@prisma/client/runtime/library").JsonValue;
         type: import(".prisma/client").$Enums.CaseItemType;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        caseId: number;
         imageUrl: string | null;
+        caseId: number;
     }>;
     getCaseItems(caseId: string, includeInactive?: string): Promise<{
-        name: string;
+        payload: import("@prisma/client/runtime/library").JsonValue;
         type: import(".prisma/client").$Enums.CaseItemType;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        caseId: number;
         imageUrl: string | null;
+        caseId: number;
     }[]>;
     updateCaseItem(itemId: string, updateItemDto: UpdateCaseItemDto): Promise<{
-        name: string;
+        payload: import("@prisma/client/runtime/library").JsonValue;
         type: import(".prisma/client").$Enums.CaseItemType;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        caseId: number;
         imageUrl: string | null;
+        caseId: number;
     }>;
     deleteCaseItem(itemId: string): Promise<{
-        name: string;
+        payload: import("@prisma/client/runtime/library").JsonValue;
         type: import(".prisma/client").$Enums.CaseItemType;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        caseId: number;
         imageUrl: string | null;
+        caseId: number;
     }>;
     toggleItemStatus(itemId: string): Promise<{
-        name: string;
+        payload: import("@prisma/client/runtime/library").JsonValue;
         type: import(".prisma/client").$Enums.CaseItemType;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
-        payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        caseId: number;
         imageUrl: string | null;
+        caseId: number;
     }>;
     getCaseStatistics(id: string): Promise<{
         totalOpenings: number;
         totalWinnings: number;
         itemStatistics: {
             item: {
-                name: string;
+                payload: import("@prisma/client/runtime/library").JsonValue;
                 type: import(".prisma/client").$Enums.CaseItemType;
+                name: string;
                 id: number;
                 updatedAt: Date;
                 createdAt: Date;
-                payload: import("@prisma/client/runtime/library").JsonValue;
                 isActive: boolean;
                 dropChance: number;
-                caseId: number;
                 imageUrl: string | null;
+                caseId: number;
             } | null;
             winCount: number;
             winRate: string;
@@ -239,14 +239,14 @@ export declare class AdminCasesController {
             winnings: number;
         };
     } & {
-        name: string;
         description: string;
+        name: string;
         id: number;
         updatedAt: Date;
         createdAt: Date;
+        isActive: boolean;
         image: string | null;
         priceBalls: number;
-        isActive: boolean;
     })[]>;
     getItemStatistics(itemId: string): Promise<{
         item: ({
@@ -255,26 +255,26 @@ export declare class AdminCasesController {
                     openings: number;
                 };
             } & {
-                name: string;
                 description: string;
+                name: string;
                 id: number;
                 updatedAt: Date;
                 createdAt: Date;
+                isActive: boolean;
                 image: string | null;
                 priceBalls: number;
-                isActive: boolean;
             };
         } & {
-            name: string;
+            payload: import("@prisma/client/runtime/library").JsonValue;
             type: import(".prisma/client").$Enums.CaseItemType;
+            name: string;
             id: number;
             updatedAt: Date;
             createdAt: Date;
-            payload: import("@prisma/client/runtime/library").JsonValue;
             isActive: boolean;
             dropChance: number;
-            caseId: number;
             imageUrl: string | null;
+            caseId: number;
         }) | null;
         winCount: number;
         totalOpenings: number;
