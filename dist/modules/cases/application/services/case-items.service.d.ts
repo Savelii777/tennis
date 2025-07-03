@@ -7,61 +7,61 @@ export declare class CaseItemsService {
         name: string;
         type: import(".prisma/client").$Enums.CaseItemType;
         id: number;
-        createdAt: Date;
         updatedAt: Date;
+        createdAt: Date;
         payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        imageUrl: string | null;
         caseId: number;
+        imageUrl: string | null;
     }>;
     getCaseItems(caseId: number, includeInactive?: boolean): Promise<{
         name: string;
         type: import(".prisma/client").$Enums.CaseItemType;
         id: number;
-        createdAt: Date;
         updatedAt: Date;
+        createdAt: Date;
         payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        imageUrl: string | null;
         caseId: number;
+        imageUrl: string | null;
     }[]>;
     updateCaseItem(itemId: number, updateItemDto: UpdateCaseItemDto): Promise<{
         name: string;
         type: import(".prisma/client").$Enums.CaseItemType;
         id: number;
-        createdAt: Date;
         updatedAt: Date;
+        createdAt: Date;
         payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        imageUrl: string | null;
         caseId: number;
+        imageUrl: string | null;
     }>;
     deleteCaseItem(itemId: number): Promise<{
         name: string;
         type: import(".prisma/client").$Enums.CaseItemType;
         id: number;
-        createdAt: Date;
         updatedAt: Date;
+        createdAt: Date;
         payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        imageUrl: string | null;
         caseId: number;
+        imageUrl: string | null;
     }>;
     toggleItemStatus(itemId: number): Promise<{
         name: string;
         type: import(".prisma/client").$Enums.CaseItemType;
         id: number;
-        createdAt: Date;
         updatedAt: Date;
+        createdAt: Date;
         payload: import("@prisma/client/runtime/library").JsonValue;
         isActive: boolean;
         dropChance: number;
-        imageUrl: string | null;
         caseId: number;
+        imageUrl: string | null;
     }>;
     getItemStatistics(itemId: number): Promise<{
         item: ({
@@ -70,26 +70,26 @@ export declare class CaseItemsService {
                     openings: number;
                 };
             } & {
-                description: string;
                 name: string;
+                description: string;
                 id: number;
-                image: string | null;
-                createdAt: Date;
                 updatedAt: Date;
-                isActive: boolean;
+                createdAt: Date;
+                image: string | null;
                 priceBalls: number;
+                isActive: boolean;
             };
         } & {
             name: string;
             type: import(".prisma/client").$Enums.CaseItemType;
             id: number;
-            createdAt: Date;
             updatedAt: Date;
+            createdAt: Date;
             payload: import("@prisma/client/runtime/library").JsonValue;
             isActive: boolean;
             dropChance: number;
-            imageUrl: string | null;
             caseId: number;
+            imageUrl: string | null;
         }) | null;
         winCount: number;
         totalOpenings: number;

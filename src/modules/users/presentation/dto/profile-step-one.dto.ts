@@ -43,8 +43,7 @@ export class ProfileStepOneDto {
   @IsOptional()
   weeklyPlayFrequency?: string;
   
-  @ApiProperty({ enum: SportType })
+  @ApiProperty({ enum: SportType, description: 'Выбор спорта: теннис или падел' })
   @IsEnum(SportType)
-  @IsOptional()
-  sportType?: SportType;
+  sportType: SportType; // Делаем обязательным полем
 }

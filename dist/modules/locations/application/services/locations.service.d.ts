@@ -31,12 +31,12 @@ export declare class LocationsService {
     } & {
         name: string;
         id: number;
-        createdAt: Date;
         countryCode: string;
-        timezone: string | null;
+        createdAt: Date;
         population: number;
         lat: number;
         lng: number;
+        timezone: string | null;
     })[]>;
     getPopularCities(countryCode: string): Promise<({
         country: {
@@ -50,12 +50,12 @@ export declare class LocationsService {
     } & {
         name: string;
         id: number;
-        createdAt: Date;
         countryCode: string;
-        timezone: string | null;
+        createdAt: Date;
         population: number;
         lat: number;
         lng: number;
+        timezone: string | null;
     })[]>;
     getAllSports(): Promise<({
         _count: {
@@ -65,8 +65,8 @@ export declare class LocationsService {
         title: string;
         id: number;
         createdAt: Date;
-        emoji: string | null;
         slug: string;
+        emoji: string | null;
         icon: string | null;
     })[]>;
     getCityById(id: number): Promise<{
@@ -81,23 +81,23 @@ export declare class LocationsService {
     } & {
         name: string;
         id: number;
-        createdAt: Date;
         countryCode: string;
-        timezone: string | null;
+        createdAt: Date;
         population: number;
         lat: number;
         lng: number;
+        timezone: string | null;
     }>;
     getCountryByCode(code: string): Promise<{
         cities: {
             name: string;
             id: number;
-            createdAt: Date;
             countryCode: string;
-            timezone: string | null;
+            createdAt: Date;
             population: number;
             lat: number;
             lng: number;
+            timezone: string | null;
         }[];
     } & {
         name: string;

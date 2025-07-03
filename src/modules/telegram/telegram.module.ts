@@ -15,6 +15,7 @@ import { StoriesHandler } from './handlers/stories.handler';
 import { CasesHandler } from './handlers/cases.handler';
 import { AiCoachHandler } from './handlers/ai-coach.handler';
 import { CommonHandler } from './handlers/common.handler';
+import { MessagingHandler } from './handlers/messaging.handler';
 
 // Вспомогательные сервисы
 import { StateService } from './services/state.service';
@@ -51,9 +52,20 @@ import { ReferralsModule } from '../referrals/referrals.module';
           throw new Error('TELEGRAM_BOT_TOKEN не найден в environment');
         }
         
-        return {
+        const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+        
+        const config: any = {
           token,
+          launchOptions: {
+            polling: true,
+          },
         };
+        
+        console.log(`🔧 Environment: ${process.env.NODE_ENV || 'undefined'}`);
+        console.log(`🔧 Development mode: ${isDev}`);
+        console.log('🚀 Automatic polling enabled');
+        
+        return config;
       },
     }),
     ConfigModule,
@@ -91,6 +103,7 @@ import { ReferralsModule } from '../referrals/referrals.module';
     CasesHandler,
     AiCoachHandler,
     CommonHandler,
+    MessagingHandler,
     
     // Сервис Prisma
     PrismaService

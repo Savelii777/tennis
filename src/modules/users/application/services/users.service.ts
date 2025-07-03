@@ -196,13 +196,14 @@ async findByTelegramId(telegramId: string): Promise<UserEntity | null> {
       }
     });
     
-    // Обновить имя/фамилию если предоставлены
-    if (profileData.firstName || profileData.lastName) {
+    // Обновить имя/фамилию и спорт если предоставлены
+    if (profileData.firstName || profileData.lastName || profileData.sportType) {
       await this.prisma.user.update({
         where: { id: parseInt(userId) },
         data: {
           firstName: profileData.firstName || user.first_name, // исправлено поле
-          lastName: profileData.lastName || user.last_name     // исправлено поле
+          lastName: profileData.lastName || user.last_name,     // исправлено поле
+          sportType: profileData.sportType
         }
       });
     }
@@ -571,7 +572,17 @@ async getProfileCompletionStatus(userId: string): Promise<{ percentage: number, 
         icon: user.sport?.icon || '',
         isSpecified: !!user.sportId,
       },
-      allowDirectMessages: user.settings?.allowDirectMessages ?? true
+      allowDirectMessages: user.settings?.allowDirectMessages ?? true,
+      
+      // Кнопки действий для публичного профиля
+      actions: {
+        canMessage: user.settings?.allowDirectMessages ?? true,
+        canInviteToGame: true,
+        canShare: true,
+        // Deep link для Telegram-бота с командой написать сообщение
+        telegramMessageLink: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=msg_${user.id}`,
+        shareProfileLink: `${process.env.FRONTEND_URL}/profile/${user.id}`
+      }
     };
 
     // Если разрешено показывать рейтинг публично

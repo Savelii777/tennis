@@ -1,14 +1,30 @@
 enum ProfileStep {
   IDLE = 'idle',
+  
+  // Шаг 1: Основные данные
+  AWAITING_SPORT_TYPE = 'awaiting_sport_type',       // Новый первый шаг
   AWAITING_FIRST_NAME = 'awaiting_first_name',
   AWAITING_LAST_NAME = 'awaiting_last_name',
   AWAITING_CITY = 'awaiting_city',
   AWAITING_COURT = 'awaiting_court',
   AWAITING_HAND = 'awaiting_hand',
+  AWAITING_PLAY_TIME = 'awaiting_play_time',         // Новый шаг
   AWAITING_FREQUENCY = 'awaiting_frequency',
   AWAITING_TOURNAMENTS = 'awaiting_tournaments',
+  
+  // Шаг 2: Стиль игры и уровень  
   AWAITING_LEVEL = 'awaiting_level',
+  AWAITING_BACKHAND = 'awaiting_backhand',           // Новые шаги для Шага 2
+  AWAITING_SURFACE = 'awaiting_surface',
+  AWAITING_STYLE = 'awaiting_style', 
+  AWAITING_SHOT = 'awaiting_shot',
+  AWAITING_RACKET = 'awaiting_racket',
+  AWAITING_OPPONENT_PREF = 'awaiting_opponent_pref',
+  
   COMPLETE = 'complete',
+  
+  // Сообщения
+  AWAITING_MESSAGE_TEXT = 'awaiting_message_text',
   
   // Заявки
   CREATING_REQUEST = 'creating_request',
@@ -60,21 +76,32 @@ interface UserState {
   step: ProfileStep;
   page?: string;
   data: {
-    // Основные данные профиля
+    // ШАГ 1: Основные данные профиля
     firstName?: string;
     lastName?: string;
     city?: string;
     preferredCourt?: string;
+    sportType?: 'TENNIS' | 'PADEL';                    // Новое поле
     dominantHand?: 'LEFT' | 'RIGHT';
-    weeklyPlayFrequency?: 'ONCE' | 'TWICE' | 'THREE_TIMES' | 'FOUR_PLUS';
+    preferredPlayTime?: string[];                      // Массив времен игры
+    weeklyPlayFrequency?: 'ONE' | 'TWO_THREE' | 'FOUR_PLUS';  // Обновленные значения
     playsInTournaments?: boolean;
+    
+    // ШАГ 2: Стиль игры и уровень
     selfAssessedLevel?: 'BEGINNER' | 'AMATEUR' | 'CONFIDENT' | 'TOURNAMENT' | 'SEMI_PRO';
+    backhandType?: 'ONE_HANDED' | 'TWO_HANDED';       // Новое поле
+    preferredSurface?: 'HARD' | 'CLAY' | 'GRASS' | 'CARPET';  // Новое поле
+    playingStyle?: 'UNIVERSAL' | 'DEFENSIVE' | 'AGGRESSIVE' | 'NET_PLAYER' | 'BASIC';  // Новое поле
+    favoriteShot?: 'SERVE' | 'FOREHAND' | 'BACKHAND' | 'VOLLEY' | 'SMASH';  // Новое поле
+    racket?: string;                                   // Новое поле
+    opponentPreference?: 'ANY' | 'MEN' | 'WOMEN' | 'SAME_LEVEL' | 'STRONGER' | 'WEAKER';  // Новое поле
+    
+    // Остальные существующие поля
     birthDate?: string;
     phoneNumber?: string;
     email?: string;
     username?: string;
     password?: string;
-    preferredPlayTime?: string[];
 
     // Данные для работы со stories
     fileId?: string;
@@ -118,6 +145,10 @@ interface UserState {
     // Поиск
     searchCity?: string;
     aiQuestion?: string;
+    
+    // Сообщения
+    targetUserId?: string;
+    targetUserName?: string;
     
     // Идентификаторы для внутреннего использования
     currentRequestId?: string;

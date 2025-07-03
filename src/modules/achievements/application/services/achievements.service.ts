@@ -14,6 +14,23 @@ export enum AchievementCode {
   CONFIDENCE_GROWS = 'confidence_grows', // 5 побед
   STABLE_WINNER = 'stable_winner', // 15 побед
   WINNING_STREAK = 'winning_streak', // 5 побед подряд
+
+  // Турниры
+  TOURNAMENT_WINNER = 'tournament_winner',
+  BRACKET_MASTER = 'bracket_master',
+  GROUP_CHAMPION = 'group_champion',
+  LEAGUE_MASTER = 'league_master',
+  SPEED_DEMON = 'speed_demon',
+  CROWD_PLEASER = 'crowd_pleaser',
+  TOURNAMENT_DOMINATOR = 'tournament_dominator',
+  RANKED_CHAMPION = 'ranked_champion',
+  TOURNAMENT_FINALIST = 'tournament_finalist',
+  TOURNAMENT_MEDALIST = 'tournament_medalist',
+  TOURNAMENT_STREAK_3 = 'tournament_streak_3',
+  TOURNAMENT_STREAK_5 = 'tournament_streak_5',
+  TOURNAMENT_LEGEND = 'tournament_legend',
+  MONTHLY_CHAMPION = 'monthly_champion',
+  MONTHLY_DOMINATOR = 'monthly_dominator',
 }
 
 export interface AchievementDefinition {
@@ -53,44 +70,150 @@ export class AchievementsService {
       code: 'in_rhythm',
       name: 'В ритме',
       description: 'Сыграл 10 матчей',
-      icon: '🚀',
+      icon: '⚡',
       category: 'matches'
     },
     {
       code: 'real_player',
       name: 'Настоящий игрок',
       description: 'Сыграл 50 матчей',
-      icon: '🧠',
+      icon: '🏆',
       category: 'matches'
     },
     {
       code: 'first_success',
       name: 'Первый успех',
-      description: 'Одержал первую победу',
-      icon: '🎯',
+      description: 'Выиграл первый матч',
+      icon: '🥇',
       category: 'victories'
     },
     {
       code: 'confidence_grows',
-      name: 'Уверенность растёт',
-      description: 'Одержал 5 побед',
-      icon: '🏃‍♂️',
+      name: 'Уверенность растет',
+      description: 'Выиграл 5 матчей',
+      icon: '💪',
       category: 'victories'
     },
     {
       code: 'stable_winner',
       name: 'Стабильный победитель',
-      description: 'Одержал 15 побед',
-      icon: '💪',
+      description: 'Выиграл 15 матчей',
+      icon: '🌟',
       category: 'victories'
     },
     {
       code: 'winning_streak',
       name: 'Победная серия',
       description: 'Выиграл 5 матчей подряд',
-      icon: '🐉',
+      icon: '🔥',
       category: 'victories'
-    }
+    },
+    // Турнирные достижения
+    {
+      code: 'tournament_winner',
+      name: 'Победитель турнира',
+      description: 'Выиграл турнир',
+      icon: '🏆',
+      category: 'tournaments'
+    },
+    {
+      code: 'bracket_master',
+      name: 'Мастер сетки',
+      description: 'Выиграл турнир на выбывание',
+      icon: '🎯',
+      category: 'tournaments'
+    },
+    {
+      code: 'group_champion',
+      name: 'Чемпион группы',
+      description: 'Выиграл групповой турнир',
+      icon: '👥',
+      category: 'tournaments'
+    },
+    {
+      code: 'league_master',
+      name: 'Мастер лиги',
+      description: 'Выиграл лиговой турнир',
+      icon: '🏅',
+      category: 'tournaments'
+    },
+    {
+      code: 'speed_demon',
+      name: 'Демон скорости',
+      description: 'Выиграл блиц-турнир',
+      icon: '⚡',
+      category: 'tournaments'
+    },
+    {
+      code: 'crowd_pleaser',
+      name: 'Любимец публики',
+      description: 'Выиграл турнир с 8+ участниками',
+      icon: '👏',
+      category: 'tournaments'
+    },
+    {
+      code: 'tournament_dominator',
+      name: 'Доминатор турниров',
+      description: 'Выиграл турнир с 16+ участниками',
+      icon: '👑',
+      category: 'tournaments'
+    },
+    {
+      code: 'ranked_champion',
+      name: 'Рейтинговый чемпион',
+      description: 'Выиграл рейтинговый турнир',
+      icon: '⭐',
+      category: 'tournaments'
+    },
+    {
+      code: 'tournament_finalist',
+      name: 'Финалист турнира',
+      description: 'Занял 2-е место в турнире',
+      icon: '🥈',
+      category: 'tournaments'
+    },
+    {
+      code: 'tournament_medalist',
+      name: 'Призер турнира',
+      description: 'Занял 3-е место в турнире',
+      icon: '🥉',
+      category: 'tournaments'
+    },
+    {
+      code: 'tournament_streak_3',
+      name: 'Турнирная серия',
+      description: 'Выиграл 3 турнира подряд',
+      icon: '🔥',
+      category: 'tournaments'
+    },
+    {
+      code: 'tournament_streak_5',
+      name: 'Турнирная доминация',
+      description: 'Выиграл 5 турниров подряд',
+      icon: '🌟',
+      category: 'tournaments'
+    },
+    {
+      code: 'tournament_legend',
+      name: 'Легенда турниров',
+      description: 'Выиграл 10 турниров подряд',
+      icon: '👑',
+      category: 'tournaments'
+    },
+    {
+      code: 'monthly_champion',
+      name: 'Чемпион месяца',
+      description: 'Выиграл 3 турнира за месяц',
+      icon: '📅',
+      category: 'tournaments'
+    },
+    {
+      code: 'monthly_dominator',
+      name: 'Доминатор месяца',
+      description: 'Выиграл 5 турниров за месяц',
+      icon: '🗓️',
+      category: 'tournaments'
+    },
   ];
 
   constructor(private readonly prisma: PrismaService) {}
@@ -296,5 +419,36 @@ export class AchievementsService {
         }
       };
     });
+  }
+
+  /**
+   * Проверяем и присваиваем отдельное достижение
+   */
+  async checkAndAwardSingleAchievement(userId: string, achievementCode: string, metadata?: any): Promise<boolean> {
+    try {
+      // Проверяем, есть ли уже это достижение
+      const hasAchievement = await this.prisma.userAchievement.findUnique({
+        where: {
+          userId_code: {
+            userId: parseInt(userId),
+            code: achievementCode,
+          },
+        },
+      });
+
+      if (hasAchievement) {
+        return false; // Достижение уже есть
+      }
+
+      // Присваиваем достижение
+      await this.awardAchievement(userId, achievementCode);
+      
+      this.logger.log(`🏆 Присвоено достижение ${achievementCode} пользователю ${userId}`);
+      return true;
+
+    } catch (error) {
+      this.logger.error(`❌ Ошибка при присвоении достижения ${achievementCode}:`, error);
+      return false;
+    }
   }
 }

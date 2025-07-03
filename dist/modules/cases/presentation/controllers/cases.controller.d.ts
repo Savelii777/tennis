@@ -17,54 +17,54 @@ export declare class CasesController {
             name: string;
             type: import(".prisma/client").$Enums.CaseItemType;
             id: number;
-            createdAt: Date;
             updatedAt: Date;
+            createdAt: Date;
             payload: import("@prisma/client/runtime/library").JsonValue;
             isActive: boolean;
             dropChance: number;
-            imageUrl: string | null;
             caseId: number;
+            imageUrl: string | null;
         }[];
         _count: {
             openings: number;
             winnings: number;
         };
     } & {
-        description: string;
         name: string;
+        description: string;
         id: number;
-        image: string | null;
-        createdAt: Date;
         updatedAt: Date;
-        isActive: boolean;
+        createdAt: Date;
+        image: string | null;
         priceBalls: number;
+        isActive: boolean;
     })[]>;
     getCaseById(id: string): Promise<{
         items: {
             name: string;
             type: import(".prisma/client").$Enums.CaseItemType;
             id: number;
-            createdAt: Date;
             updatedAt: Date;
+            createdAt: Date;
             payload: import("@prisma/client/runtime/library").JsonValue;
             isActive: boolean;
             dropChance: number;
-            imageUrl: string | null;
             caseId: number;
+            imageUrl: string | null;
         }[];
         _count: {
             openings: number;
             winnings: number;
         };
     } & {
-        description: string;
         name: string;
+        description: string;
         id: number;
-        image: string | null;
-        createdAt: Date;
         updatedAt: Date;
-        isActive: boolean;
+        createdAt: Date;
+        image: string | null;
         priceBalls: number;
+        isActive: boolean;
     }>;
     openCase(id: string, req: RequestWithUser): Promise<{
         opening: {
@@ -77,18 +77,18 @@ export declare class CasesController {
         winning: {
             item: any;
             case: {
-                description: string;
                 name: string;
+                description: string;
                 id: number;
-                image: string | null;
-                createdAt: Date;
                 updatedAt: Date;
-                isActive: boolean;
+                createdAt: Date;
+                image: string | null;
                 priceBalls: number;
+                isActive: boolean;
             };
             id: number;
-            createdAt: Date;
             updatedAt: Date;
+            createdAt: Date;
             userId: number;
             caseId: number;
             openingId: number;
@@ -100,32 +100,32 @@ export declare class CasesController {
     }>;
     getMyHistory(req: RequestWithUser, page?: string, limit?: string): Promise<({
         case: {
-            description: string;
             name: string;
+            description: string;
             id: number;
-            image: string | null;
-            createdAt: Date;
             updatedAt: Date;
-            isActive: boolean;
+            createdAt: Date;
+            image: string | null;
             priceBalls: number;
+            isActive: boolean;
         };
         winning: ({
             item: {
                 name: string;
                 type: import(".prisma/client").$Enums.CaseItemType;
                 id: number;
-                createdAt: Date;
                 updatedAt: Date;
+                createdAt: Date;
                 payload: import("@prisma/client/runtime/library").JsonValue;
                 isActive: boolean;
                 dropChance: number;
-                imageUrl: string | null;
                 caseId: number;
+                imageUrl: string | null;
             };
         } & {
             id: number;
-            createdAt: Date;
             updatedAt: Date;
+            createdAt: Date;
             userId: number;
             caseId: number;
             openingId: number;

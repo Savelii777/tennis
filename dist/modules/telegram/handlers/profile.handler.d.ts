@@ -42,4 +42,68 @@ export declare class ProfileHandler {
     private handleLevel;
     formatProfileMessage(user: any): Promise<string>;
     handleProfileCommand(ctx: Context): Promise<void>;
+    /**
+       * НОВЫЕ ОБРАБОТЧИКИ ДЛЯ ДВУХШАГОВОЙ РЕГИСТРАЦИИ
+       * Полное соответствие ТЗ
+       */
+    /**
+     * Обработчик выбора спорта
+     */
+    handleSportSelection(sportType: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик выбора времени игры
+     */
+    handlePlayTimeSelection(timeSlot: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик кнопки продолжения к частоте игр
+     */
+    handleContinueToFrequency(ctx: Context): Promise<void>;
+    /**
+     * Обработчик выбора бэкхенда
+     */
+    handleBackhandSelection(backhandType: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик выбора покрытия
+     */
+    handleSurfaceSelection(surface: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик выбора стиля игры
+     */
+    handleStyleSelection(style: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик выбора любимого удара
+     */
+    handleShotSelection(shot: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик выбора предпочтений по сопернику
+     */
+    handleOpponentSelection(preference: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик текстовых сообщений для всех этапов регистрации
+     */
+    handleTextMessage(ctx: Context): Promise<void>;
+    /**
+     * Обработчик ввода города
+     */
+    handleCityInput(city: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик ввода корта
+     */
+    handleCourtInput(court: string, ctx: Context): Promise<void>;
+    /**
+     * Обработчик ввода ракетки
+     */
+    handleRacketInput(racket: string, ctx: Context): Promise<void>;
+    /**
+     * НОВЫЙ МЕТОД сохранения профиля с ПОЛНЫМИ данными согласно ТЗ
+     */
+    completeProfileSetupNew(telegramUserId: string, profileData: any): Promise<void>;
+    /**
+     * Обновленный обработчик перехода к Шагу 2 после завершения турниров
+     */
+    handleStartStepTwo(ctx: Context): Promise<void>;
+    /**
+     * Обновленный обработчик выбора уровня для Шага 2
+     */
+    handleLevelSelectionStepTwo(level: string, ctx: Context): Promise<void>;
 }

@@ -14,6 +14,7 @@ const tournaments_repository_1 = require("./infrastructure/repositories/tourname
 const prisma_service_1 = require("../../prisma/prisma.service");
 const users_module_1 = require("../users/users.module");
 const auth_module_1 = require("../auth/auth.module");
+const achievements_module_1 = require("../achievements/achievements.module");
 let TournamentsModule = class TournamentsModule {
 };
 exports.TournamentsModule = TournamentsModule;
@@ -22,6 +23,7 @@ exports.TournamentsModule = TournamentsModule = __decorate([
         imports: [
             (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Использовать forwardRef
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Также для AuthModule
+            achievements_module_1.AchievementsModule, // Добавляем AchievementsModule
         ],
         controllers: [tournaments_controller_1.TournamentsController],
         providers: [tournaments_service_1.TournamentsService, tournaments_repository_1.TournamentsRepository, prisma_service_1.PrismaService],

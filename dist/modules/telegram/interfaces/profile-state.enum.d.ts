@@ -1,14 +1,23 @@
 declare enum ProfileStep {
     IDLE = "idle",
+    AWAITING_SPORT_TYPE = "awaiting_sport_type",// Новый первый шаг
     AWAITING_FIRST_NAME = "awaiting_first_name",
     AWAITING_LAST_NAME = "awaiting_last_name",
     AWAITING_CITY = "awaiting_city",
     AWAITING_COURT = "awaiting_court",
     AWAITING_HAND = "awaiting_hand",
+    AWAITING_PLAY_TIME = "awaiting_play_time",// Новый шаг
     AWAITING_FREQUENCY = "awaiting_frequency",
     AWAITING_TOURNAMENTS = "awaiting_tournaments",
     AWAITING_LEVEL = "awaiting_level",
+    AWAITING_BACKHAND = "awaiting_backhand",// Новые шаги для Шага 2
+    AWAITING_SURFACE = "awaiting_surface",
+    AWAITING_STYLE = "awaiting_style",
+    AWAITING_SHOT = "awaiting_shot",
+    AWAITING_RACKET = "awaiting_racket",
+    AWAITING_OPPONENT_PREF = "awaiting_opponent_pref",
     COMPLETE = "complete",
+    AWAITING_MESSAGE_TEXT = "awaiting_message_text",
     CREATING_REQUEST = "creating_request",
     AWAITING_REQUEST_DATETIME = "awaiting_request_datetime",
     AWAITING_REQUEST_LOCATION = "awaiting_request_location",
@@ -47,16 +56,23 @@ interface UserState {
         lastName?: string;
         city?: string;
         preferredCourt?: string;
+        sportType?: 'TENNIS' | 'PADEL';
         dominantHand?: 'LEFT' | 'RIGHT';
-        weeklyPlayFrequency?: 'ONCE' | 'TWICE' | 'THREE_TIMES' | 'FOUR_PLUS';
+        preferredPlayTime?: string[];
+        weeklyPlayFrequency?: 'ONE' | 'TWO_THREE' | 'FOUR_PLUS';
         playsInTournaments?: boolean;
         selfAssessedLevel?: 'BEGINNER' | 'AMATEUR' | 'CONFIDENT' | 'TOURNAMENT' | 'SEMI_PRO';
+        backhandType?: 'ONE_HANDED' | 'TWO_HANDED';
+        preferredSurface?: 'HARD' | 'CLAY' | 'GRASS' | 'CARPET';
+        playingStyle?: 'UNIVERSAL' | 'DEFENSIVE' | 'AGGRESSIVE' | 'NET_PLAYER' | 'BASIC';
+        favoriteShot?: 'SERVE' | 'FOREHAND' | 'BACKHAND' | 'VOLLEY' | 'SMASH';
+        racket?: string;
+        opponentPreference?: 'ANY' | 'MEN' | 'WOMEN' | 'SAME_LEVEL' | 'STRONGER' | 'WEAKER';
         birthDate?: string;
         phoneNumber?: string;
         email?: string;
         username?: string;
         password?: string;
-        preferredPlayTime?: string[];
         fileId?: string;
         fileType?: string;
         storyMediaId?: string;
@@ -88,6 +104,8 @@ interface UserState {
         trainingDescription?: string;
         searchCity?: string;
         aiQuestion?: string;
+        targetUserId?: string;
+        targetUserName?: string;
         currentRequestId?: string;
         currentTournamentId?: string;
         selectedMatchId?: string;

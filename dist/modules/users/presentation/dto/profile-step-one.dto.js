@@ -65,8 +65,7 @@ __decorate([
     __metadata("design:type", String)
 ], ProfileStepOneDto.prototype, "weeklyPlayFrequency", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: sport_type_enum_1.SportType }),
+    (0, swagger_1.ApiProperty)({ enum: sport_type_enum_1.SportType, description: 'Выбор спорта: теннис или падел' }),
     (0, class_validator_1.IsEnum)(sport_type_enum_1.SportType),
-    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], ProfileStepOneDto.prototype, "sportType", void 0);

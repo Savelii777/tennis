@@ -8,5 +8,5 @@ export declare class ProfileStepOneDto {
     preferredPlayTime?: string[];
     playsInTournaments?: boolean;
     weeklyPlayFrequency?: string;
-    sportType?: SportType;
+    sportType: SportType;
 }

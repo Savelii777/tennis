@@ -23,6 +23,7 @@ const stories_handler_1 = require("./handlers/stories.handler");
 const cases_handler_1 = require("./handlers/cases.handler");
 const ai_coach_handler_1 = require("./handlers/ai-coach.handler");
 const common_handler_1 = require("./handlers/common.handler");
+const messaging_handler_1 = require("./handlers/messaging.handler");
 // Вспомогательные сервисы
 const state_service_1 = require("./services/state.service");
 const keyboard_service_1 = require("./services/keyboard.service");
@@ -57,9 +58,17 @@ exports.TelegramModule = TelegramModule = __decorate([
                     if (!token) {
                         throw new Error('TELEGRAM_BOT_TOKEN не найден в environment');
                     }
-                    return {
+                    const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+                    const config = {
                         token,
+                        launchOptions: {
+                            polling: true,
+                        },
                     };
+                    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'undefined'}`);
+                    console.log(`🔧 Development mode: ${isDev}`);
+                    console.log('🚀 Automatic polling enabled');
+                    return config;
                 },
             }),
             config_1.ConfigModule,
@@ -95,6 +104,7 @@ exports.TelegramModule = TelegramModule = __decorate([
             cases_handler_1.CasesHandler,
             ai_coach_handler_1.AiCoachHandler,
             common_handler_1.CommonHandler,
+            messaging_handler_1.MessagingHandler,
             // Сервис Prisma
             prisma_service_1.PrismaService
         ],

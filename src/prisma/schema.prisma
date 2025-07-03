@@ -195,6 +195,9 @@ model User {
   sportId       Int?
   sport         Sport?   @relation(fields: [sportId], references: [id])
   
+  // Выбор спорта - основное поле для регистрации
+  sportType     String?  // TENNIS, PADEL
+  
   // Профиль и связи
   profile       UserProfile?
   

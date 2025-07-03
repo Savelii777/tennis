@@ -4,15 +4,27 @@ exports.ProfileStep = void 0;
 var ProfileStep;
 (function (ProfileStep) {
     ProfileStep["IDLE"] = "idle";
+    // Шаг 1: Основные данные
+    ProfileStep["AWAITING_SPORT_TYPE"] = "awaiting_sport_type";
     ProfileStep["AWAITING_FIRST_NAME"] = "awaiting_first_name";
     ProfileStep["AWAITING_LAST_NAME"] = "awaiting_last_name";
     ProfileStep["AWAITING_CITY"] = "awaiting_city";
     ProfileStep["AWAITING_COURT"] = "awaiting_court";
     ProfileStep["AWAITING_HAND"] = "awaiting_hand";
+    ProfileStep["AWAITING_PLAY_TIME"] = "awaiting_play_time";
     ProfileStep["AWAITING_FREQUENCY"] = "awaiting_frequency";
     ProfileStep["AWAITING_TOURNAMENTS"] = "awaiting_tournaments";
+    // Шаг 2: Стиль игры и уровень  
     ProfileStep["AWAITING_LEVEL"] = "awaiting_level";
+    ProfileStep["AWAITING_BACKHAND"] = "awaiting_backhand";
+    ProfileStep["AWAITING_SURFACE"] = "awaiting_surface";
+    ProfileStep["AWAITING_STYLE"] = "awaiting_style";
+    ProfileStep["AWAITING_SHOT"] = "awaiting_shot";
+    ProfileStep["AWAITING_RACKET"] = "awaiting_racket";
+    ProfileStep["AWAITING_OPPONENT_PREF"] = "awaiting_opponent_pref";
     ProfileStep["COMPLETE"] = "complete";
+    // Сообщения
+    ProfileStep["AWAITING_MESSAGE_TEXT"] = "awaiting_message_text";
     // Заявки
     ProfileStep["CREATING_REQUEST"] = "creating_request";
     ProfileStep["AWAITING_REQUEST_DATETIME"] = "awaiting_request_datetime";

@@ -5,13 +5,15 @@ import { CreateTournamentDto } from '../dto/create-tournament.dto';
 import { UpdateTournamentDto } from '../dto/update-tournament.dto';
 import { RecordTournamentMatchDto } from '../dto/record-tournament-match.dto';
 import { UsersService } from '../../../users/application/services/users.service';
+import { AchievementsService } from '../../../achievements/application/services/achievements.service';
 import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class TournamentsService {
     private readonly tournamentsRepository;
     private readonly usersService;
+    private readonly achievementsService;
     private readonly prisma;
     private readonly logger;
-    constructor(tournamentsRepository: TournamentsRepository, usersService: UsersService, prisma: PrismaService);
+    constructor(tournamentsRepository: TournamentsRepository, usersService: UsersService, achievementsService: AchievementsService, prisma: PrismaService);
     findAll(filters?: any): Promise<TournamentEntity[]>;
     findById(id: string): Promise<TournamentEntity>;
     findByCreator(creatorId: string): Promise<TournamentEntity[]>;
@@ -43,6 +45,14 @@ export declare class TournamentsService {
     private determineLeagueWinners;
     private determineBlitzWinners;
     private awardTournamentAchievements;
+    /**
+     * Проверяем серии побед в турнирах
+     */
+    private checkTournamentStreaks;
+    /**
+     * Проверяем месячные достижения в турнирах
+     */
+    private checkMonthlyTournamentAchievements;
     private getSingleEliminationStandings;
     private getGroupsPlayoffStandings;
     private getLeagueStandings;

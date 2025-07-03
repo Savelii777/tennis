@@ -7,6 +7,7 @@ import { UpdateTournamentDto } from '../dto/update-tournament.dto';
 import { RecordTournamentMatchDto } from '../dto/record-tournament-match.dto';
 import { TournamentStatus, TournamentType, MatchStatus } from '../../domain/enums/tournament.enum';
 import { UsersService } from '../../../users/application/services/users.service';
+import { AchievementsService } from '../../../achievements/application/services/achievements.service';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class TournamentsService {
   constructor(
     private readonly tournamentsRepository: TournamentsRepository,
     private readonly usersService: UsersService,
+    private readonly achievementsService: AchievementsService,
     private readonly prisma: PrismaService, // Добавляем prisma сервис
 
   ) {}
@@ -215,8 +217,11 @@ async findAll(filters?: any): Promise<TournamentEntity[]> {
         const loserId = recordMatchDto.winnerId === match.playerAId ? match.playerBId : match.playerAId;
         
         await this.usersService.updateMatchStats(recordMatchDto.winnerId.toString(), true);
-        
         await this.usersService.updateMatchStats(loserId.toString(), false);
+
+        // Триггеры достижений за матчи
+        await this.achievementsService.checkAndAwardAchievements(recordMatchDto.winnerId.toString(), 'match_won');
+        await this.achievementsService.checkAndAwardAchievements(loserId.toString(), 'match_played');
       }
       
       return result;
@@ -837,51 +842,194 @@ async findAll(filters?: any): Promise<TournamentEntity[]> {
 
   private async awardTournamentAchievements(tournament: TournamentEntity, winners: number[]): Promise<void> {
     if (winners.length === 0) return;
-    
-    await this.usersService.addAchievement(winners[0].toString(), 'tournament_win', {
-      tournamentId: tournament.id,
-      tournamentType: tournament.type,
-      date: new Date(),
-      title: `${tournament.type} Champion`,
-      description: `Won ${tournament.title}`,
-    });
-    
-    switch (tournament.type) {
-      case TournamentType.SINGLE_ELIMINATION:
-        await this.usersService.addAchievement(winners[0].toString(), 'single_elimination_win', {
-          tournamentId: tournament.id,
-          date: new Date(),
-          title: 'Bracket Champion',
-          description: 'Won a Single Elimination tournament',
+
+    const winnerId = winners[0];
+    const tournamentPlayers = await this.tournamentsRepository.getTournamentPlayers(tournament.id.toString());
+    const totalParticipants = tournamentPlayers.length;
+
+    this.logger.log(`🏆 Присваиваем достижения за турнир ${tournament.title} (ID: ${tournament.id})`);
+    this.logger.log(`🥇 Победитель: ${winnerId}, участников: ${totalParticipants}`);
+
+    try {
+      // Базовое достижение за победу в турнире
+      await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'tournament_winner', {
+        tournamentId: tournament.id,
+        tournamentType: tournament.type,
+        participantsCount: totalParticipants,
+        isRanked: tournament.isRanked
+      });
+
+      // Достижения по типу турнира
+      switch (tournament.type) {
+        case TournamentType.SINGLE_ELIMINATION:
+          await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'bracket_master', {
+            tournamentId: tournament.id
+          });
+          break;
+          
+        case TournamentType.GROUPS_PLAYOFF:
+          await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'group_champion', {
+            tournamentId: tournament.id
+          });
+          break;
+          
+        case TournamentType.LEAGUE:
+          await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'league_master', {
+            tournamentId: tournament.id
+          });
+          break;
+          
+        case TournamentType.BLITZ:
+          await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'speed_demon', {
+            tournamentId: tournament.id
+          });
+          break;
+      }
+
+      // Достижения по количеству участников
+      if (totalParticipants >= 8) {
+        await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'crowd_pleaser', {
+          participantsCount: totalParticipants
         });
-        break;
+      }
+
+      if (totalParticipants >= 16) {
+        await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'tournament_dominator', {
+          participantsCount: totalParticipants
+        });
+      }
+
+      // Достижения для рейтинговых турниров
+      if (tournament.isRanked) {
+        await this.achievementsService.checkAndAwardSingleAchievement(winnerId.toString(), 'ranked_champion', {
+          tournamentId: tournament.id
+        });
+      }
+
+      // Достижения для финалистов (2-е место)
+      if (winners.length > 1 && winners[1]) {
+        await this.achievementsService.checkAndAwardSingleAchievement(winners[1].toString(), 'tournament_finalist', {
+          tournamentId: tournament.id,
+          place: 2
+        });
+      }
+
+      // Достижения для призеров (3-е место)
+      if (winners.length > 2 && winners[2]) {
+        await this.achievementsService.checkAndAwardSingleAchievement(winners[2].toString(), 'tournament_medalist', {
+          tournamentId: tournament.id,
+          place: 3
+        });
+      }
+
+      // Достижения по серии побед в турнирах (проверяем историю)
+      await this.checkTournamentStreaks(winnerId.toString());
+
+      // Достижения по месяцам активности
+      await this.checkMonthlyTournamentAchievements(winnerId.toString());
+
+      this.logger.log(`✅ Достижения за турнир успешно присвоены`);
+
+    } catch (error: any) {
+      this.logger.error(`❌ Ошибка при присвоении достижений за турнир: ${error.message}`);
+    }
+  }
+
+  /**
+   * Проверяем серии побед в турнирах
+   */
+  private async checkTournamentStreaks(userId: string): Promise<void> {
+    try {
+      // Получаем последние турниры пользователя
+      const recentTournaments = await this.prisma.tournament.findMany({
+        where: {
+          players: {
+            some: { id: parseInt(userId) }
+          },
+          status: TournamentStatus.COMPLETED
+        },
+        orderBy: { endDate: 'desc' },
+        take: 10, // Берем последние 10 турниров
+      });
+
+      // Подсчитываем серию побед
+      let currentStreak = 0;
+      for (const tournament of recentTournaments) {
+        const formatDetails = tournament.formatDetails || {};
+        const winners = (formatDetails as any)?.winners || [];
         
-      case TournamentType.GROUPS_PLAYOFF:
-        await this.usersService.addAchievement(winners[0].toString(), 'groups_playoff_win', {
-          tournamentId: tournament.id,
-          date: new Date(),
-          title: 'Group Master',
-          description: 'Won a Groups + Playoff tournament',
+        if (winners.length > 0 && winners[0] === parseInt(userId)) {
+          currentStreak++;
+        } else {
+          break; // Серия прервана
+        }
+      }
+
+      // Присваиваем достижения за серии
+      if (currentStreak >= 3) {
+        await this.achievementsService.checkAndAwardSingleAchievement(userId, 'tournament_streak_3', {
+          streakCount: currentStreak
         });
-        break;
-        
-      case TournamentType.LEAGUE:
-        await this.usersService.addAchievement(winners[0].toString(), 'league_win', {
-          tournamentId: tournament.id,
-          date: new Date(),
-          title: 'League Champion',
-          description: 'Won a League tournament',
+      }
+
+      if (currentStreak >= 5) {
+        await this.achievementsService.checkAndAwardSingleAchievement(userId, 'tournament_streak_5', {
+          streakCount: currentStreak
         });
-        break;
-        
-      case TournamentType.BLITZ:
-        await this.usersService.addAchievement(winners[0].toString(), 'blitz_win', {
-          tournamentId: tournament.id,
-          date: new Date(),
-          title: 'Speed Demon',
-          description: 'Won a Blitz tournament',
+      }
+
+      if (currentStreak >= 10) {
+        await this.achievementsService.checkAndAwardSingleAchievement(userId, 'tournament_legend', {
+          streakCount: currentStreak
         });
-        break;
+      }
+
+    } catch (error: any) {
+      this.logger.error(`❌ Ошибка при проверке серий турниров: ${error.message}`);
+    }
+  }
+
+  /**
+   * Проверяем месячные достижения в турнирах
+   */
+  private async checkMonthlyTournamentAchievements(userId: string): Promise<void> {
+    try {
+      const currentMonth = new Date();
+      const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+      const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+      // Считаем турниры, выигранные в этом месяце
+      const monthlyWins = await this.prisma.tournament.count({
+        where: {
+          status: TournamentStatus.COMPLETED,
+          endDate: {
+            gte: startOfMonth,
+            lte: endOfMonth
+          },
+          formatDetails: {
+            path: ['winners', '0'],
+            equals: parseInt(userId)
+          }
+        }
+      });
+
+      // Присваиваем достижения
+      if (monthlyWins >= 3) {
+        await this.achievementsService.checkAndAwardSingleAchievement(userId, 'monthly_champion', {
+          winsInMonth: monthlyWins,
+          month: `${currentMonth.getFullYear()}-${currentMonth.getMonth() + 1}`
+        });
+      }
+
+      if (monthlyWins >= 5) {
+        await this.achievementsService.checkAndAwardSingleAchievement(userId, 'monthly_dominator', {
+          winsInMonth: monthlyWins,
+          month: `${currentMonth.getFullYear()}-${currentMonth.getMonth() + 1}`
+        });
+      }
+
+    } catch (error: any) {
+      this.logger.error(`❌ Ошибка при проверке месячных достижений: ${error.message}`);
     }
   }
 
