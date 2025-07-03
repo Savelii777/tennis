@@ -1,12 +1,17 @@
 import { ConfigService } from '@nestjs/config';
-import { ITelegramFileResponse } from '../../domain/interfaces/story.interface';
 export declare class TelegramFileService {
     private readonly configService;
     private readonly logger;
-    private readonly botToken;
+    private readonly token;
     constructor(configService: ConfigService);
-    getFile(fileId: string): Promise<ITelegramFileResponse | null>;
+    /**
+     * Получить путь к файлу по его ID в Telegram
+     * @param fileId ID файла в Telegram
+     */
+    getFilePath(fileId: string): Promise<string>;
+    /**
+     * Получить полный URL файла
+     * @param filePath Путь к файлу
+     */
     getFileUrl(filePath: string): string;
-    getBotToken(): string;
-    validateFileSize(fileId: string, maxSizeMB?: number): Promise<boolean>;
 }

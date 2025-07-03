@@ -52,6 +52,7 @@ let TrainingsController = class TrainingsController {
         return this.trainingsService.cancelTraining(id, req.user.id);
     }
 };
+exports.TrainingsController = TrainingsController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Получить список всех тренировок' }),
@@ -124,11 +125,10 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], TrainingsController.prototype, "cancelTraining", null);
-TrainingsController = __decorate([
+exports.TrainingsController = TrainingsController = __decorate([
     (0, swagger_1.ApiTags)('trainings'),
     (0, common_1.Controller)('trainings'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [trainings_service_1.TrainingsService])
 ], TrainingsController);
-exports.TrainingsController = TrainingsController;

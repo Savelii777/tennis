@@ -76,6 +76,7 @@ let TournamentsController = class TournamentsController {
         return this.tournamentsService.getTournamentStandings(id);
     }
 };
+exports.TournamentsController = TournamentsController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all tournaments' }),
@@ -233,9 +234,8 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], TournamentsController.prototype, "getTournamentStandings", null);
-TournamentsController = __decorate([
+exports.TournamentsController = TournamentsController = __decorate([
     (0, swagger_1.ApiTags)('tournaments'),
     (0, common_1.Controller)('tournaments'),
     __metadata("design:paramtypes", [tournaments_service_1.TournamentsService])
 ], TournamentsController);
-exports.TournamentsController = TournamentsController;

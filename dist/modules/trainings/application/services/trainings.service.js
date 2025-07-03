@@ -79,9 +79,9 @@ let TrainingsService = class TrainingsService {
         return this.trainingsRepository.cancelTraining(trainingId, userId);
     }
 };
-TrainingsService = __decorate([
+exports.TrainingsService = TrainingsService;
+exports.TrainingsService = TrainingsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [trainings_repository_1.TrainingsRepository,
         prisma_service_1.PrismaService])
 ], TrainingsService);
-exports.TrainingsService = TrainingsService;

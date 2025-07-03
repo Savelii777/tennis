@@ -28,6 +28,7 @@ let AchievementsController = class AchievementsController {
         return this.achievementsService.getAllDefinitions();
     }
 };
+exports.AchievementsController = AchievementsController;
 __decorate([
     (0, common_1.Get)('my'),
     (0, swagger_1.ApiOperation)({ summary: 'Получить мои достижения' }),
@@ -45,11 +46,10 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AchievementsController.prototype, "getAllDefinitions", null);
-AchievementsController = __decorate([
+exports.AchievementsController = AchievementsController = __decorate([
     (0, swagger_1.ApiTags)('achievements'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('achievements'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:paramtypes", [achievements_service_1.AchievementsService])
 ], AchievementsController);
-exports.AchievementsController = AchievementsController;

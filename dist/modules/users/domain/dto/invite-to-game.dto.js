@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class InviteToGameDto {
 }
+exports.InviteToGameDto = InviteToGameDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Дата и время игры', example: '2023-07-15T14:00:00Z' }),
     (0, class_validator_1.IsNotEmpty)(),
@@ -32,4 +33,3 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], InviteToGameDto.prototype, "comment", void 0);
-exports.InviteToGameDto = InviteToGameDto;

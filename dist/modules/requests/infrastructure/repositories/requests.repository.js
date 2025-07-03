@@ -305,8 +305,8 @@ let RequestsRepository = class RequestsRepository {
         };
     }
 };
-RequestsRepository = __decorate([
+exports.RequestsRepository = RequestsRepository;
+exports.RequestsRepository = RequestsRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], RequestsRepository);
-exports.RequestsRepository = RequestsRepository;

@@ -3,6 +3,7 @@ import { UsersService } from '../../../users/application/services/users.service'
 import { CreateMatchDto } from '../dto/create-match.dto';
 import { RecordScoreDto } from '../dto/record-score.dto';
 import { UpdateMatchDto } from '../dto/update-match.dto';
+import { CreateFeedbackDto } from '../../presentation/dto/create-feedback.dto';
 import { MatchEntity } from '../../domain/entities/match.entity';
 import { AchievementsService } from '../../../achievements/application/services/achievements.service';
 import { RatingsService } from '../../../ratings/ratings.service';
@@ -29,9 +30,13 @@ export declare class MatchesService {
     private updatePlayerStats;
     delete(id: string, userId: string): Promise<void>;
     /**
-     * Получить последние матчи пользователя
+     * Получает последние матчи пользователя
      */
     getUserRecentMatches(userId: string, limit?: number): Promise<any[]>;
+    /**
+     * Получает информацию об оппоненте в матче
+     */
+    private getOpponentInfo;
     /**
      * Получить все матчи пользователя с фильтрацией и пагинацией
      */
@@ -48,4 +53,48 @@ export declare class MatchesService {
      * Вспомогательный метод для получения имени оппонента
      */
     private getOpponentName;
+    /**
+      * Создает отзыв о сопернике после матча
+      */
+    createFeedback(matchId: string, userId: string, createFeedbackDto: CreateFeedbackDto): Promise<any>;
+    /**
+     * Обновляет средний рейтинг игрока на основе полученных отзывов
+     */
+    private updatePlayerAvgRating;
+    /**
+     * Получает отзывы для конкретного матча
+     */
+    getMatchFeedbacks(matchId: string): Promise<any[]>;
+    /**
+     * Получает отзывы, оставленные пользователем
+     */
+    getUserGivenFeedbacks(userId: string, limit?: number): Promise<any[]>;
+    /**
+     * Получает отзывы, полученные пользователем
+     */
+    getUserReceivedFeedbacks(userId: string, limit?: number): Promise<any[]>;
+    /**
+     * Вспомогательный метод для получения отзывов с фильтрацией
+     */
+    private getFeedbacks;
+    /**
+    * Получает детальную информацию о матче (карточка матча)
+    */
+    getMatchDetails(matchId: string): Promise<any>;
+    /**
+    * Получает участников матча
+    */
+    private getMatchParticipants;
+    /**
+     * Форматирует дату матча
+     */
+    private formatDate;
+    /**
+     * Вычисляет примерную длительность матча
+     */
+    private calculateMatchDuration;
+    /**
+     * Проверяет, может ли пользователь оставить отзыв
+     */
+    private canLeaveFeedback;
 }

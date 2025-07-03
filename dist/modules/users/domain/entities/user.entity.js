@@ -15,6 +15,8 @@ const user_profile_entity_1 = require("./user-profile.entity");
 const role_enum_1 = require("../enums/role.enum");
 let UserEntity = class UserEntity {
 };
+exports.UserEntity = UserEntity;
+exports.User = UserEntity;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
@@ -47,8 +49,6 @@ __decorate([
     (0, typeorm_1.OneToOne)(() => user_profile_entity_1.UserProfileEntity, (profile) => profile.user),
     __metadata("design:type", user_profile_entity_1.UserProfileEntity)
 ], UserEntity.prototype, "profile", void 0);
-UserEntity = __decorate([
+exports.User = exports.UserEntity = UserEntity = __decorate([
     (0, typeorm_1.Entity)()
 ], UserEntity);
-exports.UserEntity = UserEntity;
-exports.User = UserEntity;

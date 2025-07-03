@@ -21,8 +21,8 @@ let TelegramLoginUseCase = class TelegramLoginUseCase {
         return this.authService.generateJwt(user);
     }
 };
-TelegramLoginUseCase = __decorate([
+exports.TelegramLoginUseCase = TelegramLoginUseCase;
+exports.TelegramLoginUseCase = TelegramLoginUseCase = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], TelegramLoginUseCase);
-exports.TelegramLoginUseCase = TelegramLoginUseCase;

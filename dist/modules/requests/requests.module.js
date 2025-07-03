@@ -16,10 +16,11 @@ const auth_module_1 = require("../auth/auth.module");
 const users_module_1 = require("../users/users.module"); // Добавьте, если используется
 let RequestsModule = class RequestsModule {
 };
-RequestsModule = __decorate([
+exports.RequestsModule = RequestsModule;
+exports.RequestsModule = RequestsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Добавляем forwardRef
             (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Если этот модуль используется
         ],
         controllers: [requests_controller_1.RequestsController],
@@ -27,4 +28,3 @@ RequestsModule = __decorate([
         exports: [requests_service_1.RequestsService],
     })
 ], RequestsModule);
-exports.RequestsModule = RequestsModule;

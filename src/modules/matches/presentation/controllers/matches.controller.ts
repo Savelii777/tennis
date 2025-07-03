@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Request, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { MatchesService } from '../../application/services/matches.service';
 import { CreateMatchDto } from '../../application/dto/create-match.dto';
 import { UpdateMatchDto } from '../../application/dto/update-match.dto';
@@ -108,5 +108,13 @@ export class MatchesController {
     @Request() req: RequestWithUser,
   ): Promise<void> {
     return this.matchesService.delete(id, req.user.id);
+  }
+
+  @Get(':id/details')
+  @ApiOperation({ summary: 'Получить детальную информацию о матче' })
+  @ApiParam({ name: 'id', description: 'ID матча' })
+  @ApiResponse({ status: 200, description: 'Детальная информация о матче' })
+  async getMatchDetails(@Param('id') id: string) {
+    return this.matchesService.getMatchDetails(id);
   }
 }

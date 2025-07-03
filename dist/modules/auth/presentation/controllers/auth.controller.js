@@ -54,6 +54,7 @@ let AuthController = class AuthController {
         return this.authService.logout(request.user.id);
     }
 };
+exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('login/telegram'),
     (0, swagger_1.ApiOperation)({ summary: 'Login with Telegram' }),
@@ -94,9 +95,8 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "logout", null);
-AuthController = __decorate([
+exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('auth'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
-exports.AuthController = AuthController;

@@ -43,7 +43,8 @@ const locations_module_1 = require("../locations/locations.module");
 const referrals_module_1 = require("../referrals/referrals.module");
 let TelegramModule = class TelegramModule {
 };
-TelegramModule = __decorate([
+exports.TelegramModule = TelegramModule;
+exports.TelegramModule = TelegramModule = __decorate([
     (0, common_1.Module)({
         imports: [
             nestjs_telegraf_1.TelegrafModule.forRootAsync({
@@ -100,4 +101,3 @@ TelegramModule = __decorate([
         exports: [telegram_service_1.TelegramService, bot_service_1.BotService],
     })
 ], TelegramModule);
-exports.TelegramModule = TelegramModule;

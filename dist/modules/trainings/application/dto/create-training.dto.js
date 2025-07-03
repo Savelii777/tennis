@@ -16,6 +16,7 @@ const training_type_enum_1 = require("../../domain/enums/training-type.enum");
 const class_transformer_1 = require("class-transformer");
 class CreateTrainingDto {
 }
+exports.CreateTrainingDto = CreateTrainingDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Название тренировки' }),
     (0, class_validator_1.IsString)(),
@@ -94,4 +95,3 @@ __decorate([
     (0, class_validator_1.IsEnum)(training_type_enum_1.TrainingType),
     __metadata("design:type", String)
 ], CreateTrainingDto.prototype, "trainingType", void 0);
-exports.CreateTrainingDto = CreateTrainingDto;

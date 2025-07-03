@@ -53,9 +53,9 @@ let AiCoachHandler = AiCoachHandler_1 = class AiCoachHandler {
         return false;
     }
 };
-AiCoachHandler = AiCoachHandler_1 = __decorate([
+exports.AiCoachHandler = AiCoachHandler;
+exports.AiCoachHandler = AiCoachHandler = AiCoachHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService])
 ], AiCoachHandler);
-exports.AiCoachHandler = AiCoachHandler;

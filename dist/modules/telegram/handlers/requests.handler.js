@@ -66,10 +66,10 @@ let RequestsHandler = RequestsHandler_1 = class RequestsHandler {
         return false;
     }
 };
-RequestsHandler = RequestsHandler_1 = __decorate([
+exports.RequestsHandler = RequestsHandler;
+exports.RequestsHandler = RequestsHandler = RequestsHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService,
         users_service_1.UsersService])
 ], RequestsHandler);
-exports.RequestsHandler = RequestsHandler;

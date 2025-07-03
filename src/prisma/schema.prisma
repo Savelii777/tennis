@@ -13,15 +13,35 @@ enum AuthSource {
   MOBILE_APP
 }
 
+enum MediaType {
+  image
+  video
+}
+
 enum StoryStatus {
   pending
   approved
   rejected
 }
 
-enum MediaType {
-  image
-  video
+model MatchFeedback {
+  id          Int      @id @default(autoincrement())
+  match       Match    @relation(fields: [matchId], references: [id])
+  matchId     Int
+  reviewer    User     @relation("ReviewerFeedbacks", fields: [reviewerId], references: [id])
+  reviewerId  Int
+  reviewee    User     @relation("RevieweeFeedbacks", fields: [revieweeId], references: [id])
+  revieweeId  Int
+  rating      Int      // Оценка от 1 до 5
+  comment     String?  // Текстовый отзыв (опционально)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([matchId, reviewerId, revieweeId])
+  @@index([matchId])
+  @@index([reviewerId])
+  @@index([revieweeId])
 }
 
 
@@ -41,22 +61,27 @@ model DirectMessage {
 }
 
 model Story {
-  id               Int         @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   userId           Int
+  user             User       @relation(fields: [userId], references: [id])
   telegramFileId   String
   telegramFilePath String?
   type             MediaType
+  caption          String?
   status           StoryStatus @default(pending)
-  createdAt        DateTime    @default(now())
+  viewsCount       Int        @default(0)
+  likesCount       Int        @default(0)
+  expiresAt        DateTime?
+  createdAt        DateTime   @default(now())
   publishedAt      DateTime?
-  updatedAt        DateTime    @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
+  updatedAt        DateTime   @updatedAt
 
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([publishedAt])
 }
+
 
 model Country {
   id       Int    @id @default(autoincrement())
@@ -174,10 +199,10 @@ model User {
   profile       UserProfile?
   
   // Матчи - исправленные связи
-  createdMatches Match[] @relation("CreatorMatches")
-  player1Matches Match[] @relation("Player1Matches")
-  player2Matches Match[] @relation("Player2Matches")
-  wonMatches     Match[] @relation("MatchWinner")
+  createdMatches  Match[] @relation("MatchCreator")
+  player1Matches  Match[] @relation("MatchPlayer1")
+  player2Matches  Match[] @relation("MatchPlayer2")
+  wonMatches      Match[] @relation("MatchWinner")
   
   // Турнирные матчи
   tournamentMatchesA TournamentMatch[] @relation("TournamentPlayerA")
@@ -238,6 +263,10 @@ model User {
 
   sentMessages     DirectMessage[] @relation("SentMessages")
   receivedMessages DirectMessage[] @relation("ReceivedMessages")
+
+  givenFeedbacks    MatchFeedback[] @relation("ReviewerFeedbacks")
+  receivedFeedbacks MatchFeedback[] @relation("RevieweeFeedbacks")
+  
 }
 
 // Модели рейтинга
@@ -492,13 +521,21 @@ model Match {
   invites       Invite[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  feedbacks MatchFeedback[]
+  locationName String? // Поле для хранения места проведения
   ratingHistory RatingHistory[]
-  
+
   // Исправленные связи
-  creator   User    @relation("CreatorMatches", fields: [creatorId], references: [id])
-  player1   User?   @relation("Player1Matches", fields: [player1Id], references: [id])
-  player2   User?   @relation("Player2Matches", fields: [player2Id], references: [id])
+  creator   User    @relation("MatchCreator", fields: [creatorId], references: [id])
+  player1   User?   @relation("MatchPlayer1", fields: [player1Id], references: [id])
+  player2   User?   @relation("MatchPlayer2", fields: [player2Id], references: [id])
   winner    User?   @relation("MatchWinner", fields: [winnerId], references: [id])
+
+
+  @@index([creatorId])
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([winnerId])
 }
 
 model Training {

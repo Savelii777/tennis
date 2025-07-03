@@ -5,4 +5,4 @@ var MediaType;
 (function (MediaType) {
     MediaType["IMAGE"] = "image";
     MediaType["VIDEO"] = "video";
-})(MediaType = exports.MediaType || (exports.MediaType = {}));
+})(MediaType || (exports.MediaType = MediaType = {}));

@@ -14,11 +14,11 @@ const locations_repository_1 = require("./infrastructure/repositories/locations.
 const prisma_service_1 = require("../../prisma/prisma.service");
 let LocationsModule = class LocationsModule {
 };
-LocationsModule = __decorate([
+exports.LocationsModule = LocationsModule;
+exports.LocationsModule = LocationsModule = __decorate([
     (0, common_1.Module)({
         controllers: [locations_controller_1.LocationsController],
         providers: [locations_service_1.LocationsService, locations_repository_1.LocationsRepository, prisma_service_1.PrismaService],
         exports: [locations_service_1.LocationsService],
     })
 ], LocationsModule);
-exports.LocationsModule = LocationsModule;

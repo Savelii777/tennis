@@ -57,6 +57,7 @@ let RatingsController = class RatingsController {
         return this.ratingsService.getCurrentSeason();
     }
 };
+exports.RatingsController = RatingsController;
 __decorate([
     (0, common_1.Get)(':userId'),
     (0, swagger_1.ApiOperation)({ summary: 'Получить рейтинг игрока' }),
@@ -141,10 +142,9 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], RatingsController.prototype, "getCurrentSeason", null);
-RatingsController = __decorate([
+exports.RatingsController = RatingsController = __decorate([
     (0, swagger_1.ApiTags)('ratings'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('ratings'),
     __metadata("design:paramtypes", [ratings_service_1.RatingsService])
 ], RatingsController);
-exports.RatingsController = RatingsController;

@@ -8,12 +8,14 @@ import { ProfileStepOneDto } from '../../presentation/dto/profile-step-one.dto';
 import { ProfileStepTwoDto } from '../../presentation/dto/profile-step-two.dto';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { RatingsService } from '../../../ratings/ratings.service';
+import { StoriesService } from '../../../stories/application/services/stories.service';
 export declare class UsersService {
     private readonly usersRepository;
     private readonly prisma;
     private readonly ratingsService;
+    private readonly storiesService;
     private readonly logger;
-    constructor(usersRepository: UsersRepository, prisma: PrismaService, ratingsService: RatingsService);
+    constructor(usersRepository: UsersRepository, prisma: PrismaService, ratingsService: RatingsService, storiesService: StoriesService);
     findAll(): Promise<UserEntity[]>;
     findById(id: string): Promise<UserEntity>;
     updateTelegramChatId(userId: string, telegramChatId: number): Promise<void>;

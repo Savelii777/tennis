@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StateService = void 0;
 const common_1 = require("@nestjs/common");
-const user_state_interface_1 = require("../interfaces/user-state.interface");
+const profile_state_enum_1 = require("../interfaces/profile-state.enum");
 let StateService = class StateService {
     constructor() {
         // В продакшене лучше использовать Redis
@@ -17,7 +17,7 @@ let StateService = class StateService {
     getUserState(userId) {
         if (!this.userStates.has(userId)) {
             this.userStates.set(userId, {
-                step: user_state_interface_1.ProfileStep.IDLE,
+                step: profile_state_enum_1.ProfileStep.IDLE,
                 data: {}
             });
         }
@@ -39,7 +39,7 @@ let StateService = class StateService {
         this.userStates.delete(userId);
     }
 };
-StateService = __decorate([
+exports.StateService = StateService;
+exports.StateService = StateService = __decorate([
     (0, common_1.Injectable)()
 ], StateService);
-exports.StateService = StateService;

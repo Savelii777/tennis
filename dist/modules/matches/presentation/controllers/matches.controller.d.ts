@@ -21,5 +21,6 @@ export declare class MatchesController {
     recordScore(id: string, req: RequestWithUser, recordScoreDto: RecordScoreDto): Promise<MatchEntity>;
     cancelMatch(id: string, req: RequestWithUser): Promise<MatchEntity>;
     delete(id: string, req: RequestWithUser): Promise<void>;
+    getMatchDetails(id: string): Promise<any>;
 }
 export {};

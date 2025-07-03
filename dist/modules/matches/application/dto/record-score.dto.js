@@ -14,10 +14,10 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class RecordScoreDto {
 }
+exports.RecordScoreDto = RecordScoreDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Match score (e.g., "6-4, 7-5")' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], RecordScoreDto.prototype, "score", void 0);
-exports.RecordScoreDto = RecordScoreDto;

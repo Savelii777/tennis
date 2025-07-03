@@ -195,7 +195,7 @@ let RatingsService = RatingsService_1 = class RatingsService {
         const newSkillRating = this.skillPointsToNTRP(newSkillPoints);
         return {
             skillPointsChange,
-            pointsRatingChange: 0,
+            pointsRatingChange: 0, // Будет рассчитано отдельно
             newSkillRating,
             newSkillPoints,
             newPointsRating: 0, // Будет рассчитано отдельно
@@ -242,7 +242,7 @@ let RatingsService = RatingsService_1 = class RatingsService {
                     select: {
                         id: true,
                         username: true,
-                        firstName: true,
+                        firstName: true, // Исправлено
                         lastName: true, // Исправлено
                     }
                 }
@@ -346,7 +346,7 @@ let RatingsService = RatingsService_1 = class RatingsService {
                     select: {
                         id: true,
                         username: true,
-                        firstName: true,
+                        firstName: true, // Исправлено
                         lastName: true, // Исправлено
                     }
                 }
@@ -365,7 +365,7 @@ let RatingsService = RatingsService_1 = class RatingsService {
                     select: {
                         id: true,
                         username: true,
-                        firstName: true,
+                        firstName: true, // Исправлено
                         lastName: true, // Исправлено
                     }
                 }
@@ -394,7 +394,7 @@ let RatingsService = RatingsService_1 = class RatingsService {
                     select: {
                         id: true,
                         username: true,
-                        firstName: true,
+                        firstName: true, // Исправлено
                         lastName: true, // Исправлено
                     }
                 }
@@ -431,8 +431,8 @@ let RatingsService = RatingsService_1 = class RatingsService {
         };
     }
 };
-RatingsService = RatingsService_1 = __decorate([
+exports.RatingsService = RatingsService;
+exports.RatingsService = RatingsService = RatingsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], RatingsService);
-exports.RatingsService = RatingsService;

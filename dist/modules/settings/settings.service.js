@@ -50,7 +50,7 @@ let SettingsService = SettingsService_1 = class SettingsService {
                     sport: {
                         select: {
                             id: true,
-                            title: true,
+                            title: true, // Исправляем с name на title
                             slug: true,
                             emoji: true,
                         }
@@ -114,7 +114,7 @@ let SettingsService = SettingsService_1 = class SettingsService {
                     sport: {
                         select: {
                             id: true,
-                            title: true,
+                            title: true, // Исправляем с name на title
                             slug: true,
                             emoji: true,
                         }
@@ -163,7 +163,7 @@ let SettingsService = SettingsService_1 = class SettingsService {
                     sport: {
                         select: {
                             id: true,
-                            title: true,
+                            title: true, // Исправляем с name на title
                             slug: true,
                             emoji: true,
                         }
@@ -340,8 +340,8 @@ let SettingsService = SettingsService_1 = class SettingsService {
         };
     }
 };
-SettingsService = SettingsService_1 = __decorate([
+exports.SettingsService = SettingsService;
+exports.SettingsService = SettingsService = SettingsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], SettingsService);
-exports.SettingsService = SettingsService;

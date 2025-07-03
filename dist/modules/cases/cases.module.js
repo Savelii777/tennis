@@ -20,11 +20,12 @@ const users_module_1 = require("../users/users.module");
 const auth_module_1 = require("../auth/auth.module");
 let CasesModule = class CasesModule {
 };
-CasesModule = __decorate([
+exports.CasesModule = CasesModule;
+exports.CasesModule = CasesModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule,
-            (0, common_1.forwardRef)(() => users_module_1.UsersModule),
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Оборачиваем в forwardRef
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule) // Оборачиваем в forwardRef
         ],
         controllers: [cases_controller_1.CasesController, admin_cases_controller_1.AdminCasesController],
@@ -38,4 +39,3 @@ CasesModule = __decorate([
         exports: [cases_service_1.CasesService, case_opening_service_1.CaseOpeningService],
     })
 ], CasesModule);
-exports.CasesModule = CasesModule;

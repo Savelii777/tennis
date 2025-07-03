@@ -16,17 +16,19 @@ const auth_module_1 = require("../auth/auth.module");
 const users_module_1 = require("../users/users.module");
 const achievements_module_1 = require("../achievements/achievements.module");
 const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем
+const match_feedback_controller_1 = require("./presentation/controllers/match-feedback.controller");
 let MatchesModule = class MatchesModule {
 };
-MatchesModule = __decorate([
+exports.MatchesModule = MatchesModule;
+exports.MatchesModule = MatchesModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Добавляем forwardRef
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             (0, common_1.forwardRef)(() => achievements_module_1.AchievementsModule),
             (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule), // Добавляем
         ],
-        controllers: [matches_controller_1.MatchesController],
+        controllers: [matches_controller_1.MatchesController, match_feedback_controller_1.MatchFeedbackController],
         providers: [
             matches_service_1.MatchesService,
             matches_repository_1.MatchesRepository,
@@ -35,4 +37,3 @@ MatchesModule = __decorate([
         exports: [matches_service_1.MatchesService],
     })
 ], MatchesModule);
-exports.MatchesModule = MatchesModule;

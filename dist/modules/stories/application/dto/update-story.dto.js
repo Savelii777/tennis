@@ -15,10 +15,10 @@ const class_validator_1 = require("class-validator");
 const story_status_enum_1 = require("../../domain/enums/story-status.enum");
 class UpdateStoryDto {
 }
+exports.UpdateStoryDto = UpdateStoryDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ enum: story_status_enum_1.StoryStatus }),
     (0, class_validator_1.IsEnum)(story_status_enum_1.StoryStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateStoryDto.prototype, "status", void 0);
-exports.UpdateStoryDto = UpdateStoryDto;

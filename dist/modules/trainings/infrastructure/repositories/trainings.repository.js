@@ -130,8 +130,8 @@ let TrainingsRepository = class TrainingsRepository {
                 maxSlots: dto.maxSlots,
                 paymentType: dto.paymentType,
                 pricePerPerson: dto.pricePerPerson,
-                dateTime: trainingDateTime,
-                endTime: trainingEndTime,
+                dateTime: trainingDateTime, // Use the transformed date
+                endTime: trainingEndTime, // Use the transformed end date
                 status: 'OPEN',
                 trainingType: dto.trainingType,
                 participants: {
@@ -312,8 +312,8 @@ let TrainingsRepository = class TrainingsRepository {
         };
     }
 };
-TrainingsRepository = __decorate([
+exports.TrainingsRepository = TrainingsRepository;
+exports.TrainingsRepository = TrainingsRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], TrainingsRepository);
-exports.TrainingsRepository = TrainingsRepository;

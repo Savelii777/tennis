@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class ProfileStepTwoDto {
 }
+exports.ProfileStepTwoDto = ProfileStepTwoDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: ['ONE_HANDED', 'TWO_HANDED'] }),
     (0, class_validator_1.IsEnum)(['ONE_HANDED', 'TWO_HANDED']),
@@ -56,4 +57,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], ProfileStepTwoDto.prototype, "selfAssessedLevel", void 0);
-exports.ProfileStepTwoDto = ProfileStepTwoDto;

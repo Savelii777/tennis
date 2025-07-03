@@ -334,8 +334,8 @@ let UsersRepository = class UsersRepository {
         return user;
     }
 };
-UsersRepository = __decorate([
+exports.UsersRepository = UsersRepository;
+exports.UsersRepository = UsersRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], UsersRepository);
-exports.UsersRepository = UsersRepository;

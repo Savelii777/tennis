@@ -77,8 +77,8 @@ let MatchesRepository = class MatchesRepository {
         });
     }
 };
-MatchesRepository = __decorate([
+exports.MatchesRepository = MatchesRepository;
+exports.MatchesRepository = MatchesRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], MatchesRepository);
-exports.MatchesRepository = MatchesRepository;

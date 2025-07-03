@@ -16,7 +16,8 @@ const telegram_module_1 = require("../telegram/telegram.module");
 const auth_module_1 = require("../auth/auth.module");
 let NotificationsModule = class NotificationsModule {
 };
-NotificationsModule = __decorate([
+exports.NotificationsModule = NotificationsModule;
+exports.NotificationsModule = NotificationsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
@@ -27,4 +28,3 @@ NotificationsModule = __decorate([
         exports: [notifications_service_1.NotificationsService],
     })
 ], NotificationsModule);
-exports.NotificationsModule = NotificationsModule;

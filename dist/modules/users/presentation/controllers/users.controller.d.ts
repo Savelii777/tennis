@@ -1,4 +1,3 @@
-/// <reference types="multer" />
 import { UsersService } from '../../application/services/users.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { ProfileStepOneDto } from '../dto/profile-step-one.dto';

@@ -14,7 +14,8 @@ const prisma_service_1 = require("../../prisma/prisma.service");
 const auth_module_1 = require("../auth/auth.module"); // Добавляем импорт
 let RatingsModule = class RatingsModule {
 };
-RatingsModule = __decorate([
+exports.RatingsModule = RatingsModule;
+exports.RatingsModule = RatingsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Добавляем AuthModule для поддержки AuthGuard
@@ -24,4 +25,3 @@ RatingsModule = __decorate([
         exports: [ratings_service_1.RatingsService],
     })
 ], RatingsModule);
-exports.RatingsModule = RatingsModule;

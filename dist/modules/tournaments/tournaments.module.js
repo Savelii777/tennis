@@ -16,10 +16,11 @@ const users_module_1 = require("../users/users.module");
 const auth_module_1 = require("../auth/auth.module");
 let TournamentsModule = class TournamentsModule {
 };
-TournamentsModule = __decorate([
+exports.TournamentsModule = TournamentsModule;
+exports.TournamentsModule = TournamentsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            (0, common_1.forwardRef)(() => users_module_1.UsersModule),
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Использовать forwardRef
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Также для AuthModule
         ],
         controllers: [tournaments_controller_1.TournamentsController],
@@ -27,4 +28,3 @@ TournamentsModule = __decorate([
         exports: [tournaments_service_1.TournamentsService],
     })
 ], TournamentsModule);
-exports.TournamentsModule = TournamentsModule;

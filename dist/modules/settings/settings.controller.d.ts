@@ -17,11 +17,11 @@ export declare class SettingsController {
         enabled: boolean;
     }): Promise<any>;
     getOpponentPreferences(req: RequestWithUser): Promise<{
-        preferredGender?: string | undefined;
-        preferredAgeMin?: number | undefined;
-        preferredAgeMax?: number | undefined;
-        preferredLevelMin?: number | undefined;
-        preferredLevelMax?: number | undefined;
+        preferredGender?: string;
+        preferredAgeMin?: number;
+        preferredAgeMax?: number;
+        preferredLevelMin?: number;
+        preferredLevelMax?: number;
     }>;
 }
 export {};

@@ -26,7 +26,7 @@ var AchievementCode;
     AchievementCode["CONFIDENCE_GROWS"] = "confidence_grows";
     AchievementCode["STABLE_WINNER"] = "stable_winner";
     AchievementCode["WINNING_STREAK"] = "winning_streak";
-})(AchievementCode = exports.AchievementCode || (exports.AchievementCode = {}));
+})(AchievementCode || (exports.AchievementCode = AchievementCode = {}));
 let AchievementsService = AchievementsService_1 = class AchievementsService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -279,8 +279,8 @@ let AchievementsService = AchievementsService_1 = class AchievementsService {
         });
     }
 };
-AchievementsService = AchievementsService_1 = __decorate([
+exports.AchievementsService = AchievementsService;
+exports.AchievementsService = AchievementsService = AchievementsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], AchievementsService);
-exports.AchievementsService = AchievementsService;

@@ -3,9 +3,23 @@ import { AchievementCode } from '../../domain/enums/achievement-codes.enum';
 export declare class AchievementsRepository {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    getUserAchievements(userId: string): Promise<import(".prisma/client").UserAchievement[]>;
+    getUserAchievements(userId: string): Promise<{
+        id: number;
+        createdAt: Date;
+        userId: number;
+        code: string;
+        awardedAt: Date;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
+    }[]>;
     hasAchievement(userId: string, code: AchievementCode): Promise<boolean>;
-    awardAchievement(userId: string, code: AchievementCode, metadata?: any): Promise<import(".prisma/client").UserAchievement>;
+    awardAchievement(userId: string, code: AchievementCode, metadata?: any): Promise<{
+        id: number;
+        createdAt: Date;
+        userId: number;
+        code: string;
+        awardedAt: Date;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
     getUserStats(userId: string): Promise<{
         matchesPlayed: number;
         matchWins: number;

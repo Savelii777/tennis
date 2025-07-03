@@ -29,6 +29,7 @@ let MediaController = class MediaController {
         return this.usersService.updateAvatar(req.user.id.toString(), file.filename);
     }
 };
+exports.MediaController = MediaController;
 __decorate([
     (0, common_1.Post)('avatar'),
     (0, swagger_1.ApiOperation)({ summary: 'Upload user avatar' }),
@@ -71,10 +72,9 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], MediaController.prototype, "uploadAvatar", null);
-MediaController = __decorate([
+exports.MediaController = MediaController = __decorate([
     (0, swagger_1.ApiTags)('media'),
     (0, common_1.Controller)('media'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:paramtypes", [users_service_1.UsersService])
 ], MediaController);
-exports.MediaController = MediaController;

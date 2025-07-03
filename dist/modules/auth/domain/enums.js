@@ -6,4 +6,4 @@ var AuthStatus;
     AuthStatus["SUCCESS"] = "success";
     AuthStatus["FAILURE"] = "failure";
     AuthStatus["PENDING"] = "pending";
-})(AuthStatus = exports.AuthStatus || (exports.AuthStatus = {}));
+})(AuthStatus || (exports.AuthStatus = AuthStatus = {}));

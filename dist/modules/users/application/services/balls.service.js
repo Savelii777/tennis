@@ -89,8 +89,8 @@ let BallsService = class BallsService {
         });
     }
 };
-BallsService = __decorate([
+exports.BallsService = BallsService;
+exports.BallsService = BallsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], BallsService);
-exports.BallsService = BallsService;

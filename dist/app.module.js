@@ -27,7 +27,8 @@ const ratings_module_1 = require("./modules/ratings/ratings.module"); // Доб�
 const settings_module_1 = require("./modules/settings/settings.module");
 let AppModule = class AppModule {
 };
-AppModule = __decorate([
+exports.AppModule = AppModule;
+exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({
@@ -35,7 +36,7 @@ AppModule = __decorate([
             }),
             shared_module_1.SharedModule,
             achievements_module_1.AchievementsModule,
-            ratings_module_1.RatingsModule,
+            ratings_module_1.RatingsModule, // Добавляем
             settings_module_1.SettingsModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
@@ -52,4 +53,3 @@ AppModule = __decorate([
         ],
     })
 ], AppModule);
-exports.AppModule = AppModule;

@@ -31,14 +31,45 @@ export declare class ReferralsService {
     /**
      * Поиск пользователя по реферальному коду
      */
-    findUserByReferralCode(code: string): Promise<import(".prisma/client").User | null>;
+    findUserByReferralCode(code: string): Promise<{
+        id: number;
+        username: string;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import(".prisma/client").$Enums.Role;
+        firstName: string;
+        lastName: string | null;
+        countryCode: string | null;
+        telegramId: string;
+        isVerified: boolean;
+        cityId: number | null;
+        sportId: number | null;
+        authSource: import(".prisma/client").$Enums.AuthSource;
+        lastLogin: Date | null;
+        ballsBalance: number;
+        casesOpened: number;
+        telegramChatId: bigint | null;
+        referralCode: string | null;
+        referredBy: number | null;
+    } | null>;
     /**
      * Создание реферальной связи между пользователями
      */
     createReferral(data: {
         referrerId: any;
         referredId: any;
-    }): Promise<import(".prisma/client").ReferralActivity>;
+    }): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        referrerId: number;
+        invitedUserId: number;
+        registeredAt: Date;
+        firstMatchAt: Date | null;
+        isActive: boolean;
+        inviteSource: string | null;
+        ipAddress: string | null;
+    }>;
     private generateReferralCode;
     private updateReferrerStats;
     private checkAchievements;

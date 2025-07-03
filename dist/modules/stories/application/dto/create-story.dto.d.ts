@@ -1,6 +1,6 @@
-import { MediaType } from '../../domain/enums/media-type.enum';
+import { MediaType } from '@prisma/client';
 export declare class CreateStoryDto {
     telegramFileId: string;
     type: MediaType;
-    telegramFilePath?: string;
+    caption?: string;
 }

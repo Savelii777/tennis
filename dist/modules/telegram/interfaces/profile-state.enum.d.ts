@@ -1,4 +1,4 @@
-export declare enum ProfileStep {
+declare enum ProfileStep {
     IDLE = "idle",
     AWAITING_FIRST_NAME = "awaiting_first_name",
     AWAITING_LAST_NAME = "awaiting_last_name",
@@ -26,7 +26,7 @@ export declare enum ProfileStep {
     AWAITING_MATCH_DATE = "awaiting_match_date",
     AWAITING_MATCH_TYPE = "awaiting_match_type",
     UPLOADING_STORY = "uploading_story",
-    AWAITING_STORY_DESCRIPTION = "awaiting_story_description",
+    AWAITING_STORY_DESCRIPTION = "awaiting_story_description",// Исправлено на нижний регистр
     AWAITING_STORY_MEDIA = "awaiting_story_media",
     CREATING_TRAINING = "creating_training",
     AWAITING_TRAINING_TITLE = "awaiting_training_title",
@@ -39,8 +39,9 @@ export declare enum ProfileStep {
     AI_CONSULTATION = "ai_consultation",
     AWAITING_AI_QUESTION = "awaiting_ai_question"
 }
-export interface UserState {
+interface UserState {
     step: ProfileStep;
+    page?: string;
     data: {
         firstName?: string;
         lastName?: string;
@@ -50,12 +51,28 @@ export interface UserState {
         weeklyPlayFrequency?: 'ONCE' | 'TWICE' | 'THREE_TIMES' | 'FOUR_PLUS';
         playsInTournaments?: boolean;
         selfAssessedLevel?: 'BEGINNER' | 'AMATEUR' | 'CONFIDENT' | 'TOURNAMENT' | 'SEMI_PRO';
+        birthDate?: string;
+        phoneNumber?: string;
+        email?: string;
+        username?: string;
+        password?: string;
         preferredPlayTime?: string[];
+        fileId?: string;
+        fileType?: string;
+        storyMediaId?: string;
+        storyDescription?: string;
+        storyType?: 'PHOTO' | 'VIDEO';
+        matchOpponent?: string;
+        matchOpponentId?: number;
+        matchScore?: string;
+        matchDate?: string;
+        matchType?: 'SINGLES' | 'DOUBLES';
+        matchResult?: 'WIN' | 'LOSS';
+        requestType?: 'SINGLES' | 'DOUBLES' | 'MIXED';
         requestDateTime?: string;
         requestLocation?: string;
         requestLevel?: string;
         requestDescription?: string;
-        requestType?: 'SINGLES' | 'DOUBLES' | 'MIXED';
         tournamentName?: string;
         tournamentDescription?: string;
         tournamentStartDate?: string;
@@ -63,14 +80,6 @@ export interface UserState {
         tournamentMaxParticipants?: number;
         tournamentFormat?: string;
         tournamentEntryFee?: number;
-        matchOpponent?: string;
-        matchScore?: string;
-        matchDate?: string;
-        matchType?: 'SINGLES' | 'DOUBLES';
-        matchResult?: 'WIN' | 'LOSS';
-        storyMediaId?: string;
-        storyDescription?: string;
-        storyType?: 'PHOTO' | 'VIDEO';
         trainingTitle?: string;
         trainingDateTime?: string;
         trainingLocation?: string;
@@ -87,3 +96,4 @@ export interface UserState {
         lastMessageId?: number;
     };
 }
+export { ProfileStep, UserState };

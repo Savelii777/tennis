@@ -63,9 +63,9 @@ let AuthGuard = class AuthGuard {
         return type === 'Bearer' ? token : undefined;
     }
 };
-AuthGuard = __decorate([
+exports.AuthGuard = AuthGuard;
+exports.AuthGuard = AuthGuard = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService])
 ], AuthGuard);
-exports.AuthGuard = AuthGuard;

@@ -7,13 +7,19 @@ export interface SearchCitiesParams {
 export declare class LocationsService {
     private readonly locationsRepository;
     constructor(locationsRepository: LocationsRepository);
-    getAllCountries(): Promise<(import(".prisma/client").Country & {
+    getAllCountries(): Promise<({
         _count: {
             users: number;
             cities: number;
         };
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        code: string;
+        flagUrl: string | null;
     })[]>;
-    searchCities(params: SearchCitiesParams): Promise<(import(".prisma/client").City & {
+    searchCities(params: SearchCitiesParams): Promise<({
         country: {
             name: string;
             code: string;
@@ -22,8 +28,17 @@ export declare class LocationsService {
         _count: {
             users: number;
         };
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        countryCode: string;
+        timezone: string | null;
+        population: number;
+        lat: number;
+        lng: number;
     })[]>;
-    getPopularCities(countryCode: string): Promise<(import(".prisma/client").City & {
+    getPopularCities(countryCode: string): Promise<({
         country: {
             name: string;
             code: string;
@@ -32,13 +47,29 @@ export declare class LocationsService {
         _count: {
             users: number;
         };
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        countryCode: string;
+        timezone: string | null;
+        population: number;
+        lat: number;
+        lng: number;
     })[]>;
-    getAllSports(): Promise<(import(".prisma/client").Sport & {
+    getAllSports(): Promise<({
         _count: {
             users: number;
         };
+    } & {
+        title: string;
+        id: number;
+        createdAt: Date;
+        emoji: string | null;
+        slug: string;
+        icon: string | null;
     })[]>;
-    getCityById(id: number): Promise<import(".prisma/client").City & {
+    getCityById(id: number): Promise<{
         country: {
             name: string;
             code: string;
@@ -47,8 +78,32 @@ export declare class LocationsService {
         _count: {
             users: number;
         };
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        countryCode: string;
+        timezone: string | null;
+        population: number;
+        lat: number;
+        lng: number;
     }>;
-    getCountryByCode(code: string): Promise<import(".prisma/client").Country & {
-        cities: import(".prisma/client").City[];
+    getCountryByCode(code: string): Promise<{
+        cities: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            countryCode: string;
+            timezone: string | null;
+            population: number;
+            lat: number;
+            lng: number;
+        }[];
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        code: string;
+        flagUrl: string | null;
     }>;
 }

@@ -252,7 +252,8 @@ let AuthService = AuthService_1 = class AuthService {
         }
     }
 };
-AuthService = AuthService_1 = __decorate([
+exports.AuthService = AuthService;
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         telegram_auth_service_1.TelegramAuthService,
@@ -261,4 +262,3 @@ AuthService = AuthService_1 = __decorate([
         settings_service_1.SettingsService,
         ratings_service_1.RatingsService])
 ], AuthService);
-exports.AuthService = AuthService;

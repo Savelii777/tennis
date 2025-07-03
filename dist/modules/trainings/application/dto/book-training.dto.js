@@ -14,10 +14,10 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class BookTrainingDto {
 }
+exports.BookTrainingDto = BookTrainingDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Комментарий к бронированию' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], BookTrainingDto.prototype, "comment", void 0);
-exports.BookTrainingDto = BookTrainingDto;

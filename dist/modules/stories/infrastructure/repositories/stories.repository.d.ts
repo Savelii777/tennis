@@ -1,17 +1,269 @@
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { StoryEntity } from '../../domain/entities/story.entity';
-import { ICreateStoryData } from '../../domain/interfaces/story.interface';
-import { StoryStatus } from '../../domain/enums/story-status.enum';
+import { StoryStatus, MediaType } from '@prisma/client';
 export declare class StoriesRepository {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    create(data: ICreateStoryData): Promise<StoryEntity>;
-    findById(id: number): Promise<StoryEntity | null>;
-    findPublic(limit?: number): Promise<StoryEntity[]>;
-    findByUserId(userId: number): Promise<StoryEntity[]>;
-    findPendingForModeration(): Promise<StoryEntity[]>;
-    updateStatus(id: number, status: StoryStatus): Promise<StoryEntity>;
-    updateFilePath(id: number, filePath: string): Promise<StoryEntity>;
-    delete(id: number): Promise<void>;
-    private mapToEntity;
+    create(data: {
+        userId: number;
+        telegramFileId: string;
+        type: MediaType;
+        caption?: string;
+        status: StoryStatus;
+    }): Promise<{
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    }>;
+    findById(id: number): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    }) | null>;
+    findPublic(limit?: number): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    })[]>;
+    findPublicGroupedByUser(): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    })[]>;
+    findPopular(limit?: number): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    })[]>;
+    findRecent(limit?: number): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    })[]>;
+    findByUserId(userId: number): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    })[]>;
+    findPending(): Promise<({
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    })[]>;
+    updateStatus(id: number, status: StoryStatus, publishedAt?: Date): Promise<{
+        user: {
+            id: number;
+            username: string;
+            profile: {
+                avatarUrl: string | null;
+            } | null;
+            firstName: string;
+            lastName: string | null;
+        };
+    } & {
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    }>;
+    updateFilePath(id: number, telegramFilePath: string): Promise<{
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    }>;
+    incrementViews(id: number): Promise<{
+        type: import(".prisma/client").$Enums.MediaType;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        telegramFileId: string;
+        telegramFilePath: string | null;
+        caption: string | null;
+        status: import(".prisma/client").$Enums.StoryStatus;
+        viewsCount: number;
+        likesCount: number;
+        expiresAt: Date | null;
+        publishedAt: Date | null;
+    } | null>;
+    private hasViewsCountField;
+    private hasExpiresAtField;
 }

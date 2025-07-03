@@ -43,4 +43,4 @@ var AchievementCode;
     AchievementCode["EASTER_EGG"] = "easter_egg";
     AchievementCode["DEFEATED_STRONG"] = "defeated_strong";
     AchievementCode["UNSTOPPABLE"] = "unstoppable";
-})(AchievementCode = exports.AchievementCode || (exports.AchievementCode = {}));
+})(AchievementCode || (exports.AchievementCode = AchievementCode = {}));

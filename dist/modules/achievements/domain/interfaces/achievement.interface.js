@@ -10,7 +10,7 @@ var AchievementCategory;
     AchievementCategory["SOCIAL"] = "social";
     AchievementCategory["SKILLS"] = "skills";
     AchievementCategory["SPECIAL"] = "special";
-})(AchievementCategory = exports.AchievementCategory || (exports.AchievementCategory = {}));
+})(AchievementCategory || (exports.AchievementCategory = AchievementCategory = {}));
 var AchievementEventType;
 (function (AchievementEventType) {
     AchievementEventType["REGISTRATION_COMPLETED"] = "registration_completed";
@@ -21,4 +21,4 @@ var AchievementEventType;
     AchievementEventType["MESSAGE_SENT"] = "message_sent";
     AchievementEventType["REFERRAL_REGISTERED"] = "referral_registered";
     AchievementEventType["LOGIN"] = "login";
-})(AchievementEventType = exports.AchievementEventType || (exports.AchievementEventType = {}));
+})(AchievementEventType || (exports.AchievementEventType = AchievementEventType = {}));

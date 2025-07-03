@@ -2,48 +2,256 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class ReferralsRepository {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    findUserById(id: number): Promise<(import(".prisma/client").User & {
-        referralStats: import(".prisma/client").ReferralStats | null;
+    findUserById(id: number): Promise<({
+        referralStats: {
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: number;
+            totalInvited: number;
+            activeInvited: number;
+            registeredToday: number;
+            registeredThisWeek: number;
+            registeredThisMonth: number;
+            achievementsEarned: string[];
+            bonusPointsEarned: number;
+        } | null;
+    } & {
+        id: number;
+        username: string;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import(".prisma/client").$Enums.Role;
+        firstName: string;
+        lastName: string | null;
+        countryCode: string | null;
+        telegramId: string;
+        isVerified: boolean;
+        cityId: number | null;
+        sportId: number | null;
+        authSource: import(".prisma/client").$Enums.AuthSource;
+        lastLogin: Date | null;
+        ballsBalance: number;
+        casesOpened: number;
+        telegramChatId: bigint | null;
+        referralCode: string | null;
+        referredBy: number | null;
     }) | null>;
     findUserByReferralCode(referralCode: string): Promise<{
+        id: number;
         username: string;
         firstName: string;
         lastName: string | null;
         referralCode: string | null;
-        id: number;
     } | null>;
-    updateUserReferralCode(userId: number, referralCode: string): Promise<import(".prisma/client").User & {
-        referralStats: import(".prisma/client").ReferralStats | null;
-    }>;
-    createUserWithReferrer(userData: any): Promise<import(".prisma/client").User & {
-        profile: import(".prisma/client").UserProfile | null;
-        referrer: {
-            username: string;
-            firstName: string;
+    updateUserReferralCode(userId: number, referralCode: string): Promise<{
+        referralStats: {
             id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: number;
+            totalInvited: number;
+            activeInvited: number;
+            registeredToday: number;
+            registeredThisWeek: number;
+            registeredThisMonth: number;
+            achievementsEarned: string[];
+            bonusPointsEarned: number;
         } | null;
+    } & {
+        id: number;
+        username: string;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import(".prisma/client").$Enums.Role;
+        firstName: string;
+        lastName: string | null;
+        countryCode: string | null;
+        telegramId: string;
+        isVerified: boolean;
+        cityId: number | null;
+        sportId: number | null;
+        authSource: import(".prisma/client").$Enums.AuthSource;
+        lastLogin: Date | null;
+        ballsBalance: number;
+        casesOpened: number;
+        telegramChatId: bigint | null;
+        referralCode: string | null;
+        referredBy: number | null;
     }>;
-    createReferralActivity(data: any): Promise<import(".prisma/client").ReferralActivity>;
-    updateReferralActivity(id: number, data: any): Promise<import(".prisma/client").ReferralActivity>;
-    findReferralActivityByUser(userId: number): Promise<import(".prisma/client").ReferralActivity | null>;
-    getReferralStats(userId: number): Promise<import(".prisma/client").ReferralStats | null>;
-    updateReferralStats(userId: number, data: any): Promise<import(".prisma/client").ReferralStats>;
-    getUserReferrals(userId: number): Promise<(import(".prisma/client").ReferralActivity & {
+    createUserWithReferrer(userData: any): Promise<{
+        profile: {
+            id: number;
+            city: string | null;
+            achievements: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            avatarUrl: string | null;
+            countryCode: string | null;
+            ntrpRating: number | null;
+            isPublicProfile: boolean;
+            ratingPoints: number;
+            matchesPlayed: number;
+            matchWins: number;
+            matchLosses: number;
+            tournamentsPlayed: number;
+            tournamentsWon: number;
+            lastActivity: Date | null;
+            preferredCourt: string | null;
+            dominantHand: string | null;
+            preferredPlayTime: string[];
+            playsInTournaments: boolean;
+            weeklyPlayFrequency: string | null;
+            backhandType: string | null;
+            preferredSurface: string | null;
+            playingStyle: string | null;
+            favoriteShot: string | null;
+            racket: string | null;
+            opponentPreference: string | null;
+            initialRatingPoints: number | null;
+            selfAssessedLevel: string | null;
+            profileStepOneCompleted: boolean;
+            profileStepTwoCompleted: boolean;
+            userId: number;
+        } | null;
+        referrer: {
+            id: number;
+            username: string;
+            firstName: string;
+        } | null;
+    } & {
+        id: number;
+        username: string;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import(".prisma/client").$Enums.Role;
+        firstName: string;
+        lastName: string | null;
+        countryCode: string | null;
+        telegramId: string;
+        isVerified: boolean;
+        cityId: number | null;
+        sportId: number | null;
+        authSource: import(".prisma/client").$Enums.AuthSource;
+        lastLogin: Date | null;
+        ballsBalance: number;
+        casesOpened: number;
+        telegramChatId: bigint | null;
+        referralCode: string | null;
+        referredBy: number | null;
+    }>;
+    createReferralActivity(data: any): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        referrerId: number;
+        invitedUserId: number;
+        registeredAt: Date;
+        firstMatchAt: Date | null;
+        isActive: boolean;
+        inviteSource: string | null;
+        ipAddress: string | null;
+    }>;
+    updateReferralActivity(id: number, data: any): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        referrerId: number;
+        invitedUserId: number;
+        registeredAt: Date;
+        firstMatchAt: Date | null;
+        isActive: boolean;
+        inviteSource: string | null;
+        ipAddress: string | null;
+    }>;
+    findReferralActivityByUser(userId: number): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        referrerId: number;
+        invitedUserId: number;
+        registeredAt: Date;
+        firstMatchAt: Date | null;
+        isActive: boolean;
+        inviteSource: string | null;
+        ipAddress: string | null;
+    } | null>;
+    getReferralStats(userId: number): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        totalInvited: number;
+        activeInvited: number;
+        registeredToday: number;
+        registeredThisWeek: number;
+        registeredThisMonth: number;
+        achievementsEarned: string[];
+        bonusPointsEarned: number;
+    } | null>;
+    updateReferralStats(userId: number, data: any): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        totalInvited: number;
+        activeInvited: number;
+        registeredToday: number;
+        registeredThisWeek: number;
+        registeredThisMonth: number;
+        achievementsEarned: string[];
+        bonusPointsEarned: number;
+    }>;
+    getUserReferrals(userId: number): Promise<({
         invitedUser: {
+            id: number;
             username: string;
             firstName: string;
             lastName: string | null;
-            id: number;
         };
+    } & {
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        referrerId: number;
+        invitedUserId: number;
+        registeredAt: Date;
+        firstMatchAt: Date | null;
+        isActive: boolean;
+        inviteSource: string | null;
+        ipAddress: string | null;
     })[]>;
-    getReferralActivity(userId: number): Promise<import(".prisma/client").ReferralActivity[]>;
-    getTopReferrers(limit: number): Promise<(import(".prisma/client").ReferralStats & {
+    getReferralActivity(userId: number): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        referrerId: number;
+        invitedUserId: number;
+        registeredAt: Date;
+        firstMatchAt: Date | null;
+        isActive: boolean;
+        inviteSource: string | null;
+        ipAddress: string | null;
+    }[]>;
+    getTopReferrers(limit: number): Promise<({
         user: {
+            id: number;
             username: string;
             firstName: string;
             lastName: string | null;
-            id: number;
         };
+    } & {
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: number;
+        totalInvited: number;
+        activeInvited: number;
+        registeredToday: number;
+        registeredThisWeek: number;
+        registeredThisMonth: number;
+        achievementsEarned: string[];
+        bonusPointsEarned: number;
     })[]>;
     getTotalUsersCount(): Promise<number>;
     getUsersWithReferralsCount(): Promise<number>;

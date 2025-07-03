@@ -16,6 +16,7 @@ const tournament_enum_1 = require("../../domain/enums/tournament.enum");
 const class_transformer_1 = require("class-transformer");
 class UpdateTournamentDto {
 }
+exports.UpdateTournamentDto = UpdateTournamentDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
@@ -78,4 +79,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTournamentDto.prototype, "locationName", void 0);
-exports.UpdateTournamentDto = UpdateTournamentDto;

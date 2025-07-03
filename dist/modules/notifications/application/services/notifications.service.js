@@ -140,10 +140,10 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         }
     }
 };
-NotificationsService = NotificationsService_1 = __decorate([
+exports.NotificationsService = NotificationsService;
+exports.NotificationsService = NotificationsService = NotificationsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [notifications_repository_1.NotificationsRepository,
         telegram_service_1.TelegramService,
         users_service_1.UsersService])
 ], NotificationsService);
-exports.NotificationsService = NotificationsService;

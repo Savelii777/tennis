@@ -140,8 +140,8 @@ let LocationsRepository = class LocationsRepository {
         });
     }
 };
-LocationsRepository = __decorate([
+exports.LocationsRepository = LocationsRepository;
+exports.LocationsRepository = LocationsRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], LocationsRepository);
-exports.LocationsRepository = LocationsRepository;

@@ -25,6 +25,7 @@ let TelegramController = TelegramController_1 = class TelegramController {
         return { ok: true };
     }
 };
+exports.TelegramController = TelegramController;
 __decorate([
     (0, common_1.Post)('webhook'),
     (0, common_1.HttpCode)(200),
@@ -34,8 +35,7 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], TelegramController.prototype, "handleWebhook", null);
-TelegramController = TelegramController_1 = __decorate([
+exports.TelegramController = TelegramController = TelegramController_1 = __decorate([
     (0, common_1.Controller)('telegram'),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], TelegramController);
-exports.TelegramController = TelegramController;

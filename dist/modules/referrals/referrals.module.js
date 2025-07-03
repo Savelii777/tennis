@@ -17,10 +17,11 @@ const auth_module_1 = require("../auth/auth.module");
 const users_module_1 = require("../users/users.module"); // Добавляем при необходимости
 let ReferralsModule = class ReferralsModule {
 };
-ReferralsModule = __decorate([
+exports.ReferralsModule = ReferralsModule;
+exports.ReferralsModule = ReferralsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Оборачиваем в forwardRef
             (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Добавляем при необходимости
         ],
         controllers: [referrals_controller_1.ReferralsController],
@@ -33,4 +34,3 @@ ReferralsModule = __decorate([
         exports: [referrals_service_1.ReferralsService, referral_stats_service_1.ReferralStatsService],
     })
 ], ReferralsModule);
-exports.ReferralsModule = ReferralsModule;

@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateCaseDto {
 }
+exports.CreateCaseDto = CreateCaseDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Название кейса', example: 'Обычный кейс' }),
     (0, class_validator_1.IsString)(),
@@ -42,9 +43,9 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateCaseDto.prototype, "isActive", void 0);
-exports.CreateCaseDto = CreateCaseDto;
 class UpdateCaseDto {
 }
+exports.UpdateCaseDto = UpdateCaseDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Название кейса' }),
     (0, class_validator_1.IsOptional)(),
@@ -76,4 +77,3 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateCaseDto.prototype, "isActive", void 0);
-exports.UpdateCaseDto = UpdateCaseDto;

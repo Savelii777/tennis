@@ -22,7 +22,8 @@ const tournaments_module_1 = require("../tournaments/tournaments.module");
 const stories_module_1 = require("../stories/stories.module");
 let UsersModule = class UsersModule {
 };
-UsersModule = __decorate([
+exports.UsersModule = UsersModule;
+exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
         imports: [
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
@@ -39,4 +40,3 @@ UsersModule = __decorate([
         exports: [users_service_1.UsersService, balls_service_1.BallsService],
     })
 ], UsersModule);
-exports.UsersModule = UsersModule;

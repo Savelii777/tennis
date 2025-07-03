@@ -15,43 +15,103 @@ const common_1 = require("@nestjs/common");
 const stories_repository_1 = require("../../infrastructure/repositories/stories.repository");
 const telegram_file_service_1 = require("../../infrastructure/external/telegram-file.service");
 const telegram_service_1 = require("../../../telegram/telegram.service");
-const story_status_enum_1 = require("../../domain/enums/story-status.enum");
+const client_1 = require("@prisma/client");
+const config_1 = require("@nestjs/config");
 let StoriesService = StoriesService_1 = class StoriesService {
-    constructor(storiesRepository, telegramFileService, telegramService) {
+    constructor(storiesRepository, telegramFileService, telegramService, configService) {
         this.storiesRepository = storiesRepository;
         this.telegramFileService = telegramFileService;
         this.telegramService = telegramService;
+        this.configService = configService;
         this.logger = new common_1.Logger(StoriesService_1.name);
     }
     async createStory(userId, createStoryDto) {
-        const isValidSize = await this.telegramFileService.validateFileSize(createStoryDto.telegramFileId);
-        if (!isValidSize) {
-            throw new common_1.BadRequestException('File size exceeds 50MB limit');
+        try {
+            const story = await this.storiesRepository.create({
+                userId,
+                telegramFileId: createStoryDto.telegramFileId,
+                type: createStoryDto.type,
+                caption: createStoryDto.caption,
+                status: client_1.StoryStatus.pending, // Исправлено с PENDING на pending
+            });
+            this.logger.log(`Story ${story.id} created by user ${userId} and pending approval`);
+            // Уведомляем администраторов о новой сторис на модерацию
+            try {
+                // Получаем ID админов из конфига
+                const adminIds = this.configService.get('ADMIN_IDS', '')?.split(',') || [];
+                // Отправляем уведомления
+                for (const adminId of adminIds) {
+                    await this.telegramService.sendNotification(adminId, `📱 Новая Story на модерацию!\n` +
+                        `ID: ${story.id}\n` +
+                        `Пользователь: ${userId}\n` +
+                        `Тип: ${story.type === client_1.MediaType.image ? 'Фото' : 'Видео'}\n\n` + // Исправлено с IMAGE на image
+                        `Используйте админ-панель для проверки.`).catch(err => this.logger.warn(`Failed to notify admin ${adminId}: ${err}`));
+                }
+            }
+            catch (error) {
+                this.logger.warn(`Failed to notify admins about new story: ${error}`);
+            }
+            return this.mapToResponseDto(story);
         }
-        let telegramFilePath = createStoryDto.telegramFilePath;
-        if (!telegramFilePath) {
-            const fileInfo = await this.telegramFileService.getFile(createStoryDto.telegramFileId);
-            telegramFilePath = fileInfo?.file_path || undefined;
+        catch (error) {
+            this.logger.error(`Error creating story: ${error}`);
+            throw error;
         }
-        const story = await this.storiesRepository.create({
-            userId,
-            telegramFileId: createStoryDto.telegramFileId,
-            telegramFilePath,
-            type: createStoryDto.type,
-        });
-        this.logger.log(`New story created: ${story.id} by user ${userId}`);
-        return this.mapToResponseDto(story);
     }
-    async getPublicStories() {
-        const stories = await this.storiesRepository.findPublic();
+    async getPublicStories(limit = 20) {
+        const stories = await this.storiesRepository.findPublic(limit);
         return stories.map(story => this.mapToResponseDto(story));
     }
     /**
-     * Получить истории пользователя
+     * Получить сторис для отображения в формате "stories" (карусель аватарок)
+     * Группирует по пользователям и возвращает структуру для отображения в UI
      */
+    async getStoriesForCarousel() {
+        const stories = await this.storiesRepository.findPublicGroupedByUser();
+        // Группируем истории по пользователям
+        const userGroups = {};
+        for (const story of stories) {
+            const userId = story.userId.toString();
+            if (!userGroups[userId]) {
+                userGroups[userId] = {
+                    user: {
+                        id: story.user?.id || story.userId,
+                        name: story.user ? `${story.user.firstName} ${story.user.lastName || ''}`.trim() : 'Пользователь',
+                        avatar: story.user?.profile?.avatarUrl || null,
+                    },
+                    stories: []
+                };
+            }
+            // Добавляем историю в группу пользователя с URL для просмотра
+            userGroups[userId].stories.push({
+                id: story.id,
+                type: story.type,
+                fileUrl: `/stories/${story.id}/file`,
+                caption: story.caption || null,
+                publishedAt: story.publishedAt || story.createdAt,
+                viewsCount: story.viewsCount || 0,
+            });
+        }
+        // Преобразуем в массив и сортируем по времени последней истории
+        return Object.values(userGroups).sort((a, b) => {
+            const lastStoryA = new Date(a.stories[a.stories.length - 1].publishedAt).getTime();
+            const lastStoryB = new Date(b.stories[b.stories.length - 1].publishedAt).getTime();
+            return lastStoryB - lastStoryA; // От новых к старым
+        });
+    }
     async getUserStories(userId) {
         const userIdInt = typeof userId === 'string' ? parseInt(userId) : userId;
         const stories = await this.storiesRepository.findByUserId(userIdInt);
+        return stories.map(story => this.mapToResponseDto(story));
+    }
+    // Получение популярных историй
+    async getPopularStories(limit = 10) {
+        const stories = await this.storiesRepository.findPopular(limit);
+        return stories.map(story => this.mapToResponseDto(story));
+    }
+    // Получение недавних историй
+    async getRecentStories(limit = 10) {
+        const stories = await this.storiesRepository.findRecent(limit);
         return stories.map(story => this.mapToResponseDto(story));
     }
     async getStoryById(id) {
@@ -61,29 +121,46 @@ let StoriesService = StoriesService_1 = class StoriesService {
         }
         return this.mapToResponseDto(story);
     }
+    // Обновление просмотров истории
+    async recordView(storyId) {
+        await this.storiesRepository.incrementViews(storyId);
+    }
+    /**
+     * Получение URL файла из Telegram
+     */
     async getFileUrl(storyId) {
         const story = await this.storiesRepository.findById(storyId);
         if (!story) {
             throw new common_1.NotFoundException('Story not found');
         }
-        if (!story.isApproved()) {
-            throw new common_1.BadRequestException('Story is not approved yet');
+        if (story.status !== client_1.StoryStatus.approved) { // Исправлено с APPROVED на approved
+            throw new common_1.BadRequestException('Story is not published');
         }
-        if (!story.telegramFilePath) {
-            const fileInfo = await this.telegramFileService.getFile(story.telegramFileId);
-            if (fileInfo?.file_path) {
-                story.telegramFilePath = fileInfo.file_path;
-                await this.storiesRepository.updateFilePath(story.id, fileInfo.file_path);
-            }
+        // Если путь уже есть, формируем URL
+        if (story.telegramFilePath) {
+            const token = this.configService.get('TELEGRAM_BOT_TOKEN');
+            return {
+                url: `https://api.telegram.org/file/bot${token}/${story.telegramFilePath}`
+            };
         }
-        if (!story.telegramFilePath) {
-            throw new common_1.BadRequestException('Could not get file URL');
+        // Если пути нет, получаем его через Telegram API
+        try {
+            const filePath = await this.telegramFileService.getFilePath(story.telegramFileId);
+            // Сохраняем путь в БД
+            await this.storiesRepository.updateFilePath(storyId, filePath);
+            // Формируем URL
+            const token = this.configService.get('TELEGRAM_BOT_TOKEN');
+            return {
+                url: `https://api.telegram.org/file/bot${token}/${filePath}`
+            };
         }
-        const url = this.telegramFileService.getFileUrl(story.telegramFilePath);
-        return { url };
+        catch (error) {
+            this.logger.error(`Error getting file path for story ${storyId}: ${error}`);
+            throw new common_1.BadRequestException('Could not get file path from Telegram');
+        }
     }
     async getPendingStories() {
-        const stories = await this.storiesRepository.findPendingForModeration();
+        const stories = await this.storiesRepository.findPending();
         return stories.map(story => this.mapToResponseDto(story));
     }
     async approveStory(storyId) {
@@ -91,10 +168,11 @@ let StoriesService = StoriesService_1 = class StoriesService {
         if (!story) {
             throw new common_1.NotFoundException('Story not found');
         }
-        if (!story.isPending()) {
+        if (story.status !== client_1.StoryStatus.pending) { // Исправлено с PENDING на pending
             throw new common_1.BadRequestException('Story is not pending approval');
         }
-        const updatedStory = await this.storiesRepository.updateStatus(storyId, story_status_enum_1.StoryStatus.APPROVED);
+        const updatedStory = await this.storiesRepository.updateStatus(storyId, client_1.StoryStatus.approved, // Исправлено с APPROVED на approved
+        new Date());
         try {
             await this.telegramService.sendNotification(updatedStory.userId, '✅ Ваша story была одобрена и опубликована!');
         }
@@ -110,10 +188,10 @@ let StoriesService = StoriesService_1 = class StoriesService {
         if (!story) {
             throw new common_1.NotFoundException('Story not found');
         }
-        if (!story.isPending()) {
+        if (story.status !== client_1.StoryStatus.pending) { // Исправлено с PENDING на pending
             throw new common_1.BadRequestException('Story is not pending approval');
         }
-        const updatedStory = await this.storiesRepository.updateStatus(storyId, story_status_enum_1.StoryStatus.REJECTED);
+        const updatedStory = await this.storiesRepository.updateStatus(storyId, client_1.StoryStatus.rejected); // Исправлено с REJECTED на rejected
         try {
             await this.telegramService.sendNotification(updatedStory.userId, '❌ Ваша story была отклонена модератором');
         }
@@ -124,36 +202,33 @@ let StoriesService = StoriesService_1 = class StoriesService {
         this.logger.log(`Story ${storyId} rejected`);
         return this.mapToResponseDto(updatedStory);
     }
-    async deleteStory(storyId) {
-        const story = await this.storiesRepository.findById(storyId);
-        if (!story) {
-            throw new common_1.NotFoundException('Story not found');
-        }
-        await this.storiesRepository.delete(storyId);
-        this.logger.log(`Story ${storyId} deleted`);
-    }
     mapToResponseDto(story) {
-        const response = {
+        return {
             id: story.id,
             userId: story.userId,
-            telegramFileId: story.telegramFileId,
-            telegramFilePath: story.telegramFilePath,
+            user: story.user ? {
+                id: story.user.id,
+                firstName: story.user.firstName,
+                lastName: story.user.lastName,
+                username: story.user.username,
+                avatar: story.user.profile?.avatarUrl
+            } : undefined,
             type: story.type,
             status: story.status,
+            caption: story.caption || null,
+            viewsCount: story.viewsCount || 0,
+            likesCount: story.likesCount || 0,
             createdAt: story.createdAt,
             publishedAt: story.publishedAt,
+            fileUrl: story.id ? `/stories/${story.id}/file` : undefined, // Исправлено с null на undefined
         };
-        if (story.isApproved() && story.telegramFilePath) {
-            const fileUrl = story.getFileUrl(this.telegramFileService.getBotToken());
-            response.fileUrl = fileUrl || undefined;
-        }
-        return response;
     }
 };
-StoriesService = StoriesService_1 = __decorate([
+exports.StoriesService = StoriesService;
+exports.StoriesService = StoriesService = StoriesService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [stories_repository_1.StoriesRepository,
         telegram_file_service_1.TelegramFileService,
-        telegram_service_1.TelegramService])
+        telegram_service_1.TelegramService,
+        config_1.ConfigService])
 ], StoriesService);
-exports.StoriesService = StoriesService;

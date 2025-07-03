@@ -54,7 +54,7 @@ let LocalizationService = class LocalizationService {
         return Object.keys(this.locales);
     }
 };
-LocalizationService = __decorate([
+exports.LocalizationService = LocalizationService;
+exports.LocalizationService = LocalizationService = __decorate([
     (0, common_1.Injectable)()
 ], LocalizationService);
-exports.LocalizationService = LocalizationService;

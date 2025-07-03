@@ -228,8 +228,8 @@ let AchievementDefinitionsService = class AchievementDefinitionsService {
             .filter(def => def.category === category);
     }
 };
-AchievementDefinitionsService = __decorate([
+exports.AchievementDefinitionsService = AchievementDefinitionsService;
+exports.AchievementDefinitionsService = AchievementDefinitionsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [])
 ], AchievementDefinitionsService);
-exports.AchievementDefinitionsService = AchievementDefinitionsService;

@@ -8,21 +8,21 @@ var TrainingType;
     TrainingType["TIEBREAK"] = "TIEBREAK";
     TrainingType["SPARRING"] = "SPARRING";
     TrainingType["TECHNIQUE"] = "TECHNIQUE";
-})(TrainingType = exports.TrainingType || (exports.TrainingType = {}));
+})(TrainingType || (exports.TrainingType = TrainingType = {}));
 var TrainingState;
 (function (TrainingState) {
     TrainingState["OPEN"] = "OPEN";
     TrainingState["FULL"] = "FULL";
     TrainingState["CANCELLED"] = "CANCELLED";
     TrainingState["DONE"] = "DONE";
-})(TrainingState = exports.TrainingState || (exports.TrainingState = {}));
+})(TrainingState || (exports.TrainingState = TrainingState = {}));
 var CourtSurface;
 (function (CourtSurface) {
     CourtSurface["HARD"] = "HARD";
     CourtSurface["CLAY"] = "CLAY";
     CourtSurface["GRASS"] = "GRASS";
     CourtSurface["CARPET"] = "CARPET";
-})(CourtSurface = exports.CourtSurface || (exports.CourtSurface = {}));
+})(CourtSurface || (exports.CourtSurface = CourtSurface = {}));
 var PaymentType;
 (function (PaymentType) {
     PaymentType["FREE"] = "FREE";
@@ -30,4 +30,4 @@ var PaymentType;
     PaymentType["LOSER_PAYS"] = "LOSER_PAYS";
     PaymentType["DIVIDED"] = "DIVIDED";
     PaymentType["FIXED_PRICE"] = "FIXED_PRICE";
-})(PaymentType = exports.PaymentType || (exports.PaymentType = {}));
+})(PaymentType || (exports.PaymentType = PaymentType = {}));

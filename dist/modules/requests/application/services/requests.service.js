@@ -61,8 +61,8 @@ let RequestsService = class RequestsService {
         return this.requestsRepository.updateResponseStatus(responseId, request_type_enum_1.ResponseStatus.DECLINED);
     }
 };
-RequestsService = __decorate([
+exports.RequestsService = RequestsService;
+exports.RequestsService = RequestsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [requests_repository_1.RequestsRepository])
 ], RequestsService);
-exports.RequestsService = RequestsService;

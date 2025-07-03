@@ -24,6 +24,7 @@ let UserProfileEntity = class UserProfileEntity {
         return ((this.match_wins / this.matches_played) * 100).toFixed(1);
     }
 };
+exports.UserProfileEntity = UserProfileEntity;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
@@ -94,8 +95,7 @@ __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
 ], UserProfileEntity.prototype, "is_public_profile", void 0);
-UserProfileEntity = __decorate([
+exports.UserProfileEntity = UserProfileEntity = __decorate([
     (0, typeorm_1.Entity)(),
     __metadata("design:paramtypes", [Object])
 ], UserProfileEntity);
-exports.UserProfileEntity = UserProfileEntity;

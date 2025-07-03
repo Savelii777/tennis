@@ -28,7 +28,7 @@ let ValidationPipe = class ValidationPipe {
         return !types.includes(metatype);
     }
 };
-ValidationPipe = __decorate([
+exports.ValidationPipe = ValidationPipe;
+exports.ValidationPipe = ValidationPipe = __decorate([
     (0, common_1.Injectable)()
 ], ValidationPipe);
-exports.ValidationPipe = ValidationPipe;

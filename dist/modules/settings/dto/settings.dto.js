@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpdateSettingsDto {
 }
+exports.UpdateSettingsDto = UpdateSettingsDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Язык интерфейса', enum: ['ru', 'en'] }),
     (0, class_validator_1.IsOptional)(),
@@ -152,18 +153,18 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateSettingsDto.prototype, "telegramChatId", void 0);
-exports.UpdateSettingsDto = UpdateSettingsDto;
 class LanguageDto {
 }
+exports.LanguageDto = LanguageDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Язык интерфейса', enum: ['ru', 'en'] }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsIn)(['ru', 'en']),
     __metadata("design:type", String)
 ], LanguageDto.prototype, "language", void 0);
-exports.LanguageDto = LanguageDto;
 class NotificationSettingsDto {
 }
+exports.NotificationSettingsDto = NotificationSettingsDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Включить все уведомления' }),
     (0, class_validator_1.IsBoolean)(),
@@ -188,4 +189,3 @@ __decorate([
     (0, class_validator_1.IsIn)(['1h', '1d', 'off']),
     __metadata("design:type", String)
 ], NotificationSettingsDto.prototype, "matchReminderTime", void 0);
-exports.NotificationSettingsDto = NotificationSettingsDto;

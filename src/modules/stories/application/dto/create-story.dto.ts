@@ -1,19 +1,22 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { MediaType } from '../../domain/enums/media-type.enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { MediaType } from '@prisma/client';
 
 export class CreateStoryDto {
-  @ApiProperty({ description: 'Telegram file ID' })
+  @ApiProperty({ description: 'ID файла в Telegram', example: 'AgACAgIAAxkBAAIJ...' })
   @IsString()
-  @IsNotEmpty()
   telegramFileId: string;
 
-  @ApiProperty({ enum: MediaType, description: 'Тип медиа файла' })
+  @ApiProperty({ 
+    description: 'Тип медиафайла',
+    enum: MediaType,
+    example: MediaType.image // Исправлено с IMAGE на image
+  })
   @IsEnum(MediaType)
   type: MediaType;
 
-  @ApiProperty({ description: 'Telegram file path', required: false })
+  @ApiPropertyOptional({ description: 'Подпись к сторис', example: 'Отличный матч сегодня!' })
   @IsString()
   @IsOptional()
-  telegramFilePath?: string;
+  caption?: string;
 }

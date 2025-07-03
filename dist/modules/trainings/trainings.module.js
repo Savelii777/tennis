@@ -16,10 +16,11 @@ const auth_module_1 = require("../auth/auth.module");
 const users_module_1 = require("../users/users.module"); // Добавляем при необходимости
 let TrainingsModule = class TrainingsModule {
 };
-TrainingsModule = __decorate([
+exports.TrainingsModule = TrainingsModule;
+exports.TrainingsModule = TrainingsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule), // Используем forwardRef для AuthModule
             (0, common_1.forwardRef)(() => users_module_1.UsersModule), // Добавляем при необходимости
         ],
         controllers: [trainings_controller_1.TrainingsController],
@@ -27,4 +28,3 @@ TrainingsModule = __decorate([
         exports: [trainings_service_1.TrainingsService]
     })
 ], TrainingsModule);
-exports.TrainingsModule = TrainingsModule;

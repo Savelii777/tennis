@@ -1,4 +1,3 @@
-/// <reference types="multer" />
 import { UsersService } from '../../application/services/users.service';
 interface RequestWithUser extends Request {
     user: {

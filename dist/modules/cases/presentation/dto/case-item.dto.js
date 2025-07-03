@@ -15,6 +15,7 @@ const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
 class CreateCaseItemDto {
 }
+exports.CreateCaseItemDto = CreateCaseItemDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Название приза', example: '50 теннисных мячей' }),
     (0, class_validator_1.IsString)(),
@@ -59,9 +60,9 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateCaseItemDto.prototype, "isActive", void 0);
-exports.CreateCaseItemDto = CreateCaseItemDto;
 class UpdateCaseItemDto {
 }
+exports.UpdateCaseItemDto = UpdateCaseItemDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Название приза' }),
     (0, class_validator_1.IsOptional)(),
@@ -100,4 +101,3 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateCaseItemDto.prototype, "isActive", void 0);
-exports.UpdateCaseItemDto = UpdateCaseItemDto;

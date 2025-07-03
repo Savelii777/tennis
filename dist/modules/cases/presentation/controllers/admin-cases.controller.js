@@ -76,6 +76,7 @@ let AdminCasesController = class AdminCasesController {
         return this.caseOpeningService.markWinningAsProcessed(parseInt(winningId), notes);
     }
 };
+exports.AdminCasesController = AdminCasesController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Создать новый кейс' }),
@@ -233,7 +234,7 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], AdminCasesController.prototype, "processWinning", null);
-AdminCasesController = __decorate([
+exports.AdminCasesController = AdminCasesController = __decorate([
     (0, swagger_1.ApiTags)('admin-cases'),
     (0, common_1.Controller)('admin/cases'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard, roles_guard_1.RolesGuard),
@@ -242,4 +243,3 @@ AdminCasesController = __decorate([
         case_items_service_1.CaseItemsService,
         case_opening_service_1.CaseOpeningService])
 ], AdminCasesController);
-exports.AdminCasesController = AdminCasesController;

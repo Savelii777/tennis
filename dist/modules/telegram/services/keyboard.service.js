@@ -48,7 +48,7 @@ let KeyboardService = class KeyboardService {
         ]);
     }
 };
-KeyboardService = __decorate([
+exports.KeyboardService = KeyboardService;
+exports.KeyboardService = KeyboardService = __decorate([
     (0, common_1.Injectable)()
 ], KeyboardService);
-exports.KeyboardService = KeyboardService;

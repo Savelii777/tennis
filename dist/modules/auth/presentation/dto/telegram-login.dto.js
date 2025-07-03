@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class TelegramLoginDto {
 }
+exports.TelegramLoginDto = TelegramLoginDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Telegram user ID',
@@ -87,4 +88,3 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], TelegramLoginDto.prototype, "ref", void 0);
-exports.TelegramLoginDto = TelegramLoginDto;

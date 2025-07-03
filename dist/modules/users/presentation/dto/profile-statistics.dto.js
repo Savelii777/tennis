@@ -13,6 +13,7 @@ exports.ProfileStatisticsDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 class ProfileStatisticsDto {
 }
+exports.ProfileStatisticsDto = ProfileStatisticsDto;
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Number)
@@ -45,4 +46,3 @@ __decorate([
     (0, swagger_1.ApiProperty)({ nullable: true }),
     __metadata("design:type", Date)
 ], ProfileStatisticsDto.prototype, "lastActivity", void 0);
-exports.ProfileStatisticsDto = ProfileStatisticsDto;

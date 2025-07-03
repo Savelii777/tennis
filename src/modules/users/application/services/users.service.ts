@@ -9,7 +9,8 @@ import { ProfileStepOneDto } from '../../presentation/dto/profile-step-one.dto';
 import { ProfileStepTwoDto } from '../../presentation/dto/profile-step-two.dto';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { Role } from '../../domain/enums/role.enum';
-import { RatingsService } from '../../../ratings/ratings.service'; 
+import { RatingsService } from '../../../ratings/ratings.service';
+import { StoriesService } from '../../../stories/application/services/stories.service'; // Добавляем импорт StoriesService
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,8 @@ export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly prisma: PrismaService,
-    private readonly ratingsService: RatingsService 
+    private readonly ratingsService: RatingsService,
+    private readonly storiesService: StoriesService // Добавляем StoriesService
   ) {}
 
   async findAll(): Promise<UserEntity[]> {
@@ -444,6 +446,16 @@ async getProfileCompletionStatus(userId: string): Promise<{ percentage: number, 
       throw new NotFoundException('Пользователь не найден');
     }
 
+    // Получаем истории пользователя
+    const stories = await this.storiesService.getUserStories(userId);
+    
+    // Дополнительно получаем последние истории для отображения в профиле
+    const userStories = stories.filter(s => s.status === 'approved').slice(0, 5);
+    
+    // Группируем истории по типу
+    const imageStories = userStories.filter(s => s.type === 'image');
+    const videoStories = userStories.filter(s => s.type === 'video');
+  
     // Форматируем данные согласно ТЗ
     return {
       id: user.id,
@@ -495,7 +507,16 @@ async getProfileCompletionStatus(userId: string): Promise<{ percentage: number, 
         isPublic: user.settings?.showProfilePublicly || true,
         showRating: user.settings?.showRatingPublicly || true,
         allowMessages: user.settings?.allowDirectMessages || true
-      }
+      },
+      stories: {
+        total: stories.length,
+        published: stories.filter(s => s.status === 'approved').length,
+        pending: stories.filter(s => s.status === 'pending').length,
+        rejected: stories.filter(s => s.status === 'rejected').length,
+        items: userStories,
+        images: imageStories.length,
+        videos: videoStories.length,
+      },
     };
   }
 

@@ -15,6 +15,7 @@ const swagger_1 = require("@nestjs/swagger");
 const match_enum_1 = require("../../domain/enums/match.enum");
 class UpdateMatchDto {
 }
+exports.UpdateMatchDto = UpdateMatchDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ enum: match_enum_1.MatchState, description: 'State of match' }),
     (0, class_validator_1.IsEnum)(match_enum_1.MatchState),
@@ -45,4 +46,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateMatchDto.prototype, "score", void 0);
-exports.UpdateMatchDto = UpdateMatchDto;

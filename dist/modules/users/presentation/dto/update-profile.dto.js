@@ -15,6 +15,7 @@ const class_validator_1 = require("class-validator");
 const sport_type_enum_1 = require("../../domain/enums/sport-type.enum");
 class UpdateProfileDto {
 }
+exports.UpdateProfileDto = UpdateProfileDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
@@ -63,4 +64,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], UpdateProfileDto.prototype, "isPublicProfile", void 0);
-exports.UpdateProfileDto = UpdateProfileDto;

@@ -18,6 +18,7 @@ class CreateMatchDto {
         this.state = match_enum_1.MatchState.DRAFT;
     }
 }
+exports.CreateMatchDto = CreateMatchDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: match_enum_1.MatchType, description: 'Type of match' }),
     (0, class_validator_1.IsEnum)(match_enum_1.MatchType),
@@ -65,4 +66,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateMatchDto.prototype, "description", void 0);
-exports.CreateMatchDto = CreateMatchDto;

@@ -48,8 +48,8 @@ let CasesService = class CasesService {
         return this.casesRepository.getAllCasesStatistics();
     }
 };
-CasesService = __decorate([
+exports.CasesService = CasesService;
+exports.CasesService = CasesService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [cases_repository_1.CasesRepository])
 ], CasesService);
-exports.CasesService = CasesService;

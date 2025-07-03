@@ -203,10 +203,10 @@ let ReferralsService = class ReferralsService {
         return achievements;
     }
 };
-ReferralsService = __decorate([
+exports.ReferralsService = ReferralsService;
+exports.ReferralsService = ReferralsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [referrals_repository_1.ReferralsRepository,
         prisma_service_1.PrismaService // Добавляем инъекцию PrismaService
     ])
 ], ReferralsService);
-exports.ReferralsService = ReferralsService;

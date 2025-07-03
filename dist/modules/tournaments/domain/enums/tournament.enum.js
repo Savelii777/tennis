@@ -7,16 +7,16 @@ var TournamentType;
     TournamentType["GROUPS_PLAYOFF"] = "GROUPS_PLAYOFF";
     TournamentType["LEAGUE"] = "LEAGUE";
     TournamentType["BLITZ"] = "BLITZ";
-})(TournamentType = exports.TournamentType || (exports.TournamentType = {}));
+})(TournamentType || (exports.TournamentType = TournamentType = {}));
 var TournamentStatus;
 (function (TournamentStatus) {
     TournamentStatus["DRAFT"] = "DRAFT";
     TournamentStatus["ACTIVE"] = "ACTIVE";
     TournamentStatus["COMPLETED"] = "COMPLETED";
-})(TournamentStatus = exports.TournamentStatus || (exports.TournamentStatus = {}));
+})(TournamentStatus || (exports.TournamentStatus = TournamentStatus = {}));
 var MatchStatus;
 (function (MatchStatus) {
     MatchStatus["SCHEDULED"] = "SCHEDULED";
     MatchStatus["FINISHED"] = "FINISHED";
     MatchStatus["CANCELLED"] = "CANCELLED";
-})(MatchStatus = exports.MatchStatus || (exports.MatchStatus = {}));
+})(MatchStatus || (exports.MatchStatus = MatchStatus = {}));

@@ -20,13 +20,14 @@ const settings_module_1 = require("../settings/settings.module");
 const ratings_module_1 = require("../ratings/ratings.module"); // Добавляем RatingsModule
 let AuthModule = class AuthModule {
 };
-AuthModule = __decorate([
+exports.AuthModule = AuthModule;
+exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             (0, common_1.forwardRef)(() => achievements_module_1.AchievementsModule),
             (0, common_1.forwardRef)(() => settings_module_1.SettingsModule),
-            (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule),
+            (0, common_1.forwardRef)(() => ratings_module_1.RatingsModule), // Добавляем циклический импорт RatingsModule
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
@@ -41,4 +42,3 @@ AuthModule = __decorate([
         exports: [auth_service_1.AuthService, jwt_1.JwtModule],
     })
 ], AuthModule);
-exports.AuthModule = AuthModule;

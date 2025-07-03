@@ -14,7 +14,8 @@ const prisma_service_1 = require("../../prisma/prisma.service");
 const auth_module_1 = require("../auth/auth.module");
 let SettingsModule = class SettingsModule {
 };
-SettingsModule = __decorate([
+exports.SettingsModule = SettingsModule;
+exports.SettingsModule = SettingsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
@@ -24,4 +25,3 @@ SettingsModule = __decorate([
         exports: [settings_service_1.SettingsService],
     })
 ], SettingsModule);
-exports.SettingsModule = SettingsModule;

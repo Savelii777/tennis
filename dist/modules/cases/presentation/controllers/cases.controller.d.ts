@@ -12,42 +12,134 @@ export declare class CasesController {
     private readonly casesService;
     private readonly caseOpeningService;
     constructor(casesService: CasesService, caseOpeningService: CaseOpeningService);
-    getCases(): Promise<(import(".prisma/client").Case & {
+    getCases(): Promise<({
+        items: {
+            name: string;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
         _count: {
             openings: number;
             winnings: number;
         };
-        items: import(".prisma/client").CaseItem[];
+    } & {
+        description: string;
+        name: string;
+        id: number;
+        image: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        isActive: boolean;
+        priceBalls: number;
     })[]>;
-    getCaseById(id: string): Promise<import(".prisma/client").Case & {
+    getCaseById(id: string): Promise<{
+        items: {
+            name: string;
+            type: import(".prisma/client").$Enums.CaseItemType;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            payload: import("@prisma/client/runtime/library").JsonValue;
+            isActive: boolean;
+            dropChance: number;
+            imageUrl: string | null;
+            caseId: number;
+        }[];
         _count: {
             openings: number;
             winnings: number;
         };
-        items: import(".prisma/client").CaseItem[];
+    } & {
+        description: string;
+        name: string;
+        id: number;
+        image: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        isActive: boolean;
+        priceBalls: number;
     }>;
     openCase(id: string, req: RequestWithUser): Promise<{
-        opening: import(".prisma/client").CaseOpening;
-        winning: {
-            item: any;
+        opening: {
             id: number;
-            openingId: number;
+            createdAt: Date;
             userId: number;
             caseId: number;
+            ballsSpent: number;
+        };
+        winning: {
+            item: any;
+            case: {
+                description: string;
+                name: string;
+                id: number;
+                image: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                isActive: boolean;
+                priceBalls: number;
+            };
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: number;
+            caseId: number;
+            openingId: number;
             itemId: number;
             isProcessed: boolean;
             processedAt: Date | null;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            case: import(".prisma/client").Case;
         };
     }>;
-    getMyHistory(req: RequestWithUser, page?: string, limit?: string): Promise<(import(".prisma/client").CaseOpening & {
-        case: import(".prisma/client").Case;
-        winning: (import(".prisma/client").CaseWinning & {
-            item: import(".prisma/client").CaseItem;
+    getMyHistory(req: RequestWithUser, page?: string, limit?: string): Promise<({
+        case: {
+            description: string;
+            name: string;
+            id: number;
+            image: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            isActive: boolean;
+            priceBalls: number;
+        };
+        winning: ({
+            item: {
+                name: string;
+                type: import(".prisma/client").$Enums.CaseItemType;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                payload: import("@prisma/client/runtime/library").JsonValue;
+                isActive: boolean;
+                dropChance: number;
+                imageUrl: string | null;
+                caseId: number;
+            };
+        } & {
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: number;
+            caseId: number;
+            openingId: number;
+            itemId: number;
+            isProcessed: boolean;
+            processedAt: Date | null;
+            notes: string | null;
         }) | null;
+    } & {
+        id: number;
+        createdAt: Date;
+        userId: number;
+        caseId: number;
+        ballsSpent: number;
     })[]>;
 }
 export {};

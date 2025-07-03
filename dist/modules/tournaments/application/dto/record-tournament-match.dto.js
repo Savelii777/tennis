@@ -14,6 +14,7 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class RecordTournamentMatchDto {
 }
+exports.RecordTournamentMatchDto = RecordTournamentMatchDto;
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsString)(),
@@ -30,4 +31,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], RecordTournamentMatchDto.prototype, "comments", void 0);
-exports.RecordTournamentMatchDto = RecordTournamentMatchDto;

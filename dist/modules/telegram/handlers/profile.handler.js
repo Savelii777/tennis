@@ -16,7 +16,7 @@ const telegraf_1 = require("telegraf");
 const nestjs_telegraf_1 = require("nestjs-telegraf");
 const state_service_1 = require("../services/state.service");
 const keyboard_service_1 = require("../services/keyboard.service");
-const user_state_interface_1 = require("../interfaces/user-state.interface");
+const profile_state_enum_1 = require("../interfaces/profile-state.enum");
 const users_service_1 = require("../../users/application/services/users.service");
 const ratings_service_1 = require("../../ratings/ratings.service");
 const balls_service_1 = require("../../users/application/services/balls.service");
@@ -225,7 +225,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             const userId = ctx.from.id.toString();
             // Инициализируем состояние для настройки профиля
             this.stateService.setUserState(userId, {
-                step: user_state_interface_1.ProfileStep.AWAITING_CITY,
+                step: profile_state_enum_1.ProfileStep.AWAITING_CITY,
                 data: {}
             });
             // Запрашиваем город
@@ -244,13 +244,13 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             const userId = ctx.from.id.toString();
             const userState = this.stateService.getUserState(userId);
             // Проверяем, что находимся в правильном состоянии
-            if (userState.step !== user_state_interface_1.ProfileStep.AWAITING_TOURNAMENTS) {
+            if (userState.step !== profile_state_enum_1.ProfileStep.AWAITING_TOURNAMENTS) {
                 return;
             }
             // Сохраняем информацию об участии в турнирах
             userState.data.playsInTournaments = participates;
             // Переходим к следующему шагу
-            userState.step = user_state_interface_1.ProfileStep.AWAITING_LEVEL;
+            userState.step = profile_state_enum_1.ProfileStep.AWAITING_LEVEL;
             this.stateService.setUserState(userId, userState);
             this.logger.log(`Участие в турнирах: ${participates} для пользователя ${userId}`);
             // Отображаем выбор уровня игры
@@ -275,13 +275,13 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             const userId = ctx.from.id.toString();
             const userState = this.stateService.getUserState(userId);
             // Проверяем, что находимся в правильном состоянии
-            if (userState.step !== user_state_interface_1.ProfileStep.AWAITING_LEVEL) {
+            if (userState.step !== profile_state_enum_1.ProfileStep.AWAITING_LEVEL) {
                 return;
             }
             // Сохраняем выбор уровня в данных пользователя с правильным типом
             userState.data.selfAssessedLevel = level;
             // Заполнение профиля завершено
-            userState.step = user_state_interface_1.ProfileStep.COMPLETE;
+            userState.step = profile_state_enum_1.ProfileStep.COMPLETE;
             this.stateService.setUserState(userId, userState);
             this.logger.log(`Установлен уровень ${level} для пользователя ${userId}`);
             // Сохраняем данные профиля в базе данных
@@ -317,10 +317,10 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
                 city: profileData.city,
                 preferredCourt: profileData.preferredCourt,
                 dominantHand: profileData.dominantHand,
-                preferredPlayTime: ['EVENING'],
+                preferredPlayTime: ['EVENING'], // По умолчанию
                 playsInTournaments: profileData.playsInTournaments || false,
                 weeklyPlayFrequency: profileData.weeklyPlayFrequency || '1_PER_WEEK',
-                firstName: user.firstName,
+                firstName: user.firstName, // Берем из существующей записи
                 lastName: user.lastName || undefined // Конвертируем null в undefined
             };
             // Вызываем API для сохранения данных шага 1
@@ -328,11 +328,11 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             // Шаг 2: создаем объект для следующего API
             const profileStepTwoDto = {
                 selfAssessedLevel: profileData.selfAssessedLevel || 'BEGINNER',
-                backhandType: 'TWO_HANDED',
-                preferredSurface: 'HARD',
-                playingStyle: 'UNIVERSAL',
-                favoriteShot: 'FOREHAND',
-                racket: 'Любая',
+                backhandType: 'TWO_HANDED', // По умолчанию
+                preferredSurface: 'HARD', // По умолчанию
+                playingStyle: 'UNIVERSAL', // По умолчанию
+                favoriteShot: 'FOREHAND', // По умолчанию
+                racket: 'Любая', // По умолчанию
                 opponentPreference: 'ANY' // По умолчанию
             };
             // Вызываем API для сохранения данных шага 2
@@ -471,7 +471,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             const userId = ctx.from.id.toString();
             const userState = this.stateService.getUserState(userId);
             // Проверяем, что находимся в правильном состоянии
-            if (userState.step !== user_state_interface_1.ProfileStep.AWAITING_FREQUENCY) {
+            if (userState.step !== profile_state_enum_1.ProfileStep.AWAITING_FREQUENCY) {
                 return;
             }
             // Преобразуем строковое значение в соответствующий тип
@@ -492,7 +492,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             // Сохраняем выбор частоты в данных пользователя
             userState.data.weeklyPlayFrequency = typedFrequency;
             // Переходим к следующему шагу
-            userState.step = user_state_interface_1.ProfileStep.AWAITING_TOURNAMENTS;
+            userState.step = profile_state_enum_1.ProfileStep.AWAITING_TOURNAMENTS;
             this.stateService.setUserState(userId, userState);
             this.logger.log(`Установлена частота игр ${frequency} для пользователя ${userId}`);
             // Отображаем вопрос о турнирах
@@ -512,11 +512,11 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
         const userState = this.stateService.getUserState(userId);
         this.logger.log(`Обработка ввода для профиля: ${text}, текущий шаг: ${userState.step}`);
         switch (userState.step) {
-            case user_state_interface_1.ProfileStep.AWAITING_CITY:
+            case profile_state_enum_1.ProfileStep.AWAITING_CITY:
                 return await this.handleCity(ctx, text, userId, userState);
-            case user_state_interface_1.ProfileStep.AWAITING_COURT:
+            case profile_state_enum_1.ProfileStep.AWAITING_COURT:
                 return await this.handleCourt(ctx, text, userId, userState);
-            case user_state_interface_1.ProfileStep.AWAITING_HAND:
+            case profile_state_enum_1.ProfileStep.AWAITING_HAND:
                 // Для шага выбора руки используем инлайн кнопки
                 await ctx.reply("Пожалуйста, выберите руку, используя кнопки выше", telegraf_1.Markup.inlineKeyboard([
                     [
@@ -525,7 +525,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
                     ]
                 ]));
                 return true;
-            case user_state_interface_1.ProfileStep.AWAITING_FREQUENCY:
+            case profile_state_enum_1.ProfileStep.AWAITING_FREQUENCY:
                 // Обработка текста для частоты игр без дублирования инлайн-кнопок
                 if (text.includes("1 раз")) {
                     return await this.processFrequencySelection("1_PER_WEEK", ctx, userId, userState);
@@ -540,7 +540,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
                     await ctx.reply("Пожалуйста, выберите частоту игр, используя кнопки ниже");
                     return true;
                 }
-            case user_state_interface_1.ProfileStep.AWAITING_TOURNAMENTS:
+            case profile_state_enum_1.ProfileStep.AWAITING_TOURNAMENTS:
                 // Для шага выбора участия в турнирах используем инлайн кнопки
                 await ctx.reply("Участвуете ли вы в турнирах? Выберите ответ ниже", telegraf_1.Markup.inlineKeyboard([
                     [
@@ -549,7 +549,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
                     ]
                 ]));
                 return true;
-            case user_state_interface_1.ProfileStep.AWAITING_LEVEL:
+            case profile_state_enum_1.ProfileStep.AWAITING_LEVEL:
                 // Для шага выбора уровня используем инлайн кнопки
                 await ctx.reply("Как бы вы оценили свой уровень игры?", telegraf_1.Markup.inlineKeyboard([
                     [telegraf_1.Markup.button.callback('Начинающий', 'level_BEGINNER')],
@@ -567,7 +567,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
         // Сохраняем выбор частоты в данных пользователя
         userState.data.weeklyPlayFrequency = frequency;
         // Переходим к следующему шагу
-        userState.step = user_state_interface_1.ProfileStep.AWAITING_TOURNAMENTS;
+        userState.step = profile_state_enum_1.ProfileStep.AWAITING_TOURNAMENTS;
         this.stateService.setUserState(userId, userState);
         this.logger.log(`Установлена частота игр ${frequency} для пользователя ${userId}`);
         // Отображаем вопрос о турнирах
@@ -582,7 +582,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
     async handleCity(ctx, text, userId, userState) {
         // Сохраняем город
         userState.data.city = text;
-        userState.step = user_state_interface_1.ProfileStep.AWAITING_COURT;
+        userState.step = profile_state_enum_1.ProfileStep.AWAITING_COURT;
         this.stateService.setUserState(userId, userState);
         this.logger.log(`Сохранен город: ${text} для пользователя ${userId}`);
         // Запрашиваем корт
@@ -592,7 +592,7 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
     async handleCourt(ctx, text, userId, userState) {
         // Сохраняем предпочитаемый корт
         userState.data.preferredCourt = text;
-        userState.step = user_state_interface_1.ProfileStep.AWAITING_HAND;
+        userState.step = profile_state_enum_1.ProfileStep.AWAITING_HAND;
         this.stateService.setUserState(userId, userState);
         this.logger.log(`Сохранен корт: ${text} для пользователя ${userId}`);
         // Запрашиваем выбор руки через инлайн-кнопки
@@ -612,13 +612,13 @@ let ProfileHandler = ProfileHandler_1 = class ProfileHandler {
             const userId = ctx.from.id.toString();
             const userState = this.stateService.getUserState(userId);
             // Проверяем, что находимся в правильном состоянии
-            if (userState.step !== user_state_interface_1.ProfileStep.AWAITING_HAND) {
+            if (userState.step !== profile_state_enum_1.ProfileStep.AWAITING_HAND) {
                 return;
             }
             // Сохраняем выбор руки в данных пользователя
             userState.data.dominantHand = hand;
             // Переходим к следующему шагу
-            userState.step = user_state_interface_1.ProfileStep.AWAITING_FREQUENCY;
+            userState.step = profile_state_enum_1.ProfileStep.AWAITING_FREQUENCY;
             this.stateService.setUserState(userId, userState);
             // Отображаем ТОЛЬКО клавиатуру выбора частоты игры (убираем инлайн-кнопки)
             const keyboard = telegraf_1.Markup.keyboard([
@@ -731,13 +731,14 @@ ${levelBadge} NTRP рейтинг: ${ratingInfo.value} (${ratingInfo.level})
         }
     }
 };
+exports.ProfileHandler = ProfileHandler;
 __decorate([
     (0, nestjs_telegraf_1.Hears)('👤 Профиль'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [telegraf_1.Context]),
     __metadata("design:returntype", Promise)
 ], ProfileHandler.prototype, "handleProfile", null);
-ProfileHandler = ProfileHandler_1 = __decorate([
+exports.ProfileHandler = ProfileHandler = ProfileHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService,
@@ -746,4 +747,3 @@ ProfileHandler = ProfileHandler_1 = __decorate([
         balls_service_1.BallsService,
         prisma_service_1.PrismaService])
 ], ProfileHandler);
-exports.ProfileHandler = ProfileHandler;

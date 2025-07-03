@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class GenerateInviteDto {
 }
+exports.GenerateInviteDto = GenerateInviteDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
         description: 'Базовый URL для генерации ссылки',
@@ -23,9 +24,9 @@ __decorate([
     (0, class_validator_1.IsUrl)(),
     __metadata("design:type", String)
 ], GenerateInviteDto.prototype, "baseUrl", void 0);
-exports.GenerateInviteDto = GenerateInviteDto;
 class RegisterByReferralDto {
 }
+exports.RegisterByReferralDto = RegisterByReferralDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Реферальный код пригласившего',
@@ -85,4 +86,3 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], RegisterByReferralDto.prototype, "source", void 0);
-exports.RegisterByReferralDto = RegisterByReferralDto;

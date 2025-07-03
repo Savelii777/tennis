@@ -62,6 +62,7 @@ let NotificationsController = class NotificationsController {
         return { success: true, message: 'Уведомление отправлено' };
     }
 };
+exports.NotificationsController = NotificationsController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Получить уведомления пользователя' }),
@@ -105,11 +106,10 @@ __decorate([
     __metadata("design:paramtypes", [create_notification_dto_1.CreateNotificationDto]),
     __metadata("design:returntype", Promise)
 ], NotificationsController.prototype, "sendNotification", null);
-NotificationsController = __decorate([
+exports.NotificationsController = NotificationsController = __decorate([
     (0, swagger_1.ApiTags)('notifications'),
     (0, common_1.Controller)('notifications'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [notifications_service_1.NotificationsService])
 ], NotificationsController);
-exports.NotificationsController = NotificationsController;

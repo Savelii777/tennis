@@ -67,10 +67,10 @@ let TelegramAuthService = class TelegramAuthService {
         }
     }
 };
-TelegramAuthService = __decorate([
+exports.TelegramAuthService = TelegramAuthService;
+exports.TelegramAuthService = TelegramAuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [config_1.ConfigService,
         jwt_1.JwtService,
         users_service_1.UsersService])
 ], TelegramAuthService);
-exports.TelegramAuthService = TelegramAuthService;

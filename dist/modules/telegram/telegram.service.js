@@ -383,11 +383,11 @@ let TelegramService = TelegramService_1 = class TelegramService {
         }
     }
 };
-TelegramService = TelegramService_1 = __decorate([
+exports.TelegramService = TelegramService;
+exports.TelegramService = TelegramService = TelegramService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, nestjs_telegraf_1.InjectBot)()),
     __metadata("design:paramtypes", [telegraf_1.Telegraf,
         config_1.ConfigService,
         prisma_service_1.PrismaService])
 ], TelegramService);
-exports.TelegramService = TelegramService;

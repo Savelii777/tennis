@@ -41,6 +41,7 @@ let SettingsController = class SettingsController {
         return this.settingsService.getOpponentPreferences(parseInt(req.user.id));
     }
 };
+exports.SettingsController = SettingsController;
 __decorate([
     (0, common_1.Get)('me'),
     (0, swagger_1.ApiOperation)({ summary: 'Получить настройки текущего пользователя' }),
@@ -99,11 +100,10 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], SettingsController.prototype, "getOpponentPreferences", null);
-SettingsController = __decorate([
+exports.SettingsController = SettingsController = __decorate([
     (0, swagger_1.ApiTags)('settings'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, common_1.Controller)('settings'),
     __metadata("design:paramtypes", [settings_service_1.SettingsService])
 ], SettingsController);
-exports.SettingsController = SettingsController;

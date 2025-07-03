@@ -12,24 +12,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateStoryDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-const media_type_enum_1 = require("../../domain/enums/media-type.enum");
+const client_1 = require("@prisma/client");
 class CreateStoryDto {
 }
+exports.CreateStoryDto = CreateStoryDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Telegram file ID' }),
+    (0, swagger_1.ApiProperty)({ description: 'ID файла в Telegram', example: 'AgACAgIAAxkBAAIJ...' }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateStoryDto.prototype, "telegramFileId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: media_type_enum_1.MediaType, description: 'Тип медиа файла' }),
-    (0, class_validator_1.IsEnum)(media_type_enum_1.MediaType),
+    (0, swagger_1.ApiProperty)({
+        description: 'Тип медиафайла',
+        enum: client_1.MediaType,
+        example: client_1.MediaType.image // Исправлено с IMAGE на image
+    }),
+    (0, class_validator_1.IsEnum)(client_1.MediaType),
     __metadata("design:type", String)
 ], CreateStoryDto.prototype, "type", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Telegram file path', required: false }),
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Подпись к сторис', example: 'Отличный матч сегодня!' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateStoryDto.prototype, "telegramFilePath", void 0);
-exports.CreateStoryDto = CreateStoryDto;
+], CreateStoryDto.prototype, "caption", void 0);

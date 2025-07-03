@@ -1,4 +1,4 @@
-import { UserState } from '../interfaces/user-state.interface';
+import { UserState } from '../interfaces/profile-state.enum';
 export declare class StateService {
     private userStates;
     getUserState(userId: string): UserState;

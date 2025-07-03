@@ -242,13 +242,14 @@ let CommonHandler = CommonHandler_1 = class CommonHandler {
         return levels[level] || 'Не указан';
     }
 };
+exports.CommonHandler = CommonHandler;
 __decorate([
     (0, nestjs_telegraf_1.Start)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [telegraf_1.Context]),
     __metadata("design:returntype", Promise)
 ], CommonHandler.prototype, "handleStart", null);
-CommonHandler = CommonHandler_1 = __decorate([
+exports.CommonHandler = CommonHandler = CommonHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService,
@@ -259,4 +260,3 @@ CommonHandler = CommonHandler_1 = __decorate([
         referrals_service_1.ReferralsService,
         prisma_service_1.PrismaService])
 ], CommonHandler);
-exports.CommonHandler = CommonHandler;

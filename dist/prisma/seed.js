@@ -520,7 +520,7 @@ async function createTournaments(users) {
             status: 'UPCOMING',
             creatorId: organizer.id,
             startDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-            endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000),
+            endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000), // 8 часов
             formatDetails: {
                 registrationEnd: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
                 entryFee: 500,
@@ -529,8 +529,8 @@ async function createTournaments(users) {
                     minRating: 800,
                     maxRating: 1800
                 },
-                matchFormat: 'short_sets',
-                timeLimit: 480,
+                matchFormat: 'short_sets', // короткие сеты
+                timeLimit: 480, // 8 часов в минутах
                 maxRounds: 3
             },
             minPlayers: 4,
@@ -559,7 +559,7 @@ async function createTournaments(users) {
             status: 'UPCOMING',
             creatorId: organizer.id,
             startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            endDate: new Date(Date.now() + 37 * 24 * 60 * 60 * 1000),
+            endDate: new Date(Date.now() + 37 * 24 * 60 * 60 * 1000), // месяц
             formatDetails: {
                 registrationEnd: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
                 entryFee: 1000,
@@ -609,8 +609,8 @@ async function createTrainingSessions(users) {
             currentSlots: 3,
             paymentType: client_2.PaymentType.DIVIDED,
             pricePerPerson: 1500,
-            dateTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 10 * 60 * 60 * 1000),
-            endTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 11.5 * 60 * 60 * 1000),
+            dateTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 10 * 60 * 60 * 1000), // через 2 дня в 10:00
+            endTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 11.5 * 60 * 60 * 1000), // 1.5 часа
             status: client_2.TrainingState.OPEN,
             trainingType: client_2.TrainingType.WITH_COACH
         },
@@ -626,8 +626,8 @@ async function createTrainingSessions(users) {
             currentSlots: 2,
             paymentType: client_2.PaymentType.FIXED_PRICE,
             pricePerPerson: 2500,
-            dateTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000),
-            endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 16 * 60 * 60 * 1000),
+            dateTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000), // через 5 дней в 14:00
+            endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 16 * 60 * 60 * 1000), // 2 часа
             status: client_2.TrainingState.OPEN,
             trainingType: client_2.TrainingType.TECHNIQUE
         }
@@ -761,7 +761,7 @@ async function createReferrals(users) {
             data: {
                 referrerId: testUser.id,
                 invitedUserId: player.id,
-                registeredAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+                registeredAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // за последние 30 дней
                 isActive: Math.random() > 0.3,
                 inviteSource: 'telegram'
             }
@@ -778,7 +778,7 @@ async function createReferrals(users) {
             data: {
                 referrerId: organizer.id,
                 invitedUserId: player.id,
-                registeredAt: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000),
+                registeredAt: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000), // за последние 60 дней
                 isActive: Math.random() > 0.3,
                 inviteSource: 'telegram'
             }

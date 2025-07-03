@@ -38,7 +38,7 @@ export declare class BotService implements OnModuleInit {
     handleLocations(ctx: Context): Promise<void>;
     handleSettings(ctx: Context): Promise<void>;
     handleText(ctx: Context): Promise<void>;
-    handlePhoto(ctx: Context): Promise<void>;
-    handleVideo(ctx: Context): Promise<void>;
+    handlePhoto(ctx: Context): Promise<boolean>;
+    handleVideo(ctx: Context): Promise<boolean>;
     handleDebug(ctx: Context): Promise<void>;
 }

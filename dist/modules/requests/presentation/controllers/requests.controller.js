@@ -47,6 +47,7 @@ let RequestsController = class RequestsController {
         return this.requestsService.declineResponse(id, responseId, req.user.id);
     }
 };
+exports.RequestsController = RequestsController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Получить список всех заявок' }),
@@ -121,11 +122,10 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], RequestsController.prototype, "declineResponse", null);
-RequestsController = __decorate([
+exports.RequestsController = RequestsController = __decorate([
     (0, swagger_1.ApiTags)('requests'),
     (0, common_1.Controller)('requests'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [requests_service_1.RequestsService])
 ], RequestsController);
-exports.RequestsController = RequestsController;

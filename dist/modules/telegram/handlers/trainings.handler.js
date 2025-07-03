@@ -64,9 +64,9 @@ let TrainingsHandler = TrainingsHandler_1 = class TrainingsHandler {
         return false;
     }
 };
-TrainingsHandler = TrainingsHandler_1 = __decorate([
+exports.TrainingsHandler = TrainingsHandler;
+exports.TrainingsHandler = TrainingsHandler = TrainingsHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService])
 ], TrainingsHandler);
-exports.TrainingsHandler = TrainingsHandler;

@@ -12,10 +12,10 @@ const achievements_service_1 = require("./application/services/achievements.serv
 const prisma_service_1 = require("../../prisma/prisma.service");
 let AchievementsModule = class AchievementsModule {
 };
-AchievementsModule = __decorate([
+exports.AchievementsModule = AchievementsModule;
+exports.AchievementsModule = AchievementsModule = __decorate([
     (0, common_1.Module)({
         providers: [achievements_service_1.AchievementsService, prisma_service_1.PrismaService],
         exports: [achievements_service_1.AchievementsService],
     })
 ], AchievementsModule);
-exports.AchievementsModule = AchievementsModule;

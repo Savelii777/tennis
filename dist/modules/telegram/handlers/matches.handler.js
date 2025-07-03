@@ -39,10 +39,10 @@ let MatchesHandler = MatchesHandler_1 = class MatchesHandler {
         return false;
     }
 };
-MatchesHandler = MatchesHandler_1 = __decorate([
+exports.MatchesHandler = MatchesHandler;
+exports.MatchesHandler = MatchesHandler = MatchesHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService,
         users_service_1.UsersService])
 ], MatchesHandler);
-exports.MatchesHandler = MatchesHandler;

@@ -170,8 +170,8 @@ let ReferralsRepository = class ReferralsRepository {
         });
     }
 };
-ReferralsRepository = __decorate([
+exports.ReferralsRepository = ReferralsRepository;
+exports.ReferralsRepository = ReferralsRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], ReferralsRepository);
-exports.ReferralsRepository = ReferralsRepository;

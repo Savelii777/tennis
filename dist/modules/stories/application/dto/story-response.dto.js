@@ -9,50 +9,75 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StoryResponseDto = void 0;
+exports.StoryResponseDto = exports.StoryUserDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
-const media_type_enum_1 = require("../../domain/enums/media-type.enum");
-const story_status_enum_1 = require("../../domain/enums/story-status.enum");
+class StoryUserDto {
+}
+exports.StoryUserDto = StoryUserDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 1 }),
+    __metadata("design:type", Number)
+], StoryUserDto.prototype, "id", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Иван' }),
+    __metadata("design:type", String)
+], StoryUserDto.prototype, "firstName", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Иванов' }),
+    __metadata("design:type", String)
+], StoryUserDto.prototype, "lastName", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'ivanov123' }),
+    __metadata("design:type", String)
+], StoryUserDto.prototype, "username", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'https://example.com/avatar.jpg' }),
+    __metadata("design:type", String)
+], StoryUserDto.prototype, "avatar", void 0);
 class StoryResponseDto {
 }
+exports.StoryResponseDto = StoryResponseDto;
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 1 }),
     __metadata("design:type", Number)
 ], StoryResponseDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiProperty)({ example: 1 }),
     __metadata("design:type", Number)
 ], StoryResponseDto.prototype, "userId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
-    __metadata("design:type", String)
-], StoryResponseDto.prototype, "telegramFileId", void 0);
+    (0, swagger_1.ApiPropertyOptional)(),
+    __metadata("design:type", StoryUserDto)
+], StoryResponseDto.prototype, "user", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    __metadata("design:type", String)
-], StoryResponseDto.prototype, "telegramFilePath", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ enum: media_type_enum_1.MediaType }),
+    (0, swagger_1.ApiProperty)({ example: 'IMAGE', enum: ['IMAGE', 'VIDEO'] }),
     __metadata("design:type", String)
 ], StoryResponseDto.prototype, "type", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ enum: story_status_enum_1.StoryStatus }),
+    (0, swagger_1.ApiProperty)({ example: 'APPROVED', enum: ['PENDING', 'APPROVED', 'REJECTED'] }),
     __metadata("design:type", String)
 ], StoryResponseDto.prototype, "status", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Великолепный матч!' }),
+    __metadata("design:type", String)
+], StoryResponseDto.prototype, "caption", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 0 }),
+    __metadata("design:type", Number)
+], StoryResponseDto.prototype, "viewsCount", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 0 }),
+    __metadata("design:type", Number)
+], StoryResponseDto.prototype, "likesCount", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: '2023-01-01T12:00:00Z' }),
     __metadata("design:type", Date)
 ], StoryResponseDto.prototype, "createdAt", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, swagger_1.ApiPropertyOptional)({ example: '2023-01-01T14:00:00Z' }),
     __metadata("design:type", Date)
 ], StoryResponseDto.prototype, "publishedAt", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, swagger_1.ApiPropertyOptional)({ example: '/stories/1/file' }),
     __metadata("design:type", String)
 ], StoryResponseDto.prototype, "fileUrl", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    __metadata("design:type", Object)
-], StoryResponseDto.prototype, "user", void 0);
-exports.StoryResponseDto = StoryResponseDto;

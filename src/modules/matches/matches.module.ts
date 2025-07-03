@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { AchievementsModule } from '../achievements/achievements.module';
 import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
+import { MatchFeedbackController } from './presentation/controllers/match-feedback.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { RatingsModule } from '../ratings/ratings.module'; // Добавляем
     forwardRef(() => AchievementsModule),
     forwardRef(() => RatingsModule), // Добавляем
   ],
-  controllers: [MatchesController],
+  controllers: [MatchesController, MatchFeedbackController],
   providers: [
     MatchesService,
     MatchesRepository,

@@ -14,6 +14,7 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class CreateNotificationDto {
 }
+exports.CreateNotificationDto = CreateNotificationDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'ID пользователя' }),
     (0, class_validator_1.IsNumber)(),
@@ -41,4 +42,3 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateNotificationDto.prototype, "sendTelegram", void 0);
-exports.CreateNotificationDto = CreateNotificationDto;

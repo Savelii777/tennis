@@ -116,9 +116,9 @@ let CaseOpeningService = class CaseOpeningService {
         }
     }
 };
-CaseOpeningService = __decorate([
+exports.CaseOpeningService = CaseOpeningService;
+exports.CaseOpeningService = CaseOpeningService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [cases_repository_1.CasesRepository,
         balls_service_1.BallsService])
 ], CaseOpeningService);
-exports.CaseOpeningService = CaseOpeningService;

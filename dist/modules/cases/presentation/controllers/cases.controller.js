@@ -36,6 +36,7 @@ let CasesController = class CasesController {
         return this.caseOpeningService.getUserOpeningHistory(req.user.id.toString(), page ? parseInt(page) : 1, limit ? parseInt(limit) : 20);
     }
 };
+exports.CasesController = CasesController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Получить список активных кейсов' }),
@@ -80,10 +81,9 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], CasesController.prototype, "getMyHistory", null);
-CasesController = __decorate([
+exports.CasesController = CasesController = __decorate([
     (0, swagger_1.ApiTags)('cases'),
     (0, common_1.Controller)('cases'),
     __metadata("design:paramtypes", [cases_service_1.CasesService,
         case_opening_service_1.CaseOpeningService])
 ], CasesController);
-exports.CasesController = CasesController;

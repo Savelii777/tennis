@@ -40,6 +40,7 @@ let LocationsController = class LocationsController {
         return this.locationsService.getCityById(parseInt(id));
     }
 };
+exports.LocationsController = LocationsController;
 __decorate([
     (0, common_1.Get)('countries'),
     (0, swagger_1.ApiOperation)({
@@ -104,9 +105,8 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], LocationsController.prototype, "getCityById", null);
-LocationsController = __decorate([
+exports.LocationsController = LocationsController = __decorate([
     (0, swagger_1.ApiTags)('locations'),
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [locations_service_1.LocationsService])
 ], LocationsController);
-exports.LocationsController = LocationsController;

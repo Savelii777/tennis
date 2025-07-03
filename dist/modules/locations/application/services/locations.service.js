@@ -43,8 +43,8 @@ let LocationsService = class LocationsService {
         return country;
     }
 };
-LocationsService = __decorate([
+exports.LocationsService = LocationsService;
+exports.LocationsService = LocationsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [locations_repository_1.LocationsRepository])
 ], LocationsService);
-exports.LocationsService = LocationsService;

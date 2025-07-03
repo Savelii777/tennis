@@ -94,7 +94,7 @@ let NotificationsRepository = class NotificationsRepository {
             userId: notification.userId,
             type: notification.type,
             message: notification.message,
-            payload: notification.data,
+            payload: notification.data, // в схеме Prisma поле называется 'data', но в интерфейсе - 'payload'
             isRead: notification.isRead,
             sentAt: notification.sentAt,
             createdAt: notification.createdAt,
@@ -102,8 +102,8 @@ let NotificationsRepository = class NotificationsRepository {
         };
     }
 };
-NotificationsRepository = __decorate([
+exports.NotificationsRepository = NotificationsRepository;
+exports.NotificationsRepository = NotificationsRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], NotificationsRepository);
-exports.NotificationsRepository = NotificationsRepository;

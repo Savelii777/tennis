@@ -112,8 +112,8 @@ let AchievementsRepository = class AchievementsRepository {
         return count;
     }
 };
-AchievementsRepository = __decorate([
+exports.AchievementsRepository = AchievementsRepository;
+exports.AchievementsRepository = AchievementsRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], AchievementsRepository);
-exports.AchievementsRepository = AchievementsRepository;

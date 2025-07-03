@@ -16,7 +16,7 @@ var SportType;
 (function (SportType) {
     SportType["TENNIS"] = "TENNIS";
     SportType["PADEL"] = "PADEL";
-})(SportType = exports.SportType || (exports.SportType = {}));
+})(SportType || (exports.SportType = SportType = {}));
 class UserProfileDto {
     constructor() {
         this.username = '';
@@ -24,6 +24,7 @@ class UserProfileDto {
         this.isPublicProfile = true;
     }
 }
+exports.UserProfileDto = UserProfileDto;
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsString)(),
@@ -109,4 +110,3 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UserProfileDto.prototype, "isPublicProfile", void 0);
-exports.UserProfileDto = UserProfileDto;

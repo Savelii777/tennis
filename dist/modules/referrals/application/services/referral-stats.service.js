@@ -170,8 +170,8 @@ let ReferralStatsService = class ReferralStatsService {
         };
     }
 };
-ReferralStatsService = __decorate([
+exports.ReferralStatsService = ReferralStatsService;
+exports.ReferralStatsService = ReferralStatsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [referrals_repository_1.ReferralsRepository])
 ], ReferralStatsService);
-exports.ReferralStatsService = ReferralStatsService;

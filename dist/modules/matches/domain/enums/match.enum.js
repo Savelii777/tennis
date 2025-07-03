@@ -5,7 +5,7 @@ var MatchType;
 (function (MatchType) {
     MatchType["ONE_ON_ONE"] = "ONE_ON_ONE";
     MatchType["DOUBLES"] = "DOUBLES";
-})(MatchType = exports.MatchType || (exports.MatchType = {}));
+})(MatchType || (exports.MatchType = MatchType = {}));
 var MatchState;
 (function (MatchState) {
     MatchState["DRAFT"] = "DRAFT";
@@ -13,4 +13,4 @@ var MatchState;
     MatchState["CONFIRMED"] = "CONFIRMED";
     MatchState["FINISHED"] = "FINISHED";
     MatchState["CANCELLED"] = "CANCELLED";
-})(MatchState = exports.MatchState || (exports.MatchState = {}));
+})(MatchState || (exports.MatchState = MatchState = {}));

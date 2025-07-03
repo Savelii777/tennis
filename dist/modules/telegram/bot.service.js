@@ -171,6 +171,7 @@ let BotService = BotService_1 = class BotService {
             `Data: ${JSON.stringify(userState.data, null, 2)}`, { parse_mode: 'Markdown' });
     }
 };
+exports.BotService = BotService;
 __decorate([
     (0, nestjs_telegraf_1.Start)(),
     __metadata("design:type", Function),
@@ -267,7 +268,7 @@ __decorate([
     __metadata("design:paramtypes", [telegraf_1.Context]),
     __metadata("design:returntype", Promise)
 ], BotService.prototype, "handleDebug", null);
-BotService = BotService_1 = __decorate([
+exports.BotService = BotService = BotService_1 = __decorate([
     (0, nestjs_telegraf_1.Update)(),
     (0, common_1.Injectable)(),
     __param(0, (0, nestjs_telegraf_1.InjectBot)()),
@@ -283,4 +284,3 @@ BotService = BotService_1 = __decorate([
         common_handler_1.CommonHandler,
         state_service_1.StateService])
 ], BotService);
-exports.BotService = BotService;

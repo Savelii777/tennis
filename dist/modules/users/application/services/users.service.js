@@ -17,11 +17,14 @@ const users_repository_1 = require("../../infrastructure/repositories/users.repo
 const prisma_service_1 = require("../../../../prisma/prisma.service");
 const role_enum_1 = require("../../domain/enums/role.enum");
 const ratings_service_1 = require("../../../ratings/ratings.service");
+const stories_service_1 = require("../../../stories/application/services/stories.service"); // Добавляем импорт StoriesService
 let UsersService = UsersService_1 = class UsersService {
-    constructor(usersRepository, prisma, ratingsService) {
+    constructor(usersRepository, prisma, ratingsService, storiesService // Добавляем StoriesService
+    ) {
         this.usersRepository = usersRepository;
         this.prisma = prisma;
         this.ratingsService = ratingsService;
+        this.storiesService = storiesService;
         this.logger = new common_1.Logger(UsersService_1.name);
     }
     async findAll() {
@@ -173,7 +176,7 @@ let UsersService = UsersService_1 = class UsersService {
             await this.prisma.user.update({
                 where: { id: parseInt(userId) },
                 data: {
-                    firstName: profileData.firstName || user.first_name,
+                    firstName: profileData.firstName || user.first_name, // исправлено поле
                     lastName: profileData.lastName || user.last_name // исправлено поле
                 }
             });
@@ -332,7 +335,7 @@ let UsersService = UsersService_1 = class UsersService {
             // Для остальных случаев нужно дополнительно запрашивать данные пользователя
             return {
                 id: match.id,
-                date: match.createdAt,
+                date: match.createdAt, // Или matchDate если добавили это поле
                 score: match.score,
                 result: match.winnerId === userIdInt ? 'WIN' : 'LOSS',
                 opponentName
@@ -392,6 +395,13 @@ let UsersService = UsersService_1 = class UsersService {
         if (!user) {
             throw new common_1.NotFoundException('Пользователь не найден');
         }
+        // Получаем истории пользователя
+        const stories = await this.storiesService.getUserStories(userId);
+        // Дополнительно получаем последние истории для отображения в профиле
+        const userStories = stories.filter(s => s.status === 'approved').slice(0, 5);
+        // Группируем истории по типу
+        const imageStories = userStories.filter(s => s.type === 'image');
+        const videoStories = userStories.filter(s => s.type === 'video');
         // Форматируем данные согласно ТЗ
         return {
             id: user.id,
@@ -411,7 +421,7 @@ let UsersService = UsersService_1 = class UsersService {
             },
             level: {
                 ntrp: user.profile?.ntrpRating,
-                visual: user.profile?.ntrpRating?.toFixed(1),
+                visual: user.profile?.ntrpRating?.toFixed(1), // Форматированное значение
                 ratingInfo: this.getNtrpVisualRating(user.profile?.ntrpRating), // Полная информация о рейтинге
             },
             rating: {
@@ -443,7 +453,16 @@ let UsersService = UsersService_1 = class UsersService {
                 isPublic: user.settings?.showProfilePublicly || true,
                 showRating: user.settings?.showRatingPublicly || true,
                 allowMessages: user.settings?.allowDirectMessages || true
-            }
+            },
+            stories: {
+                total: stories.length,
+                published: stories.filter(s => s.status === 'approved').length,
+                pending: stories.filter(s => s.status === 'pending').length,
+                rejected: stories.filter(s => s.status === 'rejected').length,
+                items: userStories,
+                images: imageStories.length,
+                videos: videoStories.length,
+            },
         };
     }
     /**
@@ -655,8 +674,8 @@ let UsersService = UsersService_1 = class UsersService {
             level = 'Профессионал';
         }
         return {
-            value: formattedRating,
-            badge,
+            value: formattedRating, // Строковое представление рейтинга (например, "4.5")
+            badge, // Класс для CSS стилизации бейджа
             level // Текстовое описание уровня
         };
     }
@@ -699,10 +718,12 @@ let UsersService = UsersService_1 = class UsersService {
         })));
     }
 };
-UsersService = UsersService_1 = __decorate([
+exports.UsersService = UsersService;
+exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_repository_1.UsersRepository,
         prisma_service_1.PrismaService,
-        ratings_service_1.RatingsService])
+        ratings_service_1.RatingsService,
+        stories_service_1.StoriesService // Добавляем StoriesService
+    ])
 ], UsersService);
-exports.UsersService = UsersService;

@@ -19,6 +19,7 @@ class NotificationFiltersDto {
         this.limit = 20;
     }
 }
+exports.NotificationFiltersDto = NotificationFiltersDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: 'Фильтр по статусу прочтения' }),
     (0, class_validator_1.IsOptional)(),
@@ -48,4 +49,3 @@ __decorate([
     (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], NotificationFiltersDto.prototype, "limit", void 0);
-exports.NotificationFiltersDto = NotificationFiltersDto;

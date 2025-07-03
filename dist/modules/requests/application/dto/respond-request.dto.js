@@ -18,6 +18,7 @@ class RespondRequestDto {
         this.status = request_type_enum_1.ResponseStatus.PENDING;
     }
 }
+exports.RespondRequestDto = RespondRequestDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ enum: request_type_enum_1.ResponseStatus, default: request_type_enum_1.ResponseStatus.PENDING, description: 'Статус отклика' }),
     (0, class_validator_1.IsEnum)(request_type_enum_1.ResponseStatus),
@@ -29,4 +30,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], RespondRequestDto.prototype, "message", void 0);
-exports.RespondRequestDto = RespondRequestDto;

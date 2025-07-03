@@ -18,7 +18,8 @@ const auth_module_1 = require("../auth/auth.module");
 const telegram_module_1 = require("../telegram/telegram.module");
 let StoriesModule = class StoriesModule {
 };
-StoriesModule = __decorate([
+exports.StoriesModule = StoriesModule;
+exports.StoriesModule = StoriesModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule,
@@ -39,4 +40,3 @@ StoriesModule = __decorate([
         ],
     })
 ], StoriesModule);
-exports.StoriesModule = StoriesModule;

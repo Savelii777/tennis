@@ -6,4 +6,4 @@ var StoryStatus;
     StoryStatus["PENDING"] = "pending";
     StoryStatus["APPROVED"] = "approved";
     StoryStatus["REJECTED"] = "rejected";
-})(StoryStatus = exports.StoryStatus || (exports.StoryStatus = {}));
+})(StoryStatus || (exports.StoryStatus = StoryStatus = {}));

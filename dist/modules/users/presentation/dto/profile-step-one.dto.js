@@ -15,6 +15,7 @@ const class_validator_1 = require("class-validator");
 const sport_type_enum_1 = require("../../domain/enums/sport-type.enum");
 class ProfileStepOneDto {
 }
+exports.ProfileStepOneDto = ProfileStepOneDto;
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsOptional)(),
@@ -69,4 +70,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], ProfileStepOneDto.prototype, "sportType", void 0);
-exports.ProfileStepOneDto = ProfileStepOneDto;

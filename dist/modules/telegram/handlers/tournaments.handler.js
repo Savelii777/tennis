@@ -74,10 +74,10 @@ let TournamentsHandler = TournamentsHandler_1 = class TournamentsHandler {
         return false;
     }
 };
-TournamentsHandler = TournamentsHandler_1 = __decorate([
+exports.TournamentsHandler = TournamentsHandler;
+exports.TournamentsHandler = TournamentsHandler = TournamentsHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService,
         users_service_1.UsersService])
 ], TournamentsHandler);
-exports.TournamentsHandler = TournamentsHandler;

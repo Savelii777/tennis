@@ -130,6 +130,7 @@ let UsersController = class UsersController {
         return this.usersService.getUserWithLocation(userId);
     }
 };
+exports.UsersController = UsersController;
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
@@ -339,7 +340,7 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getMyLocation", null);
-UsersController = __decorate([
+exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('users'),
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService,
@@ -347,4 +348,3 @@ UsersController = __decorate([
         tournaments_service_1.TournamentsService,
         stories_service_1.StoriesService])
 ], UsersController);
-exports.UsersController = UsersController;

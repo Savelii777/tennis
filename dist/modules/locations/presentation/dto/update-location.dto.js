@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpdateLocationDto {
 }
+exports.UpdateLocationDto = UpdateLocationDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
         description: 'Код страны (ISO alpha-2)',
@@ -43,4 +44,3 @@ __decorate([
     (0, class_validator_1.IsPositive)(),
     __metadata("design:type", Number)
 ], UpdateLocationDto.prototype, "sportId", void 0);
-exports.UpdateLocationDto = UpdateLocationDto;

@@ -913,7 +913,7 @@ let TournamentsService = TournamentsService_1 = class TournamentsService {
                 ...statusFilter
             },
             orderBy: [
-                { status: 'asc' },
+                { status: 'asc' }, // Сначала активные и предстоящие
                 { startDate: 'desc' } // Затем по дате (новые в начале)
             ],
             include: {
@@ -932,15 +932,15 @@ let TournamentsService = TournamentsService_1 = class TournamentsService {
             endDate: tournament.endDate,
             location: tournament.locationName,
             participantsCount: tournament.players.length,
-            organizerName: `${tournament.creator.firstName} ${tournament.creator.lastName || ''}`.trim(),
+            organizerName: `${tournament.creator.firstName} ${tournament.creator.lastName || ''}`.trim(), // Изменено с organizer на creator
             isRanked: tournament.isRanked
         }));
     }
 };
-TournamentsService = TournamentsService_1 = __decorate([
+exports.TournamentsService = TournamentsService;
+exports.TournamentsService = TournamentsService = TournamentsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [tournaments_repository_1.TournamentsRepository,
         users_service_1.UsersService,
         prisma_service_1.PrismaService])
 ], TournamentsService);
-exports.TournamentsService = TournamentsService;

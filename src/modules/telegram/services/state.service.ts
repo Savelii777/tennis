@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ProfileStep, UserState } from '../interfaces/user-state.interface';
+import { ProfileStep, UserState } from '../interfaces/profile-state.enum';
 
 @Injectable()
 export class StateService {

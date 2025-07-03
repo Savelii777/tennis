@@ -20,7 +20,7 @@ let LoggingInterceptor = class LoggingInterceptor {
             .pipe((0, operators_1.tap)(() => console.log(`Outgoing Response: ${response.statusCode} - ${Date.now() - now}ms`)));
     }
 };
-LoggingInterceptor = __decorate([
+exports.LoggingInterceptor = LoggingInterceptor;
+exports.LoggingInterceptor = LoggingInterceptor = __decorate([
     (0, common_1.Injectable)()
 ], LoggingInterceptor);
-exports.LoggingInterceptor = LoggingInterceptor;

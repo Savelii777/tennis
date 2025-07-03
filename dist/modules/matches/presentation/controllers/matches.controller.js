@@ -52,7 +52,11 @@ let MatchesController = class MatchesController {
     async delete(id, req) {
         return this.matchesService.delete(id, req.user.id);
     }
+    async getMatchDetails(id) {
+        return this.matchesService.getMatchDetails(id);
+    }
 };
+exports.MatchesController = MatchesController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all matches' }),
@@ -147,11 +151,20 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], MatchesController.prototype, "delete", null);
-MatchesController = __decorate([
+__decorate([
+    (0, common_1.Get)(':id/details'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить детальную информацию о матче' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'ID матча' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Детальная информация о матче' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], MatchesController.prototype, "getMatchDetails", null);
+exports.MatchesController = MatchesController = __decorate([
     (0, swagger_1.ApiTags)('matches'),
     (0, common_1.Controller)('matches'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __metadata("design:paramtypes", [matches_service_1.MatchesService])
 ], MatchesController);
-exports.MatchesController = MatchesController;

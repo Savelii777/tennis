@@ -64,8 +64,8 @@ let CaseItemsService = class CaseItemsService {
         }
     }
 };
-CaseItemsService = __decorate([
+exports.CaseItemsService = CaseItemsService;
+exports.CaseItemsService = CaseItemsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [cases_repository_1.CasesRepository])
 ], CaseItemsService);
-exports.CaseItemsService = CaseItemsService;

@@ -6,20 +6,20 @@ var RequestType;
     RequestType["SINGLE_GAME"] = "SINGLE_GAME";
     RequestType["TOURNAMENT"] = "TOURNAMENT";
     RequestType["TRAINING"] = "TRAINING";
-})(RequestType = exports.RequestType || (exports.RequestType = {}));
+})(RequestType || (exports.RequestType = RequestType = {}));
 var RequestStatus;
 (function (RequestStatus) {
     RequestStatus["OPEN"] = "OPEN";
     RequestStatus["CLOSED"] = "CLOSED";
     RequestStatus["CANCELLED"] = "CANCELLED";
     RequestStatus["DONE"] = "DONE";
-})(RequestStatus = exports.RequestStatus || (exports.RequestStatus = {}));
+})(RequestStatus || (exports.RequestStatus = RequestStatus = {}));
 var ResponseStatus;
 (function (ResponseStatus) {
     ResponseStatus["PENDING"] = "PENDING";
     ResponseStatus["ACCEPTED"] = "ACCEPTED";
     ResponseStatus["DECLINED"] = "DECLINED";
-})(ResponseStatus = exports.ResponseStatus || (exports.ResponseStatus = {}));
+})(ResponseStatus || (exports.ResponseStatus = ResponseStatus = {}));
 var PaymentType;
 (function (PaymentType) {
     PaymentType["FREE"] = "FREE";
@@ -27,9 +27,9 @@ var PaymentType;
     PaymentType["LOSER_PAYS"] = "LOSER_PAYS";
     PaymentType["DIVIDED"] = "DIVIDED";
     PaymentType["FIXED_PRICE"] = "FIXED_PRICE";
-})(PaymentType = exports.PaymentType || (exports.PaymentType = {}));
+})(PaymentType || (exports.PaymentType = PaymentType = {}));
 var RatingType;
 (function (RatingType) {
     RatingType["RATED"] = "RATED";
     RatingType["UNRATED"] = "UNRATED";
-})(RatingType = exports.RatingType || (exports.RatingType = {}));
+})(RatingType || (exports.RatingType = RatingType = {}));

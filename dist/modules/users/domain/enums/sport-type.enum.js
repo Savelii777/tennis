@@ -5,4 +5,4 @@ var SportType;
 (function (SportType) {
     SportType["TENNIS"] = "TENNIS";
     SportType["PADEL"] = "PADEL";
-})(SportType = exports.SportType || (exports.SportType = {}));
+})(SportType || (exports.SportType = SportType = {}));

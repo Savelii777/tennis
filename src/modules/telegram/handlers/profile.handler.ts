@@ -3,7 +3,7 @@ import { Context, Telegraf, Markup } from 'telegraf';
 import { Action, Hears } from 'nestjs-telegraf';
 import { StateService } from '../services/state.service';
 import { KeyboardService } from '../services/keyboard.service';
-import { ProfileStep, UserState } from '../interfaces/user-state.interface';
+import { ProfileStep, UserState } from '../interfaces/profile-state.enum';
 import { UsersService } from '../../users/application/services/users.service';
 import { RatingsService } from '../../ratings/ratings.service';
 import { BallsService } from '../../users/application/services/balls.service';

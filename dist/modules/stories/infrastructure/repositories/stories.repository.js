@@ -12,206 +12,311 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StoriesRepository = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../../../prisma/prisma.service");
-const story_entity_1 = require("../../domain/entities/story.entity");
-const story_status_enum_1 = require("../../domain/enums/story-status.enum");
+const client_1 = require("@prisma/client");
 let StoriesRepository = class StoriesRepository {
     constructor(prisma) {
         this.prisma = prisma;
     }
     async create(data) {
-        const story = await this.prisma.story.create({
-            data: {
-                userId: data.userId,
-                telegramFileId: data.telegramFileId,
-                telegramFilePath: data.telegramFilePath,
-                type: data.type,
-                status: story_status_enum_1.StoryStatus.PENDING,
-            },
+        return this.prisma.story.create({
+            data,
             include: {
                 user: {
                     select: {
                         id: true,
-                        username: true,
                         firstName: true,
                         lastName: true,
+                        username: true,
                         profile: {
                             select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
-        return this.mapToEntity(story);
     }
     async findById(id) {
-        const story = await this.prisma.story.findUnique({
+        return this.prisma.story.findUnique({
             where: { id },
             include: {
                 user: {
                     select: {
                         id: true,
-                        username: true,
                         firstName: true,
                         lastName: true,
+                        username: true,
                         profile: {
                             select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
-        return story ? this.mapToEntity(story) : null;
     }
-    async findPublic(limit = 50) {
-        const stories = await this.prisma.story.findMany({
+    // Получение опубликованных историй
+    async findPublic(limit = 20) {
+        return this.prisma.story.findMany({
             where: {
-                status: 'approved',
+                status: client_1.StoryStatus.approved, // Исправлено с APPROVED на approved
+                // Проверка срока действия, если поле expiresAt существует в схеме
+                ...(this.hasExpiresAtField()
+                    ? {
+                        OR: [
+                            { expiresAt: null },
+                            { expiresAt: { gt: new Date() } }
+                        ]
+                    }
+                    : {})
             },
-            orderBy: {
-                publishedAt: 'desc',
-            },
+            orderBy: { publishedAt: 'desc' },
             take: limit,
             include: {
                 user: {
                     select: {
                         id: true,
-                        username: true,
                         firstName: true,
                         lastName: true,
-                        profile: {
-                            select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
-        return stories.map((story) => this.mapToEntity(story));
-    }
-    async findByUserId(userId) {
-        const stories = await this.prisma.story.findMany({
-            where: { userId },
-            orderBy: {
-                createdAt: 'desc',
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
                         username: true,
-                        firstName: true,
-                        lastName: true,
                         profile: {
                             select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
-        return stories.map((story) => this.mapToEntity(story));
     }
-    async findPendingForModeration() {
-        const stories = await this.prisma.story.findMany({
+    // Получение опубликованных историй, сгруппированных по пользователям для карусели
+    async findPublicGroupedByUser() {
+        return this.prisma.story.findMany({
             where: {
-                status: 'pending',
+                status: client_1.StoryStatus.approved, // Исправлено с APPROVED на approved
+                // Проверка срока действия, если поле expiresAt существует в схеме
+                ...(this.hasExpiresAtField()
+                    ? {
+                        OR: [
+                            { expiresAt: null },
+                            { expiresAt: { gt: new Date() } }
+                        ]
+                    }
+                    : {})
             },
-            orderBy: {
-                createdAt: 'asc',
-            },
+            orderBy: [
+                { userId: 'asc' },
+                { publishedAt: 'desc' }
+            ],
             include: {
                 user: {
                     select: {
                         id: true,
-                        username: true,
                         firstName: true,
                         lastName: true,
+                        username: true,
                         profile: {
                             select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
-        return stories.map((story) => this.mapToEntity(story));
     }
-    async updateStatus(id, status) {
-        const updateData = { status: status.toString() };
-        if (status === story_status_enum_1.StoryStatus.APPROVED) {
-            updateData.publishedAt = new Date();
+    // Получение популярных историй
+    async findPopular(limit = 10) {
+        const orderByClause = {};
+        // Проверяем наличие поля viewsCount в схеме
+        if (this.hasViewsCountField()) {
+            orderByClause.viewsCount = 'desc';
         }
-        const story = await this.prisma.story.update({
-            where: { id },
-            data: updateData,
+        // Всегда добавляем publishedAt для стабильной сортировки
+        orderByClause.publishedAt = 'desc';
+        return this.prisma.story.findMany({
+            where: {
+                status: client_1.StoryStatus.approved, // Исправлено с APPROVED на approved
+                // Проверка срока действия, если поле expiresAt существует в схеме
+                ...(this.hasExpiresAtField()
+                    ? {
+                        OR: [
+                            { expiresAt: null },
+                            { expiresAt: { gt: new Date() } }
+                        ]
+                    }
+                    : {})
+            },
+            orderBy: orderByClause,
+            take: limit,
             include: {
                 user: {
                     select: {
                         id: true,
-                        username: true,
                         firstName: true,
                         lastName: true,
+                        username: true,
                         profile: {
                             select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
-        return this.mapToEntity(story);
     }
-    async updateFilePath(id, filePath) {
-        const story = await this.prisma.story.update({
-            where: { id },
-            data: { telegramFilePath: filePath },
+    // Получение недавних историй
+    async findRecent(limit = 10) {
+        return this.prisma.story.findMany({
+            where: {
+                status: client_1.StoryStatus.approved, // Исправлено с APPROVED на approved
+                // Проверка срока действия, если поле expiresAt существует в схеме
+                ...(this.hasExpiresAtField()
+                    ? {
+                        OR: [
+                            { expiresAt: null },
+                            { expiresAt: { gt: new Date() } }
+                        ]
+                    }
+                    : {})
+            },
+            orderBy: { publishedAt: 'desc' },
+            take: limit,
             include: {
                 user: {
                     select: {
                         id: true,
-                        username: true,
                         firstName: true,
                         lastName: true,
+                        username: true,
                         profile: {
                             select: {
-                                avatarUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
-        return this.mapToEntity(story);
     }
-    async delete(id) {
-        await this.prisma.story.delete({
+    // Получение историй пользователя
+    async findByUserId(userId) {
+        return this.prisma.story.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        username: true,
+                        profile: {
+                            select: {
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    // Получение историй на модерации
+    async findPending() {
+        return this.prisma.story.findMany({
+            where: { status: client_1.StoryStatus.pending }, // Исправлено с PENDING на pending
+            orderBy: { createdAt: 'asc' },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        username: true,
+                        profile: {
+                            select: {
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    // Обновление статуса
+    async updateStatus(id, status, publishedAt) {
+        return this.prisma.story.update({
             where: { id },
+            data: {
+                status,
+                publishedAt: status === client_1.StoryStatus.approved ? publishedAt || new Date() : undefined // Исправлено с APPROVED на approved
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        username: true,
+                        profile: {
+                            select: {
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
-    mapToEntity(story) {
-        return new story_entity_1.StoryEntity({
-            id: story.id,
-            userId: story.userId,
-            telegramFileId: story.telegramFileId,
-            telegramFilePath: story.telegramFilePath,
-            type: story.type,
-            status: story.status,
-            createdAt: story.createdAt,
-            publishedAt: story.publishedAt,
-            updatedAt: story.updatedAt,
+    // Обновление пути файла
+    async updateFilePath(id, telegramFilePath) {
+        return this.prisma.story.update({
+            where: { id },
+            data: { telegramFilePath }
         });
+    }
+    // Увеличение счетчика просмотров
+    async incrementViews(id) {
+        if (!this.hasViewsCountField()) {
+            return null;
+        }
+        return this.prisma.story.update({
+            where: { id },
+            data: {
+                viewsCount: {
+                    increment: 1
+                }
+            }
+        });
+    }
+    // Проверка наличия поля viewsCount в модели Story
+    hasViewsCountField() {
+        try {
+            const dmmf = this.prisma._baseDmmf;
+            const storyModel = dmmf.modelMap.Story;
+            return storyModel && storyModel.fields.some((field) => field.name === 'viewsCount');
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    // Проверка наличия поля expiresAt в модели Story
+    hasExpiresAtField() {
+        try {
+            const dmmf = this.prisma._baseDmmf;
+            const storyModel = dmmf.modelMap.Story;
+            return storyModel && storyModel.fields.some((field) => field.name === 'expiresAt');
+        }
+        catch (e) {
+            return false;
+        }
     }
 };
-StoriesRepository = __decorate([
+exports.StoriesRepository = StoriesRepository;
+exports.StoriesRepository = StoriesRepository = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], StoriesRepository);
-exports.StoriesRepository = StoriesRepository;

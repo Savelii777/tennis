@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class SendMessageDto {
 }
+exports.SendMessageDto = SendMessageDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Текст сообщения', example: 'Привет! Хочешь сыграть матч в эти выходные?' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Сообщение не может быть пустым' }),
@@ -21,4 +22,3 @@ __decorate([
     (0, class_validator_1.MaxLength)(500, { message: 'Сообщение не может превышать 500 символов' }),
     __metadata("design:type", String)
 ], SendMessageDto.prototype, "message", void 0);
-exports.SendMessageDto = SendMessageDto;

@@ -6,16 +6,16 @@ export declare const envSchema: z.ZodObject<{
     TELEGRAM_BOT_TOKEN: z.ZodString;
     TELEGRAM_API_URL: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    TELEGRAM_BOT_TOKEN: string;
+    JWT_SECRET: string;
     PORT: string;
-    TELEGRAM_API_URL: string;
-    JWT_SECRET: string;
-    TELEGRAM_BOT_TOKEN: string;
     DATABASE_URL: string;
+    TELEGRAM_API_URL: string;
 }, {
-    TELEGRAM_API_URL: string;
-    JWT_SECRET: string;
     TELEGRAM_BOT_TOKEN: string;
+    JWT_SECRET: string;
     DATABASE_URL: string;
+    TELEGRAM_API_URL: string;
     PORT?: string | undefined;
 }>;
 export type EnvSchema = z.infer<typeof envSchema>;

@@ -17,15 +17,16 @@ var RequestType;
     RequestType["GAME"] = "GAME";
     RequestType["TRAINING"] = "TRAINING";
     RequestType["TOURNAMENT"] = "TOURNAMENT";
-})(RequestType = exports.RequestType || (exports.RequestType = {}));
+})(RequestType || (exports.RequestType = RequestType = {}));
 var GameMode;
 (function (GameMode) {
     GameMode["SINGLES"] = "SINGLES";
     GameMode["DOUBLES"] = "DOUBLES";
     GameMode["MIXED"] = "MIXED";
-})(GameMode = exports.GameMode || (exports.GameMode = {}));
+})(GameMode || (exports.GameMode = GameMode = {}));
 class CreateRequestDto {
 }
+exports.CreateRequestDto = CreateRequestDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'Тип заявки', enum: RequestType }),
     (0, class_validator_1.IsEnum)(RequestType),
@@ -89,4 +90,3 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
 ], CreateRequestDto.prototype, "formatInfo", void 0);
-exports.CreateRequestDto = CreateRequestDto;

@@ -11,7 +11,8 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 let SharedModule = class SharedModule {
 };
-SharedModule = __decorate([
+exports.SharedModule = SharedModule;
+exports.SharedModule = SharedModule = __decorate([
     (0, common_1.Global)() // Делаем модуль глобальным
     ,
     (0, common_1.Module)({
@@ -19,4 +20,3 @@ SharedModule = __decorate([
         exports: [prisma_service_1.PrismaService],
     })
 ], SharedModule);
-exports.SharedModule = SharedModule;

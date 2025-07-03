@@ -1,41 +1,53 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { MediaType } from '../../domain/enums/media-type.enum';
-import { StoryStatus } from '../../domain/enums/story-status.enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class StoryResponseDto {
-  @ApiProperty()
+export class StoryUserDto {
+  @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Иван' })
+  firstName: string;
+
+  @ApiPropertyOptional({ example: 'Иванов' })
+  lastName?: string;
+
+  @ApiPropertyOptional({ example: 'ivanov123' })
+  username?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+  avatar?: string;
+}
+
+export class StoryResponseDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 1 })
   userId: number;
 
-  @ApiProperty()
-  telegramFileId: string;
+  @ApiPropertyOptional()
+  user?: StoryUserDto;
 
-  @ApiProperty({ required: false })
-  telegramFilePath?: string;
+  @ApiProperty({ example: 'IMAGE', enum: ['IMAGE', 'VIDEO'] })
+  type: string;
 
-  @ApiProperty({ enum: MediaType })
-  type: MediaType;
+  @ApiProperty({ example: 'APPROVED', enum: ['PENDING', 'APPROVED', 'REJECTED'] })
+  status: string;
 
-  @ApiProperty({ enum: StoryStatus })
-  status: StoryStatus;
+  @ApiPropertyOptional({ example: 'Великолепный матч!' })
+  caption?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 0 })
+  viewsCount: number;
+
+  @ApiProperty({ example: 0 })
+  likesCount: number;
+
+  @ApiProperty({ example: '2023-01-01T12:00:00Z' })
   createdAt: Date;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ example: '2023-01-01T14:00:00Z' })
   publishedAt?: Date;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ example: '/stories/1/file' })
   fileUrl?: string;
-
-  @ApiProperty({ required: false })
-  user?: {
-    id: number;
-    username?: string;
-    firstName?: string;
-    lastName?: string;
-    avatarUrl?: string;
-  };
 }

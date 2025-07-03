@@ -71,6 +71,7 @@ let ReferralsController = class ReferralsController {
         return { message: 'Пользователь отмечен как активный' };
     }
 };
+exports.ReferralsController = ReferralsController;
 __decorate([
     (0, common_1.Post)('generate-invite'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
@@ -166,10 +167,9 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ReferralsController.prototype, "markUserAsActive", null);
-ReferralsController = __decorate([
+exports.ReferralsController = ReferralsController = __decorate([
     (0, swagger_1.ApiTags)('referrals'),
     (0, common_1.Controller)('referrals'),
     __metadata("design:paramtypes", [referrals_service_1.ReferralsService,
         referral_stats_service_1.ReferralStatsService])
 ], ReferralsController);
-exports.ReferralsController = ReferralsController;

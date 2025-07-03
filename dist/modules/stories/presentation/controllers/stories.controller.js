@@ -16,25 +16,53 @@ exports.StoriesController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const stories_service_1 = require("../../application/services/stories.service");
+const auth_guard_1 = require("../../../../common/guards/auth.guard");
 const create_story_dto_1 = require("../../application/dto/create-story.dto");
 const story_response_dto_1 = require("../../application/dto/story-response.dto");
-const auth_guard_1 = require("../../../../common/guards/auth.guard");
 let StoriesController = class StoriesController {
     constructor(storiesService) {
         this.storiesService = storiesService;
     }
+    // Получить все публичные сторис
     async getPublicStories() {
         return this.storiesService.getPublicStories();
     }
-    async getMyStories(req) {
-        return this.storiesService.getUserStories(req.user.id);
+    // Получить сторис для отображения в формате карусели с группировкой по пользователям
+    async getStoriesForCarousel() {
+        return this.storiesService.getStoriesForCarousel();
     }
+    // Получить популярные сторис
+    async getPopularStories() {
+        return this.storiesService.getPopularStories();
+    }
+    // Получить сторис пользователя
+    async getUserStories(userId) {
+        return this.storiesService.getUserStories(userId);
+    }
+    // Получить инфо о сторис
     async getStoryById(id) {
         return this.storiesService.getStoryById(id);
     }
-    async getFileUrl(id) {
-        return this.storiesService.getFileUrl(id);
+    // Получить файл сторис
+    async getStoryFile(id, res) {
+        try {
+            const { url } = await this.storiesService.getFileUrl(id);
+            // Записываем просмотр
+            await this.storiesService.recordView(id);
+            // Перенаправляем на файл
+            return res.redirect(url);
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException) {
+                throw new common_1.NotFoundException(error.message);
+            }
+            if (error instanceof common_1.BadRequestException) {
+                throw new common_1.BadRequestException(error.message);
+            }
+            throw error;
+        }
     }
+    // Создание сторис (используется ботом)
     async createStory(createStoryDto, req) {
         return this.storiesService.createStory(req.user.id, createStoryDto);
     }
@@ -48,34 +76,46 @@ let StoriesController = class StoriesController {
     async rejectStory(id) {
         return this.storiesService.rejectStory(id);
     }
-    async deleteStory(id) {
-        return this.storiesService.deleteStory(id);
-    }
 };
+exports.StoriesController = StoriesController;
 __decorate([
     (0, common_1.Get)('public'),
-    (0, swagger_1.ApiOperation)({ summary: 'Получить список опубликованных stories' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список stories успешно получен', type: [story_response_dto_1.StoryResponseDto] }),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить все публичные сторис' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список публичных сторис', type: [story_response_dto_1.StoryResponseDto] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], StoriesController.prototype, "getPublicStories", null);
 __decorate([
-    (0, common_1.Get)('my'),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Получить мои stories' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список моих stories получен', type: [story_response_dto_1.StoryResponseDto] }),
-    __param(0, (0, common_1.Req)()),
+    (0, common_1.Get)('carousel'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить сторис для отображения в формате карусели' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Сторис для карусели', type: 'object' }),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], StoriesController.prototype, "getMyStories", null);
+], StoriesController.prototype, "getStoriesForCarousel", null);
+__decorate([
+    (0, common_1.Get)('popular'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить популярные сторис' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список популярных сторис', type: [story_response_dto_1.StoryResponseDto] }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], StoriesController.prototype, "getPopularStories", null);
+__decorate([
+    (0, common_1.Get)('user/:userId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить сторис пользователя' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список сторис пользователя', type: [story_response_dto_1.StoryResponseDto] }),
+    __param(0, (0, common_1.Param)('userId', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], StoriesController.prototype, "getUserStories", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Получить story по ID' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Story найдена', type: story_response_dto_1.StoryResponseDto }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Story не найдена' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить информацию о сторис' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Информация о сторис', type: story_response_dto_1.StoryResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Сторис не найдена' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -83,21 +123,21 @@ __decorate([
 ], StoriesController.prototype, "getStoryById", null);
 __decorate([
     (0, common_1.Get)(':id/file'),
-    (0, swagger_1.ApiOperation)({ summary: 'Получить прямую ссылку на файл story' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Ссылка на файл получена' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Story не одобрена или файл недоступен' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Story не найдена' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить прямую ссылку на файл сторис' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'URL файла' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Сторис не найдена' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
-], StoriesController.prototype, "getFileUrl", null);
+], StoriesController.prototype, "getStoryFile", null);
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Создать новую story (используется ботом)' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Story создана', type: story_response_dto_1.StoryResponseDto }),
+    (0, swagger_1.ApiOperation)({ summary: 'Создать новую сторис (используется ботом)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Сторис создана', type: story_response_dto_1.StoryResponseDto }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Неверные данные или файл слишком большой' }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
@@ -110,8 +150,8 @@ __decorate([
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard) // TODO: добавить AdminGuard
     ,
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Получить stories на модерации (только для админов)' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список stories на модерации', type: [story_response_dto_1.StoryResponseDto] }),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить сторис на модерации (только для админов)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Список сторис на модерации', type: [story_response_dto_1.StoryResponseDto] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -122,10 +162,10 @@ __decorate([
     ,
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Одобрить story (только для админов)' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Story одобрена', type: story_response_dto_1.StoryResponseDto }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Story не в статусе ожидания' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Story не найдена' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Одобрить сторис (только для админов)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Сторис одобрена', type: story_response_dto_1.StoryResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Сторис не в статусе ожидания' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Сторис не найдена' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -137,32 +177,17 @@ __decorate([
     ,
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Отклонить story (только для админов)' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Story отклонена', type: story_response_dto_1.StoryResponseDto }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Story не в статусе ожидания' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Story не найдена' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Отклонить сторис (только для админов)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Сторис отклонена', type: story_response_dto_1.StoryResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Сторис не в статусе ожидания' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Сторис не найдена' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], StoriesController.prototype, "rejectStory", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard) // TODO: добавить AdminGuard
-    ,
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
-    (0, swagger_1.ApiOperation)({ summary: 'Удалить story (только для админов)' }),
-    (0, swagger_1.ApiResponse)({ status: 204, description: 'Story удалена' }),
-    (0, swagger_1.ApiResponse)({ status: 404, description: 'Story не найдена' }),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], StoriesController.prototype, "deleteStory", null);
-StoriesController = __decorate([
+exports.StoriesController = StoriesController = __decorate([
     (0, swagger_1.ApiTags)('stories'),
     (0, common_1.Controller)('stories'),
     __metadata("design:paramtypes", [stories_service_1.StoriesService])
 ], StoriesController);
-exports.StoriesController = StoriesController;

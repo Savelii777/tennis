@@ -60,9 +60,9 @@ let CasesHandler = CasesHandler_1 = class CasesHandler {
         }
     }
 };
-CasesHandler = CasesHandler_1 = __decorate([
+exports.CasesHandler = CasesHandler;
+exports.CasesHandler = CasesHandler = CasesHandler_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [state_service_1.StateService,
         keyboard_service_1.KeyboardService])
 ], CasesHandler);
-exports.CasesHandler = CasesHandler;
